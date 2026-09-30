@@ -1,0 +1,1178 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FARMACO LAB</title>
+<meta name="description" content="Laboratório interativo de farmacologia. Piloto: anestésicos locais, com simulador de pKa, pH e ionização. Criado por André D. Bacchi.">
+<meta name="author" content="André Demambre Bacchi">
+<meta name="theme-color" content="#b3202a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="FARMACO LAB">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font-size:14px}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: laboratório com bancadas (mesmo sistema da série LAB): abas de classes no topo, telas numeradas, cartões com controles + visual; uma coluna no celular */
+:root{
+  --bg:#f6f6f3; --surface:#ffffff; --sunk:#eff0ee; --fg:#161a22; --muted:#5d6370; --line:#dde0e4; --tick:#8d93a0;
+  --accent:#b3202a; --accent-soft:#fbeaea; --on-accent:#ffffff;
+  --alt:#c25a1c; --alt-soft:#fbeee3;
+  --bad:#b0362b; --bad-soft:#f9e6e3; --good:#2f6b3a; --good-soft:#e1efe2; --warn:#8a6410; --warn-soft:#f6edd6;
+  --ink:#161a22; --on-ink:#ffffff; --dot:#cfd3da; --scrim:rgba(15,18,25,.45);
+  --f-display:"Newsreader", Georgia, "Times New Roman", serif;
+  --f-body:"Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1117; --surface:#161a23; --sunk:#1d222d; --fg:#e6e8ee; --muted:#9ba2b1; --line:#2b3140; --tick:#727a8b;
+  --accent:#f28b86; --accent-soft:#3a1d1f; --on-accent:#0f1117;
+  --alt:#f0a067; --alt-soft:#3a2819;
+  --bad:#f08a7e; --bad-soft:#3a2220; --good:#8fd19b; --good-soft:#1d3322; --warn:#e8c06a; --warn-soft:#352c17;
+  --ink:#e6e8ee; --on-ink:#0f1117; --dot:#3a4152; --scrim:rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1117; --surface:#161a23; --sunk:#1d222d; --fg:#e6e8ee; --muted:#9ba2b1; --line:#2b3140; --tick:#727a8b;
+  --accent:#f28b86; --accent-soft:#3a1d1f; --on-accent:#0f1117;
+  --alt:#f0a067; --alt-soft:#3a2819;
+  --bad:#f08a7e; --bad-soft:#3a2220; --good:#8fd19b; --good-soft:#1d3322; --warn:#e8c06a; --warn-soft:#352c17;
+  --ink:#e6e8ee; --on-ink:#0f1117; --dot:#3a4152; --scrim:rgba(0,0,0,.6); color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:0 56px;-webkit-text-size-adjust:100%}
+.wrap{max-width:1240px;margin:0 auto}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+
+header.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-block:18px 10px;flex-wrap:wrap}
+.brand h1{font-family:var(--f-display);font-weight:600;font-size:34px;line-height:1;margin:0;letter-spacing:-.01em}
+.brand h1 em{font-style:normal;color:var(--accent)}
+.brand p{margin:5px 0 0;color:var(--muted);font-size:12px}
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-size:14px;white-space:nowrap;min-height:40px}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.small{min-height:34px;padding:5px 12px;font-size:13px}
+.btn svg{width:16px;height:16px;flex:none}
+.btn:disabled{opacity:.45;cursor:default}
+
+/* navegação em dois níveis */
+.labnav{padding-block:6px 14px;border-bottom:1px solid var(--line)}
+.blocks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.blk{border:1.5px solid var(--line);border-radius:12px;background:var(--surface);padding:10px 14px;text-align:left;display:grid;gap:2px;min-width:0}
+.blk b{font-family:var(--f-display);font-size:19px;font-weight:600;line-height:1.15}
+.blk span{font-size:12px;color:var(--muted);line-height:1.35}
+.blk.on{border-color:var(--accent);background:var(--accent-soft)}
+.blk.on b{color:var(--accent)}
+@media (max-width:520px){.blk{padding:9px 11px}.blk b{font-size:16px}.blk span{font-size:11.5px}}
+.subs{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;margin-top:10px}
+@media (max-width:420px){.subs{grid-template-columns:1fr 1fr}}
+.sb{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:8px 10px;font-size:13.5px;text-align:left;display:flex;gap:8px;align-items:center;min-height:42px;line-height:1.25}
+.sb i{font-style:normal;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;flex:none;width:16px}
+.sb:hover{border-color:var(--muted)}
+.sb.on{background:var(--ink);border-color:var(--ink);color:var(--on-ink)}
+.sb.on i{color:var(--on-ink);opacity:.7}
+.labfoot{display:flex;justify-content:space-between;gap:10px;margin-top:22px;padding-top:14px;border-top:1px solid var(--line)}
+.labfoot button{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 14px;text-align:left;display:grid;gap:2px;max-width:48%;min-height:44px}
+.labfoot button span{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.labfoot button b{font-weight:600;font-size:14px}
+.labfoot .nx{text-align:right;margin-left:auto}
+.lnk{color:var(--accent);font-weight:600}
+.intro{padding-block:18px 12px}
+.intro .eyebrow{color:var(--accent)}
+.intro h2{font-family:var(--f-display);font-weight:500;font-size:26px;margin:2px 0 0;max-width:40ch;text-wrap:balance;line-height:1.2}
+.intro p{margin:6px 0 0;color:var(--muted);max-width:68ch;font-size:14px}
+.grid{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:900px){.grid.two{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.grid .wide{grid-column:1/-1}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;min-width:0}
+@media (max-width:520px){.card{padding:14px;border-radius:12px}}
+.card-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
+h3{font-family:var(--f-display);font-weight:600;font-size:19px;margin:0;line-height:1.25;text-wrap:balance}
+.eyebrow{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.lede{color:var(--muted);font-size:13.5px;margin:0 0 12px;max-width:66ch}
+.more-btn{flex:none;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:500;min-height:34px}
+.more-btn:hover{background:var(--accent-soft)}
+.more-btn svg{width:15px;height:15px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13px;white-space:nowrap;min-height:34px}
+.chip.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px;background:var(--surface);flex-wrap:wrap}
+.seg button{border:0;background:transparent;border-radius:999px;padding:5px 12px;font-size:13px;color:var(--muted);min-height:32px}
+.seg button.on{background:var(--ink);color:var(--on-ink)}
+
+/* entradas */
+.fields{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
+.inp{display:grid;grid-template-rows:1fr auto;gap:4px;min-width:0}
+.inp label{font-size:12.5px;font-weight:600;line-height:1.25}
+.inp label small{display:block;font-weight:400;color:var(--muted);font-size:11.5px}
+.box{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);padding-inline:10px;min-height:44px}
+.box:focus-within{border-color:var(--accent)}
+.box input,.box select{width:100%;min-width:0;border:0;background:transparent;color:var(--fg);font:600 17px var(--f-body);font-variant-numeric:tabular-nums;padding:8px 0;outline:none}
+.box span{color:var(--muted);font-size:14px;margin-left:2px;flex:none}
+textarea.data{width:100%;min-height:64px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--fg);font:15px var(--f-mono);padding:8px 10px;resize:vertical}
+textarea.data:focus{border-color:var(--accent);outline:none}
+.range{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center}
+.range label{font-size:13px;font-weight:600}
+.range output{font-variant-numeric:tabular-nums;font-weight:600;font-size:14px;text-align:right}
+.range input{grid-column:1/-1;width:100%;accent-color:var(--accent);height:28px}
+.toggle{display:flex;gap:10px;align-items:center;font-size:14px;font-weight:500;cursor:pointer;min-height:34px}
+.toggle input{accent-color:var(--accent);width:18px;height:18px}
+
+/* números */
+.tiles{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(118px,1fr))}
+.tile{background:var(--sunk);border-radius:10px;padding:9px 12px;min-width:0}
+.tile span{display:block;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.tile b{display:block;font-size:21px;font-variant-numeric:tabular-nums;line-height:1.2;margin-top:2px}
+.tile small{display:block;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tile .gk{text-transform:none;font-style:normal;letter-spacing:0}
+.tile.acc b{color:var(--accent)} .tile.alt b{color:var(--alt)} .tile.bad b{color:var(--bad)} .tile.good b{color:var(--good)}
+.insight{border-left:3px solid var(--accent);padding:4px 0 4px 12px;margin-top:12px;font-size:14px;max-width:70ch}
+.insight.warn{border-left-color:var(--alt)}
+.f{font-family:var(--f-mono);font-size:13px;background:var(--sunk);border-radius:8px;padding:8px 12px;overflow-x:auto;white-space:nowrap;line-height:1.8;margin:8px 0}
+.note{font-size:12.5px;color:var(--muted);margin:8px 0 0}
+.tw{overflow-x:auto}
+table.t{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+table.t th{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:right;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.t td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+table.t th:first-child,table.t td:first-child{text-align:left}
+table.t tr.sum td{font-weight:600;border-top:2px solid var(--line)}
+.ok{color:var(--good);font-weight:600}.no{color:var(--bad);font-weight:600}
+
+/* gráficos */
+svg.ch{width:100%;height:auto;display:block;overflow:visible;user-select:none;-webkit-user-select:none}
+svg.ch text{font-family:var(--f-body);fill:var(--muted);font-size:12px}
+svg.ch .lbl{fill:var(--fg);font-weight:600}
+svg.ch .ax{stroke:var(--tick);stroke-width:1}
+svg.ch .gr{stroke:var(--line);stroke-width:1}
+svg.ch .bar{fill:var(--accent);opacity:.8}
+svg.ch .bar2{fill:var(--dot)}
+svg.ch .curve{fill:none;stroke:var(--alt);stroke-width:2.2}
+svg.ch .curveA{fill:none;stroke:var(--accent);stroke-width:2.2}
+svg.ch .mean{stroke:var(--accent);stroke-width:2.5}
+svg.ch .med{stroke:var(--alt);stroke-width:2.5;stroke-dasharray:6 4}
+svg.ch .dotp{fill:var(--accent)}
+svg.ch .dotq{fill:var(--dot)}
+svg.ch .out{fill:var(--bad)}
+svg.ch .box{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.8}
+svg.ch .wh{stroke:var(--fg);stroke-width:1.6}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;margin-top:8px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:3px;display:inline-block;border-radius:2px}
+.legend i.dash{background:repeating-linear-gradient(90deg,var(--alt) 0 5px,transparent 5px 8px)!important}
+
+/* quiz */
+.q{font-family:var(--f-display);font-size:21px;font-weight:600;margin:6px 0 12px;line-height:1.25}
+.opts{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.opt{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px;text-align:left;font-size:14px;min-height:48px}
+.opt:hover{border-color:var(--accent)}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.fb{margin-top:10px;font-size:14px;border-radius:10px;padding:10px 12px;background:var(--sunk)}
+.flow{display:grid;gap:10px}
+.flow .st{display:grid;gap:6px}
+.flow .res{background:var(--accent-soft);border-radius:12px;padding:12px 14px}
+.flow .res b{display:block;font-size:17px;font-family:var(--f-display)}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:var(--scrim);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+@media (min-width:700px){.scrim{align-items:center;padding:24px}}
+.sheet{background:var(--surface);color:var(--fg);width:100%;max-width:680px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:0 20px calc(24px + env(safe-area-inset-bottom,0px))}
+@media (min-width:700px){.sheet{border-radius:16px;padding-bottom:24px}}
+.sheet-h{position:sticky;top:0;background:var(--surface);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0 10px;border-bottom:1px solid var(--line);z-index:1}
+.sheet-h h3{font-size:21px}
+.x{border:0;background:var(--sunk);border-radius:999px;width:36px;height:36px;font-size:20px;line-height:1;color:var(--fg);flex:none}
+.learn{font-size:15px;line-height:1.6}
+.learn h4{font-family:var(--f-display);font-size:17px;font-weight:600;margin:18px 0 4px}
+.learn p{margin:0 0 10px}
+.learn ul,.learn ol{margin:0 0 10px;padding-left:20px}
+.learn li{margin-bottom:4px}
+.learn .trap{background:var(--alt-soft);border-radius:10px;padding:12px 14px;margin-top:12px}
+.learn .trap h4{margin-top:0}
+.learn .src{font-size:12.5px;color:var(--muted);margin-top:16px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--on-ink);padding:10px 16px;border-radius:999px;font-size:13.5px;z-index:30}
+@media (prefers-reduced-motion:no-preference){.lab{animation:fi .2s ease}@keyframes fi{from{opacity:.4}to{opacity:1}}}
+/* ---- FARMACO LAB: cores das espécies químicas e componentes próprios ---- */
+:root{
+  --b:#c25a1c; --b-soft:#fbeee3;          /* forma não ionizada (base, lipossolúvel) */
+  --ion:#2b72b0; --ion-soft:#e4eef8;      /* forma ionizada (cátion, hidrossolúvel) */
+  --lip:#eadfc6; --lip-head:#d6c49c;      /* membrana */
+  --cyto:#f5efee; --extra:#f7f5ef;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --b:#f0a067; --b-soft:#3a2819; --ion:#7fb6e8; --ion-soft:#1a2a3a;
+  --lip:#3b3528; --lip-head:#5a4f39; --cyto:#221a1b; --extra:#191c22}}
+:root[data-theme="dark"]{
+  --b:#f0a067; --b-soft:#3a2819; --ion:#7fb6e8; --ion-soft:#1a2a3a;
+  --lip:#3b3528; --lip-head:#5a4f39; --cyto:#221a1b; --extra:#191c22}
+
+.blocks.three{grid-template-columns:1.4fr 1fr 1fr}
+@media (max-width:640px){.blocks.three{grid-template-columns:1fr 1fr}.blocks.three .blk:first-child{grid-column:1/-1}}
+.blk.soon{opacity:.62;cursor:default;border-style:dashed}
+.blk.soon em{font-style:normal;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+
+.stack{display:grid;gap:12px}
+.sub{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:14px 0 6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sub:first-child{margin-top:0}
+details.fold{border-top:1px solid var(--line);margin-top:14px;padding-top:10px}
+details.fold>summary{cursor:pointer;font-weight:600;font-size:14px;list-style:none;display:flex;align-items:center;gap:8px;min-height:32px}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::before{content:"";width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .15s}
+details.fold[open]>summary::before{transform:rotate(45deg)}
+details.fold>div{padding-top:6px;font-size:14px}
+.chips.wrapc{flex-wrap:wrap;overflow:visible}
+.chip small{color:var(--muted);font-size:11px;margin-left:4px;font-variant-numeric:tabular-nums}
+.chip.on small{color:var(--accent)}
+
+/* moléculas */
+.mol{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font:700 11px/1 var(--f-body);vertical-align:-3px;color:#fff}
+.mol.b{background:var(--b)} .mol.i{background:var(--ion)}
+.tile.b b{color:var(--b)} .tile.i b{color:var(--ion)}
+.meter{height:10px;border-radius:999px;background:var(--sunk);overflow:hidden;display:flex;margin-top:6px}
+.meter i{display:block;height:100%}
+.verdict{border-radius:12px;padding:12px 14px;display:grid;gap:2px}
+.verdict b{font-family:var(--f-display);font-size:19px;font-weight:600;line-height:1.2}
+.verdict span{font-size:13.5px}
+.verdict.good{background:var(--good-soft)} .verdict.good b{color:var(--good)}
+.verdict.warn{background:var(--warn-soft)} .verdict.warn b{color:var(--warn)}
+.verdict.bad{background:var(--bad-soft)} .verdict.bad b{color:var(--bad)}
+.eq{font-family:var(--f-mono);font-size:13.5px;background:var(--sunk);border-radius:10px;padding:10px 12px;line-height:1.9;overflow-x:auto}
+.eq b{font-weight:600}
+.eq .cb{color:var(--b);font-weight:600} .eq .ci{color:var(--ion);font-weight:600}
+
+svg.ch .cell-out{fill:var(--extra)}
+svg.ch .cell-in{fill:var(--cyto)}
+svg.ch .lip{fill:var(--lip)}
+svg.ch .head{fill:var(--lip-head)}
+svg.ch .chan{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6}
+svg.ch .mb{fill:var(--b)} svg.ch .mi{fill:var(--ion)}
+svg.ch .mtxt{fill:#fff;font:700 10px var(--f-body);text-anchor:middle;dominant-baseline:central;pointer-events:none}
+svg.ch .zone{font:600 10.5px var(--f-body);letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+svg.ch .curveB{fill:none;stroke:var(--b);stroke-width:2.4}
+svg.ch .curveI{fill:none;stroke:var(--ion);stroke-width:2.4;stroke-dasharray:6 4}
+svg.ch .ghost{fill:none;stroke:var(--dot);stroke-width:1.4}
+svg.ch .mk{fill:var(--fg)}
+svg.ch .hl{fill:var(--accent)}
+svg.ch .hlst{stroke:var(--accent);stroke-width:2;fill:none}
+svg.ch .barb{fill:var(--b)} svg.ch .bari{fill:var(--ion)}
+svg.ch .soft{fill:var(--sunk)}
+svg.ch .ink{fill:var(--fg)}
+svg.ch .inkst{stroke:var(--fg);fill:none;stroke-width:1.6}
+svg.ch .accst{stroke:var(--accent);fill:none;stroke-width:2.2}
+svg.ch .dotst{stroke:var(--tick);fill:none;stroke-width:1.2;stroke-dasharray:3 4}
+
+figure.fig{margin:0 auto;max-width:760px}
+/* etapas numeradas (sequências reais) */
+.steps{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.stp{border:1.5px solid var(--line);border-radius:12px;background:var(--surface);padding:10px 12px;text-align:left;display:grid;gap:2px;min-height:64px}
+.stp i{font-style:normal;font:600 12px var(--f-mono);color:var(--muted)}
+.stp b{font-size:14.5px}
+.stp span{font-size:12.5px;color:var(--muted);line-height:1.35}
+.stp.on{border-color:var(--accent);background:var(--accent-soft)}
+.stp.on i,.stp.on b{color:var(--accent)}
+
+/* bloqueio diferencial */
+.fib{display:grid;gap:8px}
+.fr{display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr) 88px;gap:10px;align-items:center;font-size:13.5px}
+.fr b{display:block;font-size:13.5px}.fr small{color:var(--muted);font-size:11.5px}
+.fr .bar{height:14px;border-radius:999px;background:var(--sunk);overflow:hidden}
+.fr .bar i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.fr .st{font-size:12.5px;font-weight:600;text-align:right}
+.fr .st.on{color:var(--accent)} .fr .st.part{color:var(--warn)} .fr .st.off{color:var(--muted)}
+@media (max-width:480px){.fr{grid-template-columns:minmax(0,1fr) 80px}.fr .bar{grid-column:1/-1;grid-row:2}}
+
+/* linha do tempo */
+.tl{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(150px,1fr);gap:10px;overflow-x:auto;padding-bottom:6px}
+.tl div{border-top:3px solid var(--line);padding-top:8px;font-size:13px}
+.tl div b{display:block;font:600 15px var(--f-mono);color:var(--accent)}
+.tl div.now{border-top-color:var(--accent)}
+
+/* classificador */
+.cls-q{display:grid;gap:10px}
+.big-drug{font-family:var(--f-display);font-size:28px;font-weight:600;line-height:1.1}
+.score{font:600 13px var(--f-mono);color:var(--muted)}
+
+/* tabela de agentes */
+table.t tr.sel td{background:var(--accent-soft)}
+table.t tbody tr{cursor:pointer}
+table.t tbody tr:hover td{background:var(--sunk)}
+.tag{display:inline-block;font-size:11px;font-weight:600;border-radius:999px;padding:1px 8px;background:var(--sunk);color:var(--muted)}
+.tag.a{background:var(--accent-soft);color:var(--accent)}
+.tag.e{background:var(--b-soft);color:var(--b)}
+
+.welcome{background:var(--accent-soft);border-radius:14px;padding:16px 18px;margin-top:14px;display:grid;gap:10px}
+.welcome h2{font-family:var(--f-display);font-weight:600;font-size:22px;margin:2px 0 4px}
+.welcome ul{margin:0;padding-left:18px;font-size:14px;display:grid;gap:3px}
+.sitefoot{margin-top:28px;border-top:1px solid var(--line);padding-top:14px;font-size:12.5px;color:var(--muted);display:grid;gap:2px}
+.sitefoot p{margin:0}
+.qs{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.qbtn{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;text-align:left;display:grid;gap:4px}
+.qbtn:hover{border-color:var(--accent)}
+.qbtn b{font-family:var(--f-display);font-size:17px;font-weight:600;line-height:1.25}
+.qbtn span{font-size:12.5px;color:var(--accent);font-weight:600}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;background:var(--sunk)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* Henderson-Hasselbalch ao vivo */
+.hh{margin-top:14px;border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--surface);display:grid;gap:8px}
+.hh-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.hh-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--f-display);line-height:1}
+.hh-row i{font-style:normal;color:var(--muted);font-family:var(--f-body)}
+.hh-sym{font-size:26px;font-weight:500}
+.hh-num{font-size:26px;font-weight:600}
+.hh-sol{font-size:21px;font-weight:500;padding-top:8px;border-top:1px dashed var(--line)}
+.hh-sol sup{font-size:.55em;font-family:var(--f-mono);font-weight:600;margin-left:1px}
+.frac{display:inline-grid;text-align:center;font-size:.72em;line-height:1.15}
+.frac>span:first-child{border-bottom:2px solid var(--fg);padding:0 4px 2px}
+.frac>span:last-child{padding:2px 4px 0}
+.frac .cb{color:var(--b);font-weight:600}.frac .ci{color:var(--ion);font-weight:600}
+.hh .v{font-family:var(--f-mono);font-size:.9em;border-radius:8px;padding:5px 9px;font-variant-numeric:tabular-nums}
+.hh .vph{background:var(--ink);color:var(--on-ink)}
+.hh .vpk{background:var(--accent-soft);color:var(--accent)}
+.hh .vr{background:var(--sunk);color:var(--fg)}
+.hh .vb{background:var(--b-soft);color:var(--b)}
+.hh-pct{font-size:19px;font-weight:500}
+.hh-pct .frac>span:first-child{border-bottom-color:var(--muted)}
+.hh-words{margin:2px 0 0;font-size:15px}
+.hh-words .cb{color:var(--b)}.hh-words .ci{color:var(--ion)}
+@media (prefers-reduced-motion:no-preference){.hh .pulse{animation:pulse .6s ease}@keyframes pulse{0%{transform:scale(1.18);box-shadow:0 0 0 4px var(--accent-soft)}100%{transform:scale(1)}}}
+@media (max-width:420px){.hh{padding:12px}.hh-sym,.hh-num{font-size:22px}.hh-sol,.hh-pct{font-size:16px;gap:6px}}
+.ratio{position:relative;height:30px;border-radius:8px;overflow:hidden;display:flex;background:var(--sunk)}
+.ratio i{display:block;height:100%;transition:width .25s}
+.ratio .rb{background:var(--b)}.ratio .ri{background:var(--ion)}
+.ratio span{position:absolute;top:50%;transform:translateY(-50%);font:600 12.5px var(--f-mono);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.ratio .rr{right:8px}
+</style>
+<div class="wrap">
+<header class="top">
+  <div class="brand"><h1>FARMACO <em>LAB</em></h1><p>Criado por André D. Bacchi</p></div>
+  <div class="row"><button class="btn" id="instBtn" aria-label="Instalar o app no celular ou computador"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13h10"/></svg>Instalar</button><button class="btn" id="glossBtn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 2.5h8.5v11H4a1.5 1.5 0 0 1 0-3h8.5M6.5 5.5h3.5"/></svg>Glossário</button><button class="btn primary" id="howBtn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 4c-1.5-1-3.5-1.3-6-1v10c2.5-.3 4.5 0 6 1 1.5-1 3.5-1.3 6-1V3c-2.5-.3-4.5 0-6 1zM8 4v10"/></svg>Como usar</button></div>
+</header>
+<nav class="labnav" aria-label="Classes de fármacos">
+  <div class="blocks three" id="blocks">
+    <button class="blk on" aria-current="true"><b>Anestésicos locais</b><span>Mecanismo, pH e ionização, fibras, agentes e dose segura</span></button>
+    <button class="blk soon" disabled><em>Em breve</em><b>Farmacocinética</b><span>Absorção, distribuição, metabolismo e eliminação</span></button>
+    <button class="blk soon" disabled><em>Em breve</em><b>Farmacodinâmica</b><span>Receptores, dose-resposta, potência e eficácia</span></button>
+  </div>
+  <div class="subs" id="subs"></div>
+</nav>
+<section class="welcome" id="welcome" hidden aria-label="Boas-vindas">
+  <div><span class="eyebrow">Primeira visita</span><h2>Bem-vindo ao FARMACO LAB</h2>
+  <ul><li><b>Uma aba por classe de fármacos.</b> Este piloto traz os anestésicos locais.</li><li><b>Siga as telas na ordem</b> ou vá direto ao <b>simulador de pH e ionização</b>.</li><li><b>Mexa em tudo:</b> troque o agente, arraste o pH, mude o peso do paciente e veja o que muda.</li><li><b>Cada tela tem um Saiba mais</b> com o aprofundamento e as referências.</li></ul></div>
+  <div class="row"><button class="btn primary" id="wStart">Abrir o simulador de pH</button><button class="btn" id="wClose">Começar pelo conceito</button></div>
+</section>
+<main id="labs"></main>
+<div class="labfoot" id="labFoot"></div>
+<footer class="sitefoot"><p><b>FARMACO LAB</b> · versão piloto 0.1 · setembro de 2026</p><p>Ferramenta didática. Não substitui a bula, os protocolos institucionais nem o julgamento clínico. Doses: valores usuais para adultos; confira sempre a bula do produto.</p><p>© 2026 André Demambre Bacchi. Todos os direitos reservados.</p></footer>
+</div>
+<div id="sheetRoot"></div>
+<script>
+/* ===== FARMACO LAB · núcleo ===== */
+const $ = id => document.getElementById(id);
+const nf = (x, d = 0) => Number(x).toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+const pc = (f, d) => { const v = f * 100; if (d === undefined) d = v < 1 ? 2 : v < 10 ? 1 : 0; return nf(v, d) + '%'; };
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+/* largura real do gráfico: o texto fica legível no celular e no projetor */
+const cw = id => { const el = $(id); return Math.round(clamp(el && el.clientWidth ? el.clientWidth : 560, 300, 640)); };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const store = { get(k, d) { try { const v = localStorage.getItem('farmacolab.' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('farmacolab.' + k, JSON.stringify(v)); } catch {} } };
+
+/* Henderson-Hasselbalch para base fraca: pH = pKa + log([B]/[BH+]) */
+const fracB = (pKa, pH) => 1 / (1 + Math.pow(10, pKa - pH));   // fração não ionizada
+
+/* ---------- dados dos agentes ---------- */
+const AGENTS = [
+  { id: 'lido',  n: 'Lidocaína',    c: 'A', pKa: 7.9, lipo: 2, lipoT: 'Média',      pb: 65, lat: 'Rápida', dur: 'Intermediária', dose: [4.5, 7], cap: [300, 500], conc: [0.5, 1, 2], uso: 'Infiltração, bloqueios, tópico', nota: 'Referência entre as amidas. Também é antiarrítmico classe IB. pKa citado entre 7,7 e 7,9 conforme a fonte.' },
+  { id: 'mepi',  n: 'Mepivacaína',  c: 'A', pKa: 7.6, lipo: 2, lipoT: 'Média',      pb: 77, lat: 'Rápida', dur: 'Intermediária', dose: [4.4, 4.4], conc: [2, 3], dental: true, uso: 'Odontologia, bloqueios', nota: 'O pKa mais próximo do pH fisiológico entre as amidas usuais: início rápido. Vasodilata pouco, por isso existe a apresentação a 3% sem vasoconstritor.' },
+  { id: 'prilo', n: 'Prilocaína',   c: 'A', pKa: 7.9, lipo: 2, lipoT: 'Média',      pb: 55, lat: 'Rápida', dur: 'Intermediária', dose: [6, 8], conc: [3, 4], dental: true, uso: 'Odontologia (com felipressina), EMLA', nota: 'Metabólito o-toluidina: metemoglobinemia em doses altas. Componente do EMLA com a lidocaína.' },
+  { id: 'arti',  n: 'Articaína',    c: 'A*', pKa: 7.8, lipo: 2, lipoT: 'Média',     pb: 94, lat: 'Rápida', dur: 'Intermediária', dose: [null, 7], conc: [4], dental: true, epiOnly: true, uso: 'Odontologia', nota: 'Amida com um grupamento éster: cerca de 90% é hidrolisada no plasma (meia-vida ≈ 20 min). Comercializada apenas com adrenalina.' },
+  { id: 'bupi',  n: 'Bupivacaína',  c: 'A', pKa: 8.1, lipo: 3, lipoT: 'Alta',       pb: 95, lat: 'Lenta',  dur: 'Longa', dose: [2.5, 3], cap: [175, 225], conc: [0.25, 0.5, 0.75], uso: 'Raqui, peridural, bloqueios', nota: 'A mais cardiotóxica: entra rápido e sai devagar dos canais de sódio cardíacos. Nunca em anestesia regional intravenosa.' },
+  { id: 'ropi',  n: 'Ropivacaína',  c: 'A', pKa: 8.1, lipo: 2.5, lipoT: 'Média-alta', pb: 94, lat: 'Lenta',  dur: 'Longa', dose: [3, 3], conc: [0.2, 0.5, 0.75], uso: 'Bloqueios, peridural', nota: 'Enantiômero S puro (1996): menos cardiotóxico que a bupivacaína racêmica. Em baixa concentração, bloqueio sensitivo com pouco bloqueio motor.' },
+  { id: 'tetra', n: 'Tetracaína',   c: 'E', pKa: 8.5, lipo: 3, lipoT: 'Alta',       pb: 76, lat: 'Lenta',  dur: 'Longa', doseT: 'tópico, raqui', uso: 'Tópico (LET), oftalmologia, raqui', nota: 'Éster potente e lipossolúvel. Componente do LET (lidocaína, adrenalina e tetracaína) usado em feridas de crianças.' },
+  { id: 'cloro', n: 'Cloroprocaína', c: 'E', pKa: 8.7, lipo: 1, lipoT: 'Baixa',     pb: null, lat: 'Rápida', dur: 'Curta', doseT: '—', uso: 'Raqui de curta duração, obstetrícia', nota: 'Exceção à regra do pKa: pKa alto, mas início rápido porque é usada em concentração alta (3%). Hidrolisada muito depressa no plasma.' },
+  { id: 'proc',  n: 'Procaína',     c: 'E', pKa: 8.9, lipo: 1, lipoT: 'Baixa',      pb: 6,  lat: 'Lenta',  dur: 'Curta', doseT: '—', uso: 'Histórico (1904)', nota: 'Primeiro éster sintético (Einhorn, 1904). Pouco usado hoje: baixa potência e metabólito PABA, ligado a alergias.' },
+  { id: 'benzo', n: 'Benzocaína',   c: 'E', pKa: 3.5, lipo: null, lipoT: '—',       pb: null, lat: 'Rápida', dur: 'Curta', topical: true, doseT: 'só tópico', uso: 'Somente tópico (mucosas)', nota: 'pKa muito baixo: quase toda não ionizada e pouco hidrossolúvel, por isso só serve como tópico. Causa metemoglobinemia; a FDA desaconselha produtos para dentição em menores de 2 anos.' },
+];
+const AG = Object.fromEntries(AGENTS.map(a => [a.id, a]));
+
+/* ---------- folhas (Saiba mais, glossário, como usar) ---------- */
+function openSheet(title, html) {
+  const root = $('sheetRoot'), prev = document.activeElement;
+  root.innerHTML = `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-h"><h3>${title}</h3><button class="x" id="sheetX" aria-label="Fechar">×</button></div><div class="learn">${html}</div></div></div>`;
+  const close = () => { root.innerHTML = ''; document.removeEventListener('keydown', onKey); prev && prev.focus && prev.focus(); };
+  const onKey = e => { if (e.key === 'Escape') close(); };
+  $('scrim').addEventListener('click', e => { if (e.target.id === 'scrim') close(); });
+  $('sheetX').onclick = close; $('sheetX').focus();
+  document.addEventListener('keydown', onKey);
+  root.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { close(); go(b.dataset.go); });
+}
+function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 1900); }
+
+const MORE_ICON = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="6.2"/><path d="M8 7.2v4M8 4.9v.1"/></svg>';
+const moreBtn = key => `<button class="more-btn" data-more="${key}">${MORE_ICON}Saiba mais</button>`;
+function card(title, body, opts = {}) {
+  return `<section class="card${opts.wide ? ' wide' : ''}"${opts.id ? ` id="${opts.id}"` : ''}><div class="card-h"><div>${opts.eyebrow ? `<span class="eyebrow">${opts.eyebrow}</span>` : ''}<h3>${title}</h3></div>${opts.more ? moreBtn(opts.more) : ''}</div>${opts.lede ? `<p class="lede">${opts.lede}</p>` : ''}${body}</section>`;
+}
+function seg(id, items, on) { return `<div class="seg" id="${id}" role="group">${items.map(([v, l]) => `<button data-v="${v}" class="${v == on ? 'on' : ''}" aria-pressed="${v == on}">${l}</button>`).join('')}</div>`; }
+function bindSeg(id, fn) { const el = $(id); el.onclick = e => { const b = e.target.closest('button'); if (!b) return; el.querySelectorAll('button').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); }); fn(b.dataset.v); }; }
+
+/* ---------- navegação ---------- */
+let cur = 0, cleanup = null, lastW = innerWidth;
+addEventListener('resize', () => { if (Math.abs(innerWidth - lastW) < 40) return; lastW = innerWidth; clearTimeout(window._rz); window._rz = setTimeout(() => show(cur, false), 200); });
+function go(id) { const i = SCREENS.findIndex(s => s.id === id); if (i >= 0) show(i, true); }
+function show(i, scroll) {
+  if (cleanup) { cleanup(); cleanup = null; }
+  cur = i; store.set('tela', SCREENS[i].id);
+  const S = SCREENS[i];
+  $('subs').innerHTML = SCREENS.map((s, k) => `<button class="sb${k === i ? ' on' : ''}" data-i="${k}"${k === i ? ' aria-current="page"' : ''}><i>${k + 1}</i>${s.t}</button>`).join('');
+  $('labs').innerHTML = `<section class="lab" aria-labelledby="h-${S.id}"><div class="intro"><span class="eyebrow">Anestésicos locais · tela ${i + 1} de ${SCREENS.length}</span><h2 id="h-${S.id}">${S.h}</h2><p>${S.p}</p></div><div class="grid two" id="g"></div></section>`;
+  cleanup = S.render($('g')) || null;
+  $('labs').querySelectorAll('[data-more]').forEach(b => b.onclick = () => { const L = LEARN[b.dataset.more]; openSheet(L.t, L.h); });
+  $('labs').querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  const pv = SCREENS[i - 1], nx = SCREENS[i + 1];
+  $('labFoot').innerHTML = (pv ? `<button data-i="${i - 1}"><span>Anterior</span><b>${pv.t}</b></button>` : '') + (nx ? `<button class="nx" data-i="${i + 1}"><span>Próxima</span><b>${nx.t}</b></button>` : '');
+  try { history.replaceState(null, '', '#' + S.id); } catch {}
+  if (scroll) document.querySelector('.labnav').scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' });
+}
+
+/* ===== Tela 1 · Conceito ===== */
+const NOCI = [
+  { k: 'tr', t: 'Transdução', s: 'Estímulo vira sinal elétrico', what: 'O estímulo nocivo e os mediadores da lesão (bradicinina, prostaglandinas, H⁺, K⁺, ATP) geram potencial de receptor no terminal livre do nociceptor.', drugs: 'AINEs e dipirona (menos prostaglandinas); anestésico tópico.' },
+  { k: 'tm', t: 'Transmissão', s: 'Condução pelas fibras Aδ e C', what: 'O potencial de ação percorre o axônio até o corno dorsal da medula. É aqui que age o anestésico local: o sinal nasce, mas não chega.', drugs: 'Anestésicos locais: infiltração, bloqueios de nervo, neuroeixo.', al: true },
+  { k: 'md', t: 'Modulação', s: 'Filtro na medula e vias descendentes', what: 'Na medula, o sinal é amplificado ou inibido: interneurônios (teoria do portão) e vias descendentes com serotonina, noradrenalina e opioides endógenos.', drugs: 'Opioides, α₂-agonistas, cetamina, antidepressivos.' },
+  { k: 'pc', t: 'Percepção', s: 'Experiência consciente', what: 'O córtex integra os componentes sensorial e afetivo: só aqui existe dor. Sob anestesia geral há nocicepção sem dor.', drugs: 'Anestésicos gerais, opioides.' },
+];
+function nociSVG(k) {
+  const H = x => (x === k ? 'hlst' : 'dotst');
+  return `<svg class="ch" viewBox="0 0 560 190" role="img" aria-label="Via da dor, com a etapa ${k} em destaque">
+  <rect x="8" y="112" width="120" height="66" rx="10" class="soft"/><text x="68" y="170" text-anchor="middle">Pele / tecido</text>
+  <path d="M40 132 l14 12 M56 128 l-2 16 M72 132 l-18 12" class="${H('tr')}" style="stroke-width:${k === 'tr' ? 3 : 1.4}"/>
+  <path d="M54 144 C 120 146 200 146 300 142" class="${H('tm')}" style="stroke-width:${k === 'tm' ? 4 : 1.4}"/>
+  <text x="180" y="134" text-anchor="middle" class="${k === 'tm' ? 'lbl' : ''}">nervo periférico (Aδ e C)</text>
+  <rect x="300" y="100" width="72" height="80" rx="30" class="soft"/><rect x="300" y="100" width="72" height="80" rx="30" class="${H('md')}" style="stroke-width:${k === 'md' ? 3 : 1.2}"/>
+  <text x="336" y="144" text-anchor="middle">Medula</text>
+  <path d="M348 102 C 360 70 390 60 420 58" class="${H('tm')}" style="stroke-width:${k === 'tm' ? 3 : 1.2}"/>
+  <path d="M428 82 C 400 90 372 100 360 118" class="${H('md')}" style="stroke-width:${k === 'md' ? 2.6 : 1.2};stroke-dasharray:5 4"/>
+  <text x="404" y="112" text-anchor="middle" style="font-size:10.5px">via descendente</text>
+  <ellipse cx="480" cy="50" rx="70" ry="38" class="soft"/><ellipse cx="480" cy="50" rx="70" ry="38" class="${H('pc')}" style="stroke-width:${k === 'pc' ? 3 : 1.2}"/>
+  <text x="480" y="54" text-anchor="middle">Encéfalo</text>
+</svg>`;
+}
+function renderConceito(g) {
+  g.innerHTML =
+    card('Três perguntas da prática', `<div class="qs">
+      <button class="qbtn" data-go="ph"><b>Por que a lidocaína “não pega” num tecido infectado?</b><span>Tela 4 · pH e ionização →</span></button>
+      <button class="qbtn" data-go="dose"><b>Posso usar anestésico com adrenalina no dedo?</b><span>Tela 7 · Vasoconstritores →</span></button>
+      <button class="qbtn" data-go="dose"><b>Quantos mililitros de lidocaína posso injetar neste paciente?</b><span>Tela 7 · Dose segura →</span></button></div>`,
+      { wide: true, lede: 'Toda sutura começa com uma injeção, e cada injeção de anestésico local é um ato farmacológico: tem dose, latência, duração e toxicidade. Responda de cabeça agora e confira ao longo do laboratório.' }) +
+    card('O que é um anestésico local', `<p style="margin:0 0 12px;font-size:15px">Fármaco que <b>bloqueia de forma reversível a condução nervosa</b> no local em que é aplicado, <b>sem perda de consciência</b>.</p>
+      <div class="stack">
+        <div class="tile"><span>Analgesia</span><small style="font-size:13.5px;color:var(--fg)">Perda da sensação de dor, com as outras modalidades preservadas.</small></div>
+        <div class="tile"><span>Anestesia</span><small style="font-size:13.5px;color:var(--fg)">Perda de todas as modalidades sensitivas, com ou sem bloqueio motor.</small></div>
+        <div class="tile"><span>Não seletivo</span><small style="font-size:13.5px;color:var(--fg)">Bloqueia fibras sensitivas, motoras e autonômicas. A “seletividade” vem da dose, da concentração e da técnica.</small></div>
+      </div>`, { more: 'conceito', eyebrow: 'an + aisthesis = sem sensação' }) +
+    card('Onde cada fármaco interrompe a dor', `<div class="steps" id="nociSteps" style="grid-template-columns:repeat(auto-fit,minmax(112px,1fr))">${NOCI.map((x, i) => `<button class="stp${i === 1 ? ' on' : ''}" data-k="${x.k}"><i>${i + 1}</i><b>${x.t}</b><span>${x.s}</span></button>`).join('')}</div>
+      <div id="nociFig" style="margin-top:12px"></div><div id="nociTxt"></div>`,
+      { lede: 'A nocicepção tem quatro etapas. Toque em cada uma para ver o que acontece e quais fármacos agem ali.' }) +
+    card('Da folha de coca à lidocaína', `<div class="tl">
+      <div><b>1860</b>Niemann isola a cocaína e nota a língua dormente.</div>
+      <div><b>1884</b>Freud publica “Über Coca”; Koller anestesia a córnea.</div>
+      <div><b>1885</b>Halsted faz bloqueios de nervo e desenvolve dependência.</div>
+      <div><b>1898</b>Bier faz a primeira raquianestesia.</div>
+      <div><b>1904</b>Einhorn sintetiza a procaína, o primeiro éster sintético.</div>
+      <div class="now"><b>1943</b>Löfgren sintetiza a lidocaína, a primeira amida de sucesso.</div>
+      <div><b>1996</b>Ropivacaína: enantiômero puro, menos cardiotóxico.</div>
+      <div><b>2025</b>Suzetrigina: bloqueador oral seletivo de NaV1.8 aprovado pela FDA.</div></div>
+      <p class="note">Antes do uso anestésico, a cocaína era vendida como tônico para fadiga, insônia e “melancolia”.</p>`, { wide: true });
+  const setK = k => {
+    const x = NOCI.find(n => n.k === k);
+    $('nociFig').innerHTML = nociSVG(k);
+    $('nociTxt').innerHTML = `<div class="insight${x.al ? '' : ' warn'}"><b>${x.t}.</b> ${x.what}<br><span style="color:var(--muted)">Onde se atua:</span> <b>${x.drugs}</b></div>`;
+    $('nociSteps').querySelectorAll('.stp').forEach(b => b.classList.toggle('on', b.dataset.k === k));
+  };
+  $('nociSteps').onclick = e => { const b = e.target.closest('.stp'); if (b) setK(b.dataset.k); };
+  setK('tm');
+}
+
+/* ===== Tela 2 · Química ===== */
+const CLASSIFY = [
+  ['Lidocaína', 'A'], ['Procaína', 'E'], ['Bupivacaína', 'A'], ['Benzocaína', 'E'], ['Articaína', 'A*'], ['Tetracaína', 'E'],
+  ['Prilocaína', 'A'], ['Cocaína', 'E'], ['Ropivacaína', 'A'], ['Cloroprocaína', 'E'], ['Mepivacaína', 'A'], ['Levobupivacaína', 'A'],
+];
+function molSVG(kind, part) {
+  const on = p => part === p;
+  const mid = kind === 'E' ? '–CO–O–' : '–NH–CO–';
+  return `<svg class="ch" viewBox="0 0 560 150" role="img" aria-label="Estrutura geral de um anestésico local do tipo ${kind === 'E' ? 'éster' : 'amida'}">
+  <g data-part="aro" style="cursor:pointer"><rect x="10" y="30" width="170" height="80" rx="16" class="${on('aro') ? 'hl' : 'soft'}" style="opacity:${on('aro') ? .18 : 1}"/><rect x="10" y="30" width="170" height="80" rx="16" class="${on('aro') ? 'accst' : 'dotst'}"/>
+    <polygon points="95,48 118,61 118,87 95,100 72,87 72,61" class="inkst"/><circle cx="95" cy="74" r="12" class="inkst" style="stroke-width:1.2"/>
+    <text x="95" y="128" text-anchor="middle" class="lbl">Anel aromático</text><text x="95" y="143" text-anchor="middle">lipofílico</text></g>
+  <line x1="180" y1="70" x2="215" y2="70" class="inkst"/>
+  <g data-part="lig" style="cursor:pointer"><rect x="215" y="40" width="130" height="60" rx="14" class="${on('lig') ? 'accst' : 'dotst'}"/>
+    <text x="280" y="76" text-anchor="middle" class="lbl" style="font-family:var(--f-mono);font-size:16px">${mid}</text>
+    <text x="280" y="128" text-anchor="middle" class="lbl">Cadeia intermediária</text><text x="280" y="143" text-anchor="middle">${kind === 'E' ? 'éster' : 'amida'}</text></g>
+  <line x1="345" y1="70" x2="380" y2="70" class="inkst"/>
+  <g data-part="ami" style="cursor:pointer"><rect x="380" y="30" width="170" height="80" rx="16" class="${on('ami') ? 'accst' : 'dotst'}"/>
+    <text x="465" y="66" text-anchor="middle" class="lbl" style="font-family:var(--f-mono);font-size:16px">–N(R)₂</text>
+    <text x="465" y="88" text-anchor="middle" style="font-family:var(--f-mono)">⇄ –N⁺H(R)₂</text>
+    <text x="465" y="128" text-anchor="middle" class="lbl">Amina terciária</text><text x="465" y="143" text-anchor="middle">hidrofílica, ionizável</text></g>
+</svg>`;
+}
+const PARTS = {
+  aro: '<b>Anel aromático.</b> A parte lipofílica: determina a lipossolubilidade, que se traduz em <b>potência</b> (e toxicidade).',
+  lig: '<b>Cadeia intermediária.</b> Define a família (éster ou amida) e, com ela, <b>como o fármaco é metabolizado</b> e o risco de alergia.',
+  ami: '<b>Amina terciária.</b> A parte ionizável: recebe H⁺ e vira cátion. O equilíbrio entre as duas formas depende do <b>pKa</b> e do <b>pH</b>, tema da tela 4.',
+};
+function renderQuimica(g) {
+  let kind = 'A', part = 'ami';
+  g.innerHTML =
+    card('Três partes, duas famílias', `<div class="row" style="justify-content:space-between">${seg('kindSeg', [['A', 'Amida'], ['E', 'Éster']], 'A')}<span class="note" style="margin:0">Toque em cada parte da molécula</span></div>
+      <figure class="fig" id="molFig" style="margin-top:10px"></figure><div id="partTxt" class="insight"></div><div id="famTxt" style="margin-top:12px"></div>`, { wide: true, more: 'quimica' }) +
+    card('Éster ou amida?', `<div class="cls-q"><div class="row" style="justify-content:space-between"><span class="eyebrow">Classifique</span><span class="score" id="clsScore">0 de 0</span></div>
+      <div class="big-drug" id="clsDrug"></div><div class="row"><button class="btn" data-ans="E">Éster</button><button class="btn" data-ans="A">Amida</button></div><div id="clsFb"></div></div>`,
+      { lede: 'Dica de bolso: nas amidas aparece um “i” antes de “-caína” (lIdocaína, bupIvacaína). Há uma exceção famosa.' }) +
+    card('Da química à clínica', `<div class="stack">
+      <div class="tile"><span>pKa → latência</span><small style="font-size:13.5px;color:var(--fg)">Quanto mais perto do pH do tecido, mais forma não ionizada e início mais rápido. <button class="lnk" style="border:0;background:none;padding:0" data-go="ph">Ver no simulador →</button></small></div>
+      <div class="tile"><span>Lipossolubilidade → potência</span><small style="font-size:13.5px;color:var(--fg)">Maior lipossolubilidade, maior potência e maior toxicidade.</small></div>
+      <div class="tile"><span>Ligação a proteínas → duração</span><small style="font-size:13.5px;color:var(--fg)">Maior ligação, mais tempo no canal e ação mais longa (bupivacaína ~95%, lidocaína ~65%).</small></div>
+      </div><p class="note">Quase todos são vasodilatadores (a cocaína é a exceção): isso acelera a absorção e encurta o efeito. Daí o vasoconstritor.</p>`, { more: 'props' });
+  const fam = () => kind === 'E'
+    ? `<div class="tiles"><div class="tile"><span>Metabolismo</span><b style="font-size:16px">Esterases plasmáticas</b><small>hidrólise rápida · ação curta</small></div><div class="tile"><span>Alergia</span><b style="font-size:16px">Mais frequente</b><small>metabólito PABA (ainda assim rara)</small></div><div class="tile"><span>Exemplos</span><b style="font-size:16px">Procaína, tetracaína</b><small>cocaína, cloroprocaína, benzocaína</small></div></div>`
+    : `<div class="tiles"><div class="tile"><span>Metabolismo</span><b style="font-size:16px">Fígado (CYP)</b><small>lidocaína: CYP1A2 e 3A4</small></div><div class="tile"><span>Alergia</span><b style="font-size:16px">Raríssima</b><small>desconfie de conservantes e reação vasovagal</small></div><div class="tile"><span>Exemplos</span><b style="font-size:16px">Lidocaína, bupivacaína</b><small>mepivacaína, prilocaína, ropivacaína, articaína*</small></div></div>`;
+  const draw = () => {
+    $('molFig').innerHTML = molSVG(kind, part);
+    $('partTxt').innerHTML = PARTS[part];
+    $('famTxt').innerHTML = fam();
+    $('molFig').querySelectorAll('[data-part]').forEach(n => n.onclick = () => { part = n.dataset.part; draw(); });
+  };
+  bindSeg('kindSeg', v => { kind = v; draw(); });
+  draw();
+  // classificador
+  let order = CLASSIFY.map((x, i) => i).sort(() => Math.random() - .5), qi = 0, ok = 0, tot = 0, answered = false;
+  const next = () => { answered = false; $('clsDrug').textContent = CLASSIFY[order[qi % order.length]][0]; $('clsFb').innerHTML = ''; };
+  g.querySelectorAll('[data-ans]').forEach(b => b.onclick = () => {
+    if (answered) return; answered = true;
+    const [nm, c] = CLASSIFY[order[qi % order.length]]; const right = c[0] === b.dataset.ans; tot++; if (right) ok++;
+    $('clsScore').textContent = `${ok} de ${tot}`;
+    const why = c === 'A*' ? 'É uma amida, mas com um grupamento éster no anel: por isso é hidrolisada no plasma e tem meia-vida curta.'
+      : nm === 'Cocaína' ? 'Éster natural da folha de coca, o único anestésico local vasoconstritor.'
+      : c === 'A' ? 'Amida: repare no “i” antes de “-caína”. Metabolismo hepático.' : 'Éster: sem “i” antes de “-caína”. Hidrólise por esterases plasmáticas.';
+    $('clsFb').innerHTML = `<div class="fb"><b class="${right ? 'ok' : 'no'}">${right ? 'Certo.' : 'Não é.'}</b> ${esc(nm)} é ${c === 'E' ? 'um éster' : 'uma amida'}. ${why} <button class="btn small" id="clsNext" style="margin-left:6px">Próximo</button></div>`;
+    $('clsNext').onclick = () => { qi++; next(); };
+  });
+  next();
+}
+
+/* ===== Tela 3 · Mecanismo ===== */
+const MECH = [
+  { t: 'Chega ao nervo', s: 'Base e cátion em equilíbrio', txt: 'Injetado no tecido, o anestésico se divide entre a <b style="color:var(--b)">base não ionizada (B)</b> e o <b style="color:var(--ion)">cátion ionizado (BH⁺)</b>. A proporção depende do pKa do fármaco e do pH do tecido.', pos: [150, 52], ion: false },
+  { t: 'Atravessa', s: 'A base cruza a membrana', txt: 'Só a <b style="color:var(--b)">forma não ionizada</b>, lipossolúvel, atravessa a bicamada lipídica. O cátion fica do lado de fora.', pos: [205, 120], ion: false },
+  { t: 'Reioniza', s: 'No citoplasma, recebe H⁺', txt: 'No citoplasma, a base recebe um H⁺ e volta a ser <b style="color:var(--ion)">cátion</b>. É a forma ionizada que se liga ao canal com maior afinidade.', pos: [262, 205], ion: true },
+  { t: 'Bloqueia', s: 'Liga-se ao poro do NaV', txt: 'O cátion entra no poro do <b>canal de sódio voltagem-dependente</b> pelo lado de dentro. Sem influxo de Na⁺, não há potencial de ação. A condução para quando cerca de <b>três nodos de Ranvier consecutivos</b> estão bloqueados, por isso o volume importa.', pos: [390, 158], ion: true },
+];
+function mechSVG() {
+  let heads = '';
+  for (let x = 6; x < 554; x += 14) { if (x > 352 && x < 428) continue; heads += `<circle cx="${x}" cy="106" r="6" class="head"/><circle cx="${x}" cy="138" r="6" class="head"/>`; }
+  return `<svg class="ch" viewBox="0 0 560 260" id="mechSvg" role="img" aria-label="Anestésico local atravessando a membrana e bloqueando o canal de sódio">
+  <rect x="0" y="0" width="560" height="100" class="cell-out"/><rect x="0" y="144" width="560" height="116" class="cell-in"/>
+  <rect x="0" y="100" width="560" height="44" class="lip"/>${heads}
+  <text x="10" y="18" class="zone">Meio extracelular</text><text x="10" y="252" class="zone">Citoplasma (axônio)</text>
+  <path d="M352 92 h28 v60 h-28 z M400 92 h28 v60 h-28 z" class="chan"/>
+  <text x="436" y="164" style="font-size:11px" id="chanLbl">canal NaV</text>
+  <g id="naFlow"><circle cx="390" cy="30" r="6" class="mk" style="opacity:.55"/><text x="404" y="34" style="font-size:11px">Na⁺</text>
+    <path d="M390 44 V 200" class="inkst" style="stroke-dasharray:4 5;opacity:.6" id="naPath"/><path d="M384 194 l6 8 l6 -8" class="inkst" style="opacity:.6" id="naHead"/></g>
+  <g id="naX" style="opacity:0"><path d="M372 60 l36 36 M408 60 l-36 36" style="stroke:var(--bad);stroke-width:4;stroke-linecap:round"/></g>
+  <g id="hPlus" style="opacity:0"><circle r="6" class="ink" style="opacity:.8"/><text class="mtxt" style="font-size:8px">H⁺</text></g>
+  <g id="mm" style="transition:transform .7s cubic-bezier(.5,0,.3,1)"><circle r="11" class="mb" id="mmC"/><text class="mtxt" id="mmT">B</text></g>
+  <g style="opacity:.9"><circle cx="70" cy="60" r="9" class="mi"/><text x="70" y="60" class="mtxt">+</text><circle cx="250" cy="40" r="9" class="mi"/><text x="250" y="40" class="mtxt">+</text><circle cx="300" cy="70" r="9" class="mb"/></g>
+</svg>`;
+}
+const STATES = {
+  rest: { t: 'Repouso (fechado)', aff: 0.15, affT: 'Baixa', txt: 'Poro fechado: o fármaco tem pouco acesso e pouca afinidade. Pouco efeito, exceto em concentração alta (bloqueio tônico).' },
+  open: { t: 'Aberto', aff: 0.9, affT: 'Alta', txt: 'O poro se abre a cada potencial de ação e o cátion alcança o sítio de ligação pelo lado de dentro, bloqueando o poro.' },
+  inact: { t: 'Inativado', aff: 0.85, affT: 'Alta', txt: 'Logo após abrir, o canal se inativa. O anestésico estabiliza esse estado e prolonga o período refratário: o canal demora mais a ficar disponível de novo.' },
+};
+function chanSVG(st) {
+  const open = st !== 'rest', inact = st === 'inact';
+  return `<svg class="ch" viewBox="0 0 300 170" role="img" aria-label="Canal de sódio no estado ${STATES[st].t}">
+  <rect x="0" y="0" width="300" height="55" class="cell-out"/><rect x="0" y="105" width="300" height="65" class="cell-in"/><rect x="0" y="55" width="300" height="50" class="lip"/>
+  <path d="M110 40 h30 v80 h-30 z M160 40 h30 v80 h-30 z" class="chan"/>
+  ${open ? '' : '<rect x="136" y="44" width="28" height="10" rx="3" class="ink"/>'}
+  ${inact ? '<line x1="150" y1="150" x2="150" y2="132" class="inkst"/><circle cx="150" cy="126" r="11" class="ink"/>' : ''}
+  ${open && !inact ? '<circle cx="150" cy="20" r="6" class="mk" style="opacity:.6"/><path d="M150 30 V 150" class="inkst" style="stroke-dasharray:4 5;opacity:.6"/><path d="M144 144 l6 8 l6 -8" class="inkst" style="opacity:.6"/>' : ''}
+  <text x="10" y="16" class="zone">Fora</text><text x="10" y="164" class="zone">Dentro</text>
+  <text x="200" y="${inact ? 130 : st === 'rest' ? 50 : 24}" style="font-size:11px">${st === 'rest' ? 'comporta fechada' : inact ? 'inativação' : 'Na⁺ entra'}</text>
+</svg>`;
+}
+function useDep(f, drug) {
+  const P = drug === 'bupi' ? { kon: 0.12, tau: 2.0 } : { kon: 0.10, tau: 0.3 }, tonic = 0.08, N = 30, out = [];
+  let b = tonic;
+  for (let n = 0; n < N; n++) { out.push(1 - b); b = b + P.kon * (1 - b); b = tonic + (b - tonic) * Math.exp(-(1 / f) / P.tau); }
+  return out;
+}
+function renderMecanismo(g) {
+  let step = 0, st = 'open', f = 2, drug = 'lido', timer = null;
+  g.innerHTML =
+    card('O alvo está do lado de dentro', `<div class="steps" id="mSteps">${MECH.map((m, i) => `<button class="stp${i === 0 ? ' on' : ''}" data-i="${i}"><i>${i + 1}</i><b>${m.t}</b><span>${m.s}</span></button>`).join('')}</div>
+      <figure class="fig" style="margin-top:12px">${mechSVG()}</figure>
+      <div class="row" style="justify-content:space-between;margin-top:6px"><div class="legend" style="margin:0"><span><span class="mol b">B</span> não ionizada</span><span><span class="mol i">+</span> ionizada (BH⁺)</span></div><button class="btn small" id="mPlay">▶ Animar a sequência</button></div>
+      <div class="insight" id="mTxt"></div>`, { wide: true, more: 'mecanismo' }) +
+    card('Três estados do canal de sódio', `${seg('stSeg', [['rest', 'Repouso'], ['open', 'Aberto'], ['inact', 'Inativado']], 'open')}
+      <figure class="fig" id="chFig" style="margin-top:10px;max-width:420px"></figure>
+      <div class="sub">Afinidade do anestésico <span id="affT"></span></div><div class="meter"><i id="affBar" style="background:var(--accent)"></i></div>
+      <p class="note" id="stTxt" style="font-size:13.5px;color:var(--fg)"></p><p class="note">Hipótese do receptor modulado (Hille, 1977).</p>`) +
+    card('Quanto mais o nervo dispara, mais é bloqueado', `<div class="stack">
+      <div class="range"><label for="fRange">Frequência de disparo</label><output id="fOut"></output><input type="range" id="fRange" min="1" max="30" step="1" value="2"></div>
+      ${seg('drugSeg', [['lido', 'Lidocaína'], ['bupi', 'Bupivacaína']], 'lido')}</div>
+      <div id="udFig" style="margin-top:10px"></div>
+      <div class="tiles" style="margin-top:8px"><div class="tile"><span>Corrente no 1º estímulo</span><b id="ud1"></b></div><div class="tile acc"><span>Corrente no 30º estímulo</span><b id="udN"></b></div></div>
+      <div class="insight" id="udTxt"></div><p class="note">Modelo simplificado, para visualizar a tendência. Cada barra é a corrente de sódio de um estímulo.</p>`, { more: 'usodep' });
+  const setStep = i => {
+    step = i; const m = MECH[i], mm = $('mm');
+    mm.style.transform = `translate(${m.pos[0]}px, ${m.pos[1]}px)`;
+    $('mmC').setAttribute('class', m.ion ? 'mi' : 'mb'); $('mmT').textContent = m.ion ? '+' : 'B';
+    const hp = $('hPlus'); hp.style.opacity = i === 2 ? 1 : 0; hp.style.transform = `translate(${m.pos[0] + 16}px, ${m.pos[1] - 12}px)`;
+    const blocked = i === 3;
+    ['naPath', 'naHead'].forEach(id => $(id).style.opacity = blocked ? 0 : .6); $('naX').style.opacity = blocked ? 1 : 0;
+    $('mTxt').innerHTML = m.txt;
+    $('mSteps').querySelectorAll('.stp').forEach(b => b.classList.toggle('on', +b.dataset.i === i));
+  };
+  $('mSteps').onclick = e => { const b = e.target.closest('.stp'); if (b) { stop(); setStep(+b.dataset.i); } };
+  const stop = () => { if (timer) { clearInterval(timer); timer = null; $('mPlay').textContent = '▶ Animar a sequência'; } };
+  $('mPlay').onclick = () => {
+    if (timer) return stop();
+    setStep(0); $('mPlay').textContent = '■ Parar';
+    timer = setInterval(() => { if (step >= 3) { stop(); return; } setStep(step + 1); }, reduced() ? 1600 : 1300);
+  };
+  setStep(0);
+  const drawSt = () => { $('chFig').innerHTML = chanSVG(st); const S = STATES[st]; $('affT').textContent = S.affT; $('affBar').style.width = (S.aff * 100) + '%'; $('stTxt').textContent = S.txt; };
+  bindSeg('stSeg', v => { st = v; drawSt(); }); drawSt();
+  const drawUD = () => {
+    const y = useDep(f, drug), W = cw('udFig'), H = 190, L = 40, B = 160, bw = (W - L - 10) / y.length;
+    let s = `<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="Corrente de sódio a cada estímulo">`;
+    [0, 50, 100].forEach(v => { const yy = B - v / 100 * 140; s += `<line x1="${L}" x2="${W - 10}" y1="${yy}" y2="${yy}" class="gr"/><text x="${L - 6}" y="${yy + 4}" text-anchor="end">${v}%</text>`; });
+    y.forEach((v, i) => { const h = v * 140; s += `<rect x="${L + i * bw + 2}" y="${B - h}" width="${bw - 4}" height="${h}" rx="2" class="bar"/>`; });
+    s += `<text x="${L}" y="${H - 8}">1º estímulo</text><text x="${W - 10}" y="${H - 8}" text-anchor="end">30º estímulo</text></svg>`;
+    $('udFig').innerHTML = s; $('fOut').textContent = f + ' Hz';
+    $('ud1').textContent = pc(y[0], 0); $('udN').textContent = pc(y[y.length - 1], 0);
+    const drop = 1 - y[y.length - 1] / y[0];
+    $('udTxt').innerHTML = drug === 'lido'
+      ? (f <= 3 ? `A ${f} Hz, a lidocaína se solta do canal entre um estímulo e outro: quase não acumula bloqueio. Aumente a frequência.` : `A ${f} Hz, não dá tempo de o canal se livrar do fármaco entre os estímulos: o bloqueio acumula (${pc(drop, 0)} a menos de corrente). Fibras que disparam muito, como as nociceptivas numa lesão, são mais bloqueadas.`)
+      : `A bupivacaína <b>entra rápido e sai devagar</b>: acumula bloqueio mesmo em frequências baixas, como a do coração (~1 a 2 Hz). É por isso que ela é a mais cardiotóxica.`;
+  };
+  $('fRange').oninput = e => { f = +e.target.value; drawUD(); };
+  bindSeg('drugSeg', v => { drug = v; drawUD(); }); drawUD();
+  return stop;
+}
+
+/* ===== Tela 4 · pH e ionização (simulador) ===== */
+const PH_PRESETS = [[7.4, 'Tecido normal'], [6.9, 'Inflamação'], [6.4, 'Tecido infectado'], [5.8, 'Abscesso']];
+const PH_AGENTS = ['lido', 'mepi', 'prilo', 'arti', 'bupi', 'ropi', 'tetra', 'cloro', 'proc', 'benzo'];
+const SOLN = [[6.5, 'Solução simples', 'pH ~6,5'], [4.5, 'Com adrenalina', 'pH ~4,5'], [7.3, 'Tamponada com bicarbonato', 'pH ~7,3']];
+
+/* pseudoaleatório fixo, para as moléculas não pularem de lugar a cada ajuste */
+function prng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const R = prng(7);
+const N_OUT = 30, N_IN = 48;   // cada bolinha de fora ≈ 3,3% da dose
+const OUT_POS = Array.from({ length: N_OUT }, (_, i) => [20 + (i % 10) * 30 + R() * 10, 30 + Math.floor(i / 10) * 34 + R() * 8]);
+const IN_POS = Array.from({ length: N_IN }, (_, i) => [16 + (i % 12) * 24 + R() * 6, 186 + Math.floor(i / 12) * 28 + R() * 6]);
+
+function verdictFor(rel, pHo, a) {
+  if (a.id === 'benzo') return ['good', 'Quase toda não ionizada', 'Com pKa de 3,5, a benzocaína fica não ionizada em qualquer pH do corpo. Atravessa bem, mas é pouco hidrossolúvel: por isso só serve como tópico.'];
+  if (rel >= 1.15) return ['good', 'Início mais rápido', 'O tecido está mais alcalino que o normal: sobra mais forma não ionizada para atravessar a membrana.'];
+  if (rel >= 0.8) return ['good', 'Latência habitual', 'É o cenário esperado para este agente: uma fração suficiente da dose atravessa a membrana e o bloqueio se instala no tempo habitual.'];
+  if (rel >= 0.4) return ['warn', 'Latência maior', 'Menos base disponível para atravessar a membrana: o bloqueio demora mais e pode ficar incompleto.'];
+  if (rel >= 0.15) return ['bad', 'Bloqueio lento e fraco', 'Só uma pequena parte da dose chega ao lado de dentro. Aumentar a dose no mesmo local eleva a carga sistêmica sem resolver o problema.'];
+  return ['bad', 'Falha provável', 'Quase todo o anestésico fica ionizado e preso do lado de fora. Prefira um bloqueio regional longe do foco e trate a infecção.'];
+}
+function renderPH(g) {
+  const saved = store.get('ph', {});
+  let aid = (AG[saved.a] || saved.a === 'custom') ? saved.a : 'lido', pKa = saved.k || 7.9, pHo = saved.o || 7.4, pHi = 7.2, sol = 6.5, raf = 0, t0 = performance.now();
+  g.innerHTML =
+    `<section class="card" style="min-width:0"><div class="card-h"><div><span class="eyebrow">Simulador</span><h3>Quanto do anestésico consegue entrar?</h3></div>${moreBtn('ph')}</div>
+      <div class="sub">Anestésico</div><div class="chips wrapc" id="agChips">${PH_AGENTS.map(k => `<button class="chip" data-a="${k}">${AG[k].n}<small>${nf(AG[k].pKa, 1)}</small></button>`).join('')}</div>
+      <div class="range" style="margin-top:12px"><label for="pkR">pKa do fármaco</label><output id="pkO"></output><input type="range" id="pkR" min="3" max="10" step="0.1"></div>
+      <div class="sub">pH do tecido</div><div class="chips wrapc" id="phChips">${PH_PRESETS.map(([v, l]) => `<button class="chip" data-p="${v}">${l}<small>${nf(v, 1)}</small></button>`).join('')}</div>
+      <div class="range" style="margin-top:6px"><label for="phR">pH extracelular</label><output id="phO"></output><input type="range" id="phR" min="5" max="8" step="0.1"></div>
+      <div class="tiles" style="margin-top:14px">
+        <div class="tile b"><span>Não ionizada (B)</span><b id="tB"></b><small>atravessa a membrana</small></div>
+        <div class="tile i"><span>Ionizada (BH⁺)</span><b id="tI"></b><small>fica do lado de fora</small></div>
+        <div class="tile acc"><span>Chega ao alvo</span><b id="tRel"></b><small id="tRelS">em relação ao pH 7,4</small></div>
+      </div>
+      <div class="verdict" id="verd" style="margin-top:10px"></div>
+      <div class="sub" style="margin-top:16px">Proporção entre as formas</div>
+      <div class="ratio" id="ratioBar"></div><p class="note" id="ratioTxt" style="font-size:13.5px;color:var(--fg)"></p>
+    </section>` +
+    `<section class="card" style="min-width:0"><div class="card-h"><div><span class="eyebrow">Ao vivo</span><h3>Membrana do axônio</h3></div></div>
+      <div id="memFig"></div>
+      <div class="legend"><span><span class="mol b">B</span> não ionizada, lipossolúvel</span><span><span class="mol i">+</span> ionizada, hidrossolúvel</span><span><i style="background:var(--accent);height:10px;width:10px;border-radius:2px"></i> canal NaV</span></div>
+      <p class="note" id="memNote"></p>
+      <div class="hh" id="hh" aria-live="polite"></div>
+      <details class="fold"><summary>E dentro do axônio?</summary><div>
+        <div class="range"><label for="piR">pH intracelular</label><output id="piO"></output><input type="range" id="piR" min="6.8" max="7.4" step="0.1" value="7.2"></div>
+        <p class="note">A base não ionizada fica na mesma concentração dos dois lados da membrana. Dentro, com pH perto de 7,2, a maior parte volta a ser cátion: a forma que se liga ao canal. Por isso o cátion se acumula dentro do axônio.</p></div></details></section>` +
+    card('Ionização em toda a faixa de pH', `<div id="curveFig"></div><div class="legend"><span><i style="background:var(--b)"></i>não ionizada</span><span><i class="dash" style="background:var(--ion)"></i>ionizada</span><span><i style="background:var(--fg);width:8px;height:8px;border-radius:50%"></i>pH atual</span></div>
+      <p class="note">No pH igual ao pKa, metade está em cada forma. Cada unidade de pH abaixo do pKa divide a forma não ionizada por cerca de 10.</p>`) +
+    card('Todos os agentes no mesmo pH', `<div id="cmpFig"></div><p class="note">Quanto mais perto o pKa do pH do tecido, maior a fração não ionizada e mais rápido o início. Exceção: a cloroprocaína começa rápido porque é usada a 3%.</p>`, { lede: 'Fração não ionizada de cada anestésico no pH escolhido acima.' }) +
+    card('E dentro da seringa?', `<div class="chips wrapc" id="solChips">${SOLN.map(([v, l, s]) => `<button class="chip" data-s="${v}">${l}<small>${s}</small></button>`).join('')}</div>
+      <div class="tiles" style="margin-top:10px"><div class="tile b"><span>Não ionizada no frasco</span><b id="sB"></b><small id="sBs"></small></div></div>
+      <div class="insight" style="margin-top:10px">As soluções com adrenalina são acidificadas para conservar a adrenalina: no frasco, quase tudo está ionizado, e a injeção arde. Depois de injetada, a solução é tamponada pelo tecido. Tamponar com bicarbonato (1 mL de bicarbonato 8,4% para 10 mL de lidocaína) <b>reduz a dor da injeção</b>. Se ajuda a vencer a acidez de um tecido infectado, a evidência é incerta.</div>
+      <p class="note">Valores de pH aproximados; variam entre fabricantes. A bupivacaína precipita com bicarbonato.</p>`, { lede: 'O frasco também tem pH, e ele é ácido.' }) +
+    card('Caso: paroníquia que “não pega”', `<p style="margin:0 0 10px;font-size:15px">Paciente com paroníquia (infecção ao redor da unha) precisa de drenagem. Foram infiltrados 3 mL de lidocaína 1% ao redor do foco. Dez minutos depois, ainda sente tudo.</p>
+      <details class="fold" open><summary>O que o pH do tecido faz com o anestésico?</summary><div>Coloque o pH em <button class="lnk" style="border:0;background:none;padding:0" data-setph="6.4">6,4</button> no simulador: a fração não ionizada da lidocaína cai de cerca de 24% para 3%. Quase todo o fármaco fica ionizado do lado de fora da membrana.</div></details>
+      <details class="fold"><summary>Por que mais dose no mesmo local não resolve?</summary><div>O problema não é a quantidade injetada, e sim a fração que atravessa. Além do pH: o edema dilui o fármaco, a hiperemia o remove mais depressa e os nociceptores sensibilizados expressam mais NaV1.8, menos sensível à lidocaína. Repetir doses só aumenta a carga sistêmica.</div></details>
+      <details class="fold"><summary>Que alternativa existe?</summary><div><b>Bloqueio regional longe do foco:</b> aqui, o bloqueio digital na base do dedo, em tecido de pH normal. Em odontologia, o bloqueio do nervo alveolar inferior em vez da infiltração local. E tratar a infecção (drenagem).</div></details>
+      <div class="sub" style="margin-top:16px">Teste rápido</div><p class="q" style="font-size:18px">Qual conduta tem mais probabilidade de funcionar?</p>
+      <div class="opts" id="quizOpts">
+        <button class="opt" data-ok="0" data-fb="Não. A fração não ionizada continua baixa, e a carga sistêmica sobe.">Repetir a infiltração no mesmo local</button>
+        <button class="opt" data-ok="0" data-fb="Não. A bupivacaína tem pKa ainda mais alto (8,1): fica ainda mais ionizada no tecido ácido, e é mais tóxica.">Trocar por bupivacaína no mesmo local</button>
+        <button class="opt" data-ok="1" data-fb="Isso. Longe do foco, o pH é normal e o anestésico atravessa a membrana do nervo que inerva a região.">Bloqueio digital, longe do foco</button>
+        <button class="opt" data-ok="0" data-fb="Não. Mais concentração aumenta a toxicidade sem mudar a proporção entre as formas.">Usar lidocaína 2% no mesmo local</button></div><div id="quizFb"></div>`);
+
+  const memBase = (() => {
+    let heads = ''; for (let x = 6; x < 400; x += 13) { if (x > 318 && x < 372) continue; heads += `<circle cx="${x}" cy="136" r="5.5" class="head"/><circle cx="${x}" cy="164" r="5.5" class="head"/>`; }
+    return `<rect x="0" y="0" width="400" height="132" class="cell-out"/><rect x="0" y="168" width="400" height="152" class="cell-in"/><rect x="0" y="132" width="400" height="36" class="lip"/>${heads}
+      <path d="M322 120 h18 v60 h-18 z M360 120 h18 v60 h-18 z" class="chan" style="fill:var(--accent);fill-opacity:.25"/>
+      <text x="8" y="14" class="zone" id="zOut"></text><text x="8" y="314" class="zone" id="zIn"></text>`;
+  })();
+  $('memFig').innerHTML = `<svg class="ch" viewBox="0 0 400 320" role="img" aria-label="Moléculas de anestésico dos dois lados da membrana" id="memSvg">${memBase}<g id="mols"></g><g id="trav" style="opacity:0"><circle r="8" class="mb"/><text class="mtxt">B</text></g></svg>`;
+  let prevHH = {};
+  const fmtR = r => r >= 10 ? nf(r, 0) : r >= 1 ? nf(r, 1) : r >= 0.01 ? nf(r, 3) : nf(r, 4);
+  const drawHH = fb => {
+    const d = pHo - pKa, ratio = Math.pow(10, d), ch = k => prevHH[k] !== undefined && prevHH[k] !== ({ ph: pHo, pk: pKa })[k] ? ' pulse' : '';
+    const words = ratio < 1 ? `Para cada <b class="cb">1</b> molécula não ionizada, há <b class="ci">${fmtR(1 / ratio)}</b> ionizadas.` : `Para cada <b class="ci">1</b> molécula ionizada, há <b class="cb">${fmtR(ratio)}</b> não ionizadas.`;
+    $('hh').innerHTML = `<div class="hh-h"><span class="eyebrow">Henderson-Hasselbalch</span><span class="note" style="margin:0">base fraca</span></div>
+      <div class="hh-row hh-sym"><span>pH</span><i>=</i><span>pKa</span><i>+</i><span>log</span><span class="frac"><span class="cb">[B]</span><span class="ci">[BH⁺]</span></span></div>
+      <div class="hh-row hh-num"><span class="v vph${ch('ph')}">${nf(pHo, 1)}</span><i>=</i><span class="v vpk${ch('pk')}">${nf(pKa, 1)}</span><i>+</i><span>log</span><span class="frac"><span class="cb">[B]</span><span class="ci">[BH⁺]</span></span></div>
+      <div class="hh-row hh-sol"><span class="frac"><span class="cb">[B]</span><span class="ci">[BH⁺]</span></span><i>=</i><span>10<sup>${nf(pHo, 1)} − ${nf(pKa, 1)}</sup></span><i>=</i><span>10<sup>${d >= 0 ? '' : '−'}${nf(Math.abs(d), 1)}</sup></span><i>=</i><span class="v vr">${fmtR(ratio)}</span></div>
+      <div class="hh-row hh-pct"><span>não ionizada</span><i>=</i><span class="frac"><span>${fmtR(ratio)}</span><span>1 + ${fmtR(ratio)}</span></span><i>=</i><span class="v vb">${pc(fb)}</span></div>
+      <p class="hh-words">${words}</p>`;
+    prevHH = { ph: pHo, pk: pKa };
+    const pB = fb * 100;
+    $('ratioBar').innerHTML = `<i class="rb" style="width:${pB}%"></i><i class="ri" style="width:${100 - pB}%"></i><span class="rl" style="left:6px">${pc(fb)}</span><span class="rr">${pc(1 - fb)}</span>`;
+    $('ratioTxt').innerHTML = `<span class="mol b">B</span> não ionizada ${pc(fb)} · <span class="mol i">+</span> ionizada ${pc(1 - fb)}`;
+  };
+  const mol = (x, y, ion, i) => `<g data-j="${i}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><circle r="7" class="${ion ? 'mi' : 'mb'}"/><text class="mtxt">${ion ? '+' : 'B'}</text></g>`;
+
+  const update = () => {
+    const a = AG[aid] || { n: 'Personalizado' }, fb = fracB(pKa, pHo), rel = fb / fracB(pKa, 7.4), fi = fracB(pKa, pHi);
+    store.set('ph', { a: aid, k: pKa, o: pHo });
+    $('pkR').value = pKa; $('pkO').textContent = nf(pKa, 1); $('phR').value = pHo; $('phO').textContent = nf(pHo, 1); $('piO').textContent = nf(pHi, 1);
+    $('agChips').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.a === aid));
+    $('phChips').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', Math.abs(+c.dataset.p - pHo) < .01));
+    $('tB').textContent = pc(fb); $('tI').textContent = pc(1 - fb);
+    $('tRel').textContent = Math.abs(pHo - 7.4) < .01 ? '100%' : pc(rel, rel < 0.1 ? 1 : 0);
+    $('tRelS').textContent = Math.abs(pHo - 7.4) < .01 ? 'referência: tecido normal' : rel < 1 ? `${nf(1 / rel, 1)} vezes menos que no pH 7,4` : `${nf(rel, 1)} vezes mais que no pH 7,4`;
+    const [cls, t, s] = verdictFor(rel, pHo, a.id ? a : {});
+    $('verd').className = 'verdict ' + cls; $('verd').innerHTML = `<b>${t}</b><span>${s}</span><span class="note" style="margin:2px 0 0">Leitura didática e qualitativa.</span>`;
+    drawHH(fb);
+    // moléculas: fora, 30 bolinhas na proporção B : BH⁺; dentro, a mesma concentração de B e o cátion em equilíbrio com o pH intracelular
+    const nB = Math.round(N_OUT * fb), inBx = N_OUT * fb, totX = inBx / fi, sc = totX > N_IN ? N_IN / totX : 1;
+    const nInB = Math.round(inBx * sc), nIn = Math.round(totX * sc), nInI = nIn - nInB;
+    let h = ''; OUT_POS.forEach(([x, y], i) => { h += mol(x, y, i >= nB, 'o' + i); });
+    IN_POS.slice(0, nIn).forEach(([x, y], i) => { const k = i - nInB, bound = k >= 0 && k < 2; h += mol(bound ? 350 : x, bound ? 190 + k * 20 : y, k >= 0, 'i' + i); });
+    $('mols').innerHTML = h;
+    $('zOut').textContent = `Fora · pH ${nf(pHo, 1)} · ${nB} de ${N_OUT} não ionizadas`;
+    $('zIn').textContent = `Dentro · pH ${nf(pHi, 1)} · ${nInB} B + ${nInI} BH⁺`;
+    $('memNote').textContent = nIn === 0 ? 'Praticamente nada atravessou: o canal continua livre.'
+      : `Cada bolinha de fora vale cerca de 3% da dose. Dentro, a base fica na mesma concentração de fora e a maior parte reioniza; os cátions ocupam o canal.${sc < 1 ? ' Com tanta base disponível, nem tudo cabe na figura.' : ''}`;
+    drawCurve(); drawCmp();
+  };
+  const drawCurve = () => {
+    const W = cw('curveFig'), H = 230, L = 44, Rr = 12, T = 14, B = 190, x = p => L + (p - 5) / 4 * (W - L - Rr), y = f => B - f * (B - T);
+    let s = `<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="Fração não ionizada conforme o pH">`;
+    [0, .25, .5, .75, 1].forEach(v => s += `<line x1="${L}" x2="${W - Rr}" y1="${y(v)}" y2="${y(v)}" class="gr"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v * 100}%</text>`);
+    for (let p = 5; p <= 9; p++) s += `<text x="${x(p)}" y="${B + 18}" text-anchor="middle">${p}</text>`;
+    s += `<text x="${W - Rr}" y="${H - 2}" text-anchor="end">pH</text>`;
+    s += `<rect x="${x(7.35)}" y="${T}" width="${x(7.45) - x(7.35)}" height="${B - T}" class="soft" style="opacity:.9"/>`;
+    let pb = '', pi = ''; for (let p = 5; p <= 9.001; p += 0.05) { const f = fracB(pKa, p); pb += (pb ? 'L' : 'M') + x(p).toFixed(1) + ' ' + y(f).toFixed(1); pi += (pi ? 'L' : 'M') + x(p).toFixed(1) + ' ' + y(1 - f).toFixed(1); }
+    s += `<path d="${pi}" class="curveI"/><path d="${pb}" class="curveB"/>`;
+    if (pKa >= 5 && pKa <= 9) s += `<line x1="${x(pKa)}" x2="${x(pKa)}" y1="${T}" y2="${B}" class="ax" style="stroke-dasharray:3 4"/><text x="${x(pKa) + 5}" y="${T + 12}">pKa ${nf(pKa, 1)}</text>`;
+    const f = fracB(pKa, pHo);
+    s += `<line x1="${x(pHo)}" x2="${x(pHo)}" y1="${T}" y2="${B}" style="stroke:var(--fg);stroke-width:1.4"/><circle cx="${x(pHo)}" cy="${y(f)}" r="6" class="mb" style="stroke:var(--surface);stroke-width:2"/><circle cx="${x(pHo)}" cy="${y(1 - f)}" r="6" class="mi" style="stroke:var(--surface);stroke-width:2"/>`;
+    const lx = x(pHo) > W - 120 ? x(pHo) - 8 : x(pHo) + 8, anc = x(pHo) > W - 120 ? 'end' : 'start';
+    s += `<text x="${lx}" y="${clamp(y(f) - 8, T + 10, B - 4)}" text-anchor="${anc}" class="lbl" style="fill:var(--b)">${pc(f)}</text>`;
+    s += `<text x="${x(7.4)}" y="${H - 2}" text-anchor="middle" style="font-size:10px">faixa fisiológica</text>`;
+    $('curveFig').innerHTML = s + '</svg>';
+  };
+  const drawCmp = () => {
+    const rows = PH_AGENTS.map(k => ({ k, n: AG[k].n, p: AG[k].pKa, f: fracB(AG[k].pKa, pHo) })).sort((a, b) => b.f - a.f);
+    const W = cw('cmpFig'), rh = 24, L = W < 420 ? 118 : 150, Rr = 50, H = rows.length * rh + 6;
+    let s = `<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="Fração não ionizada de cada agente">`;
+    rows.forEach((r, i) => { const yy = i * rh + 4, w = Math.max(2, r.f * (W - L - Rr)), me = r.k === aid;
+      s += `<text x="${L - 8}" y="${yy + 15}" text-anchor="end" class="${me ? 'lbl' : ''}">${r.n} <tspan style="font-family:var(--f-mono);font-size:10.5px">${nf(r.p, 1)}</tspan></text><rect x="${L}" y="${yy + 3}" width="${W - L - Rr}" height="16" rx="4" class="soft"/><rect x="${L}" y="${yy + 3}" width="${w}" height="16" rx="4" class="barb" style="opacity:${me ? 1 : .45}"/><text x="${L + w + 6}" y="${yy + 15}" class="${me ? 'lbl' : ''}">${pc(r.f)}</text>`; });
+    $('cmpFig').innerHTML = `<div class="tw">${s}</svg></div>`;
+  };
+  const drawSol = () => { const f = fracB(pKa, sol); $('sB').textContent = pc(f); $('sBs').textContent = `${AG[aid] ? AG[aid].n : 'agente'} em pH ${nf(sol, 1)}`; $('solChips').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', +c.dataset.s === sol)); };
+  $('agChips').onclick = e => { const c = e.target.closest('.chip'); if (!c) return; aid = c.dataset.a; pKa = AG[aid].pKa; update(); drawSol(); };
+  $('phChips').onclick = e => { const c = e.target.closest('.chip'); if (!c) return; pHo = +c.dataset.p; update(); };
+  $('solChips').onclick = e => { const c = e.target.closest('.chip'); if (!c) return; sol = +c.dataset.s; drawSol(); };
+  $('pkR').oninput = e => { pKa = +e.target.value; const m = AGENTS.find(a => a.pKa === pKa && a.id === aid); if (!m) aid = 'custom'; update(); drawSol(); };
+  $('phR').oninput = e => { pHo = +e.target.value; update(); };
+  $('piR').oninput = e => { pHi = +e.target.value; update(); };
+  g.querySelectorAll('[data-setph]').forEach(b => b.onclick = () => { pHo = +b.dataset.setph; update(); $('phR').scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'center' }); });
+  $('quizOpts').onclick = e => { const b = e.target.closest('.opt'); if (!b) return; $('quizOpts').querySelectorAll('.opt').forEach(o => o.classList.remove('right', 'wrong')); b.classList.add(b.dataset.ok === '1' ? 'right' : 'wrong'); $('quizFb').innerHTML = `<div class="fb">${b.dataset.fb}</div>`; };
+  update(); drawSol();
+
+  // movimento: agitação térmica e uma base atravessando de vez em quando
+  const tick = now => {
+    const t = (now - t0) / 1000, mols = $('mols'); if (!mols) return;
+    mols.querySelectorAll('g').forEach((el, i) => { const [a, b] = el.getAttribute('transform').match(/-?[\d.]+/g).map(Number); if (!el.dataset.bx) { el.dataset.bx = a; el.dataset.by = b; }
+      el.setAttribute('transform', `translate(${(+el.dataset.bx + 3 * Math.sin(t * 1.3 + i)).toFixed(1)} ${(+el.dataset.by + 3 * Math.cos(t * 1.1 + i * 1.7)).toFixed(1)})`); });
+    const tr = $('trav'), fb = fracB(pKa, pHo), cyc = t % 2.6;
+    if (fb > 0.02 && cyc < 1.6) { const k = cyc / 1.6, x0 = 60 + (Math.floor(t / 2.6) * 97) % 220; tr.style.opacity = k < .1 ? k * 10 : k > .9 ? (1 - k) * 10 : 1; tr.setAttribute('transform', `translate(${x0 + 20 * k} ${60 + 150 * k})`); }
+    else tr.style.opacity = 0;
+    raf = requestAnimationFrame(tick);
+  };
+  if (!reduced()) raf = requestAnimationFrame(tick);
+  return () => cancelAnimationFrame(raf);
+}
+
+/* ===== Tela 5 · Fibras ===== */
+const FIBERS = [
+  { k: 'B', n: 'Autonômico', f: 'Fibras B', on: 10, off: 92 },
+  { k: 'C', n: 'Dor e temperatura', f: 'C e Aδ', on: 20, off: 82 },
+  { k: 'Ab', n: 'Tato e pressão', f: 'Aβ', on: 32, off: 72, low: 'part' },
+  { k: 'Aa', n: 'Propriocepção e motor', f: 'Aα', on: 44, off: 62, low: 'none' },
+];
+function painCurve(t, blk) {
+  const first = Math.exp(-Math.pow((t - 0.25) / 0.09, 2));
+  const u = (t - 0.7) / 0.55, second = t > 0.7 ? 0.72 * u * Math.exp(1 - u) : 0;
+  return { first: blk === 'ad' ? 0 : first, second: blk === 'c' ? 0 : second, g1: first, g2: second };
+}
+function renderFibras(g) {
+  let tm = 54, conc = 'hi', blk = 'none', dt = 30;
+  g.innerHTML =
+    card('Nem toda fibra é igual', `<div class="tw"><table class="t"><thead><tr><th>Fibra</th><th>Mielina</th><th>Diâmetro (µm)</th><th>Velocidade (m/s)</th><th style="text-align:left">Função principal</th></tr></thead><tbody>
+      <tr><td><b>Aα</b></td><td>Espessa</td><td>12–20</td><td>70–120</td><td style="text-align:left;white-space:normal">Motora e propriocepção</td></tr>
+      <tr><td><b>Aβ</b></td><td>Espessa</td><td>5–12</td><td>30–70</td><td style="text-align:left;white-space:normal">Tato e pressão</td></tr>
+      <tr><td><b>Aδ</b></td><td>Fina</td><td>1–5</td><td>5–30</td><td style="text-align:left;white-space:normal">Dor “rápida”, frio</td></tr>
+      <tr><td><b>B</b></td><td>Fina</td><td>&lt; 3</td><td>3–15</td><td style="text-align:left;white-space:normal">Autonômica pré-ganglionar</td></tr>
+      <tr><td><b>C</b></td><td>Ausente</td><td>0,3–1,3</td><td>0,5–2</td><td style="text-align:left;white-space:normal">Dor “lenta”, calor, autonômica pós-ganglionar</td></tr>
+      </tbody></table></div><p class="note">Classificação de Erlanger-Gasser; valores aproximados. Fibras finas, pouco ou não mielinizadas, que disparam em alta frequência tendem a ser bloqueadas primeiro.</p>`, { wide: true }) +
+    card('O que se perde primeiro', `<div class="stack"><div class="range"><label for="tmR">Tempo depois da injeção</label><output id="tmO"></output><input type="range" id="tmR" min="0" max="100" value="54"></div>
+      ${seg('concSeg', [['hi', 'Concentração usual'], ['lo', 'Baixa concentração']], 'hi')}</div>
+      <div class="fib" id="fib" style="margin-top:14px"></div><div class="insight" id="fibTxt"></div>`, { more: 'fibras' }) +
+    card('Primeira dor e segunda dor', `${seg('painSeg', [['none', 'Sem bloqueio'], ['ad', 'Bloquear Aδ'], ['c', 'Bloquear C']], 'none')}<div id="painFig" style="margin-top:10px"></div><div class="insight" id="painTxt"></div>`,
+      { lede: 'Ao bater o dedo: primeiro a pontada, depois a queimação. Cada uma viaja por uma fibra diferente.' }) +
+    card('O anestésico entra de fora para dentro', `<div class="range"><label for="dtR">Tempo de difusão</label><output id="dtO"></output><input type="range" id="dtR" min="0" max="100" value="30"></div>
+      <div class="row" style="align-items:flex-start;gap:16px;margin-top:8px"><div style="flex:0 1 220px;min-width:160px" id="nerveFig"></div><div style="flex:1 1 220px;min-width:0" id="nerveTxt"></div></div>`,
+      { wide: true, lede: 'Num nervo misto, as fibras da periferia do feixe (manto) inervam regiões proximais; as do centro (núcleo), regiões distais.', more: 'manto' });
+  const drawFib = () => {
+    $('tmO').textContent = tm < 45 ? 'instalação' : tm <= 58 ? 'efeito máximo' : 'recuperação';
+    let h = ''; const lost = [];
+    FIBERS.forEach(F => {
+      let v = tm < 58 ? clamp((tm - F.on) / 6, 0, 1) : clamp((F.off - tm) / 6, 0, 1);
+      let st = v > 0.95 ? 'on' : v > 0.05 ? 'part' : 'off';
+      if (conc === 'lo') { if (F.low === 'none') { v = 0; st = 'off'; } else if (F.low === 'part') { v = Math.min(v, .4); st = v > .05 ? 'part' : 'off'; } }
+      if (st === 'on') lost.push(F.n.toLowerCase());
+      h += `<div class="fr"><div><b>${F.n}</b><small>${F.f}</small></div><div class="bar"><i style="width:${v * 100}%"></i></div><div class="st ${st}">${st === 'on' ? 'Bloqueado' : st === 'part' ? 'Parcial' : 'Preservado'}</div></div>`;
+    });
+    $('fib').innerHTML = h;
+    $('fibTxt').innerHTML = conc === 'lo'
+      ? '<b>Baixa concentração:</b> há analgesia com pouco bloqueio motor. É o princípio da analgesia de parto com ropivacaína ou bupivacaína diluídas.'
+      : tm < 58 ? 'O bloqueio se instala na ordem <b>autonômico → dor e temperatura → tato → motor</b>. A hipotensão precoce na raquianestesia vem do bloqueio simpático (fibras B).'
+      : 'A recuperação segue, em geral, a <b>ordem inversa</b>: o movimento volta antes da sensibilidade dolorosa.';
+  };
+  $('tmR').oninput = e => { tm = +e.target.value; drawFib(); };
+  bindSeg('concSeg', v => { conc = v; drawFib(); }); drawFib();
+  const drawPain = () => {
+    const W = cw('painFig'), H = 190, L = 40, Rr = 12, T = 12, B = 160, x = t => L + t / 3 * (W - L - Rr), y = v => B - v * (B - T);
+    let s = `<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="Intensidade da dor ao longo do tempo">`;
+    s += `<line x1="${L}" x2="${W - Rr}" y1="${B}" y2="${B}" class="ax"/><line x1="${L}" x2="${L}" y1="${T}" y2="${B}" class="ax"/>`;
+    [0, 1, 2, 3].forEach(t => s += `<text x="${x(t)}" y="${B + 16}" text-anchor="middle">${t} s</text>`);
+    s += `<text x="${L - 6}" y="${T + 10}" text-anchor="end" style="font-size:10.5px">dor</text>`;
+    let pg = '', pa = '';
+    for (let t = 0; t <= 3.0001; t += 0.02) { const c = painCurve(t, blk); pg += (pg ? 'L' : 'M') + x(t).toFixed(1) + ' ' + y(Math.max(c.g1, c.g2)).toFixed(1); pa += (pa ? 'L' : 'M') + x(t).toFixed(1) + ' ' + y(Math.max(c.first, c.second)).toFixed(1); }
+    s += `<path d="${pg}" class="ghost" style="stroke-dasharray:4 4"/><path d="${pa} L ${x(3)} ${B} L ${L} ${B} Z" style="fill:var(--accent);opacity:.14"/><path d="${pa}" class="curveA"/>`;
+    s += `<text x="${x(0.25)}" y="${y(1) - 2 + 12}" text-anchor="start" dx="10" class="${blk === 'ad' ? '' : 'lbl'}">1ª dor · Aδ</text><text x="${x(1.25)}" y="${y(.72) - 8}" text-anchor="middle" class="${blk === 'c' ? '' : 'lbl'}">2ª dor · C</text></svg>`;
+    $('painFig').innerHTML = s;
+    $('painTxt').innerHTML = blk === 'none' ? '<b>Primeira dor (Aδ):</b> rápida, aguda, bem localizada. <b>Segunda dor (C):</b> lenta, difusa, em queimação, persiste depois do estímulo.'
+      : blk === 'ad' ? 'Sem as fibras Aδ, some a pontada inicial; a queimação tardia continua.' : 'Sem as fibras C, some a dor tardia em queimação; a pontada inicial continua.';
+  };
+  bindSeg('painSeg', v => { blk = v; drawPain(); }); drawPain();
+  const drawNerve = () => {
+    const rf = 86 * (1 - dt / 100);
+    $('dtO').textContent = dt < 20 ? 'recém-injetado' : dt < 70 ? 'difundindo' : 'bloqueio completo';
+    $('nerveFig').innerHTML = `<svg class="ch" viewBox="0 0 200 200" role="img" aria-label="Corte transversal de um nervo com o anestésico difundindo da periferia para o centro">
+      <circle cx="100" cy="100" r="96" class="lip"/><circle cx="100" cy="100" r="88" class="soft"/>
+      <circle cx="100" cy="100" r="88" style="fill:var(--accent);opacity:.28"/><circle cx="100" cy="100" r="${Math.max(0, rf)}" class="soft"/>
+      <circle cx="100" cy="100" r="58" class="dotst"/><text x="100" y="66" text-anchor="middle" style="font-size:10px">manto</text><text x="100" y="104" text-anchor="middle" class="lbl" style="font-size:11px">núcleo</text>
+      <text x="100" y="12" text-anchor="middle" style="font-size:9.5px">perineuro</text></svg>`;
+    const mantle = rf < 70, core = rf < 20;
+    $('nerveTxt').innerHTML = `<div class="stack"><div class="tile"><span>Manto · região proximal (ombro)</span><b style="font-size:17px;color:${mantle ? 'var(--accent)' : 'var(--muted)'}">${mantle ? 'Anestesiado' : 'Ainda sensível'}</b></div>
+      <div class="tile"><span>Núcleo · região distal (mão)</span><b style="font-size:17px;color:${core ? 'var(--accent)' : 'var(--muted)'}">${core ? 'Anestesiado' : 'Ainda sensível'}</b></div></div>
+      <p class="note">No bloqueio do plexo braquial, o ombro fica anestesiado antes da mão. O perineuro é a principal barreira: volume e tempo de espera importam.</p>`;
+  };
+  $('dtR').oninput = e => { dt = +e.target.value; drawNerve(); }; drawNerve();
+}
+
+/* ===== Tela 6 · Agentes ===== */
+function renderAgentes(g) {
+  let filt = 'all', sel = store.get('ag', 'lido');
+  if (!AG[sel]) sel = 'lido';
+  g.innerHTML =
+    card('Os anestésicos locais da prática', `${seg('agSeg', [['all', 'Todos'], ['A', 'Amidas'], ['E', 'Ésteres']], 'all')}
+      <div class="tw" style="margin-top:10px"><table class="t" id="agTab"><thead><tr><th>Agente</th><th>Grupo</th><th>pKa</th><th>Latência</th><th>Duração</th><th>Ligação a proteínas</th><th>Dose máx. sem / com adrenalina</th></tr></thead><tbody></tbody></table></div>
+      <p class="note">* Articaína: amida com grupamento éster. Doses usuais para adultos, dose única; confira a bula e ajuste ao paciente. Toque numa linha para ver os detalhes.</p>`, { wide: true, more: 'agentes' }) +
+    card('Três propriedades num só gráfico', `<div id="bubFig"></div><div class="legend"><span><i style="background:var(--accent);width:10px;height:10px;border-radius:50%"></i>amida</span><span><i style="background:var(--b);width:10px;height:10px;border-radius:50%"></i>éster</span><span>Eixo horizontal: pKa (latência)</span><span>Eixo vertical: ligação a proteínas (duração)</span><span>Tamanho: lipossolubilidade (potência)</span></div>`,
+      { lede: 'Mais à esquerda, início mais rápido. Mais alto, efeito mais longo. Maior, mais potente e mais tóxico.' }) +
+    `<section class="card" id="agDet" style="min-width:0"></section>`;
+  const draw = () => {
+    const rows = AGENTS.filter(a => filt === 'all' || a.c[0] === filt);
+    $('agTab').querySelector('tbody').innerHTML = rows.map(a => `<tr data-a="${a.id}" class="${a.id === sel ? 'sel' : ''}" tabindex="0"><td><b>${a.n}</b></td><td><span class="tag ${a.c[0] === 'A' ? 'a' : 'e'}">${a.c[0] === 'A' ? 'Amida' : 'Éster'}${a.c.length > 1 ? '*' : ''}</span></td><td>${nf(a.pKa, 1)}</td><td>${a.lat}</td><td>${a.dur}</td><td>${a.pb ? '~' + a.pb + '%' : '—'}</td><td>${a.dose ? (a.dose[0] ? nf(a.dose[0], 1) : '—') + ' / ' + nf(a.dose[1], 1) + ' mg/kg' : a.doseT}</td></tr>`).join('');
+    const pts = AGENTS.filter(a => a.pb && a.lipo);
+    const W = cw('bubFig'), H = 270, L = 46, Rr = 24, T = 16, B = 228, x = p => L + (p - 7.4) / 1.6 * (W - L - Rr), y = v => B - v / 100 * (B - T);
+    let s = `<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="pKa, ligação a proteínas e lipossolubilidade dos agentes">`;
+    [0, 25, 50, 75, 100].forEach(v => s += `<line x1="${L}" x2="${W - Rr}" y1="${y(v)}" y2="${y(v)}" class="gr"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v}%</text>`);
+    [7.5, 8, 8.5, 9].forEach(p => s += `<text x="${x(p)}" y="${B + 18}" text-anchor="middle">${nf(p, 1)}</text>`);
+    s += `<text x="${L}" y="${H - 4}">← início mais rápido</text><text x="${W - Rr}" y="${H - 4}" text-anchor="end">pKa</text>`;
+    // deslocamentos para pontos coincidentes: [dx do círculo, posição do rótulo]
+    const LAY = { lido: [-11, 'l'], prilo: [11, 'r'], bupi: [-9, 'u'], ropi: [9, 'd'], arti: [0, 'u'], mepi: [0, 'u'], tetra: [0, 'r'], proc: [0, 'l'] };
+    pts.forEach(a => { const [dx, lp] = LAY[a.id] || [0, 'r'], cx = x(a.pKa) + dx, cy = y(a.pb), r = 6 + a.lipo * 4, me = a.id === sel;
+      const lx = lp === 'l' ? cx - r - 5 : lp === 'r' ? cx + r + 5 : cx, ly = lp === 'u' ? cy - r - 6 : lp === 'd' ? cy + r + 14 : cy + 4, an = lp === 'l' ? 'end' : lp === 'r' ? 'start' : 'middle';
+      s += `<g data-a="${a.id}" style="cursor:pointer"><circle cx="${cx}" cy="${cy}" r="${r}" class="${a.c[0] === 'A' ? 'hl' : 'barb'}" style="opacity:${me ? .9 : .35}"/>${me ? `<circle cx="${cx}" cy="${cy}" r="${r + 3}" class="accst"/>` : ''}<text x="${lx}" y="${ly}" text-anchor="${an}" class="${me ? 'lbl' : ''}">${a.n}</text></g>`; });
+    $('bubFig').innerHTML = s + '</svg>';
+    const a = AG[sel];
+    $('agDet').innerHTML = `<div class="card-h"><div><span class="eyebrow">${a.c[0] === 'A' ? 'Amida' : 'Éster'}${a.c.length > 1 ? ' com grupamento éster' : ''}</span><h3>${a.n}</h3></div><button class="more-btn" data-go2="ph">Ver no simulador</button></div>
+      <div class="tiles" style="grid-template-columns:1fr 1fr"><div class="tile"><span>pKa</span><b>${nf(a.pKa, 1)}</b><small>não ionizada no pH 7,4: ${pc(fracB(a.pKa, 7.4))}</small></div><div class="tile"><span>Latência</span><b style="font-size:18px">${a.lat}</b></div><div class="tile"><span>Duração</span><b style="font-size:18px">${a.dur}</b></div><div class="tile"><span>Lipossolubilidade</span><b style="font-size:18px">${a.lipoT}</b></div></div>
+      <p style="margin:12px 0 4px;font-size:14px"><b>Uso típico:</b> ${a.uso}.</p><p style="margin:0;font-size:14px">${a.nota}</p>`;
+    $('agDet').querySelector('[data-go2]').onclick = () => { const s0 = store.get('ph', {}); store.set('ph', { ...s0, a: a.id, k: a.pKa }); go('ph'); };
+  };
+  const pick = id => { sel = id; store.set('ag', id); draw(); };
+  bindSeg('agSeg', v => { filt = v; draw(); });
+  $('agTab').onclick = e => { const r = e.target.closest('tr[data-a]'); if (r) pick(r.dataset.a); };
+  $('agTab').onkeydown = e => { const r = e.target.closest('tr[data-a]'); if (r && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); pick(r.dataset.a); } };
+  $('bubFig').onclick = e => { const n = e.target.closest('[data-a]'); if (n) pick(n.dataset.a); };
+  draw();
+}
+
+/* ===== Tela 7 · Dose e segurança ===== */
+const cp = c => nf(c, c % 1 ? (Math.round(c * 100) % 10 ? 2 : 1) : 0);
+const DOSE_AGENTS = ['lido', 'mepi', 'prilo', 'arti', 'bupi', 'ropi'];
+function renderDose(g) {
+  const sv = store.get('dose', {});
+  let aid = DOSE_AGENTS.includes(sv.a) ? sv.a : 'lido', kg = sv.kg || 70, epi = sv.e ?? false, conc = sv.c || 1, epiC = 5, used = 0, lkg = 70;
+  g.innerHTML =
+    card('Quantos mililitros posso injetar?', `<div class="sub">Anestésico</div><div class="chips wrapc" id="dAg">${DOSE_AGENTS.map(k => `<button class="chip" data-a="${k}">${AG[k].n}</button>`).join('')}</div>
+      <div class="fields" style="margin-top:12px">
+        <div class="inp"><label for="dKg">Peso do paciente</label><div class="box"><input id="dKg" type="number" inputmode="decimal" min="1" max="200" step="1"><span>kg</span></div></div>
+        <div class="inp"><label for="dUsed">Já injetado <small>somando todas as aplicações</small></label><div class="box"><input id="dUsed" type="number" inputmode="decimal" min="0" step="0.5" value="0"><span>mL</span></div></div>
+      </div>
+      <div class="row" style="margin-top:10px"><span class="chip" style="border:0;background:none;padding-left:0">Exemplos:</span><button class="chip" data-kg="70">Adulto 70 kg</button><button class="chip" data-kg="20">Criança 20 kg</button></div>
+      <div class="sub">Concentração</div><div class="chips wrapc" id="dConc"></div>
+      <div class="sub">Vasoconstritor</div><div class="row">${seg('dEpi', [['0', 'Sem adrenalina'], ['1', 'Com adrenalina']], epi ? '1' : '0')}<span id="dEpiC"></span></div>
+      <div class="tiles" style="margin-top:14px"><div class="tile"><span>Dose máxima</span><b id="oMg"></b><small id="oMgS"></small></div><div class="tile acc big"><span>Volume máximo</span><b id="oMl"></b><small id="oMlS"></small></div><div class="tile" id="oRemT"><span>Ainda disponível</span><b id="oRem"></b><small id="oRemS"></small></div></div>
+      <div class="eq" id="oEq" style="margin-top:10px"></div><div id="oWarn"></div>
+      <p class="note">Dose máxima é teto, não meta. Calcule antes de começar e some tudo o que for injetado, inclusive por outros profissionais.</p>`, { wide: true, more: 'dose' }) +
+    card('Adrenalina: menos absorção, mais efeito', `<div class="tiles"><div class="tile"><span>1:100.000</span><b>10 µg/mL</b></div><div class="tile"><span>1:200.000</span><b>5 µg/mL</b></div></div>
+      <ul style="margin:12px 0 0;padding-left:18px;font-size:14px;display:grid;gap:4px"><li>Menos absorção sistêmica e pico plasmático menor</li><li>Mais duração do bloqueio e dose máxima maior</li><li>Campo com menos sangramento</li><li>Cuidado: injeção intravascular, cardiopatas (na odontologia, cerca de 40 µg no total), feocromocitoma</li></ul>
+      <div class="sub" style="margin-top:16px">Mito × evidência: adrenalina no dedo</div>
+      <div class="tiles"><div class="tile acc"><span>Casos em mãos e dedos</span><b>3.110</b><small>lidocaína com adrenalina</small></div><div class="tile good"><span>Necroses digitais</span><b>0</b><small>Lalonde et al., 2005</small></div></div>
+      <p style="font-size:14px;margin:10px 0 0">O mito nasceu de relatos anteriores a 1950, ligados à procaína ácida e a soluções sem padronização. Adrenalina diluída é segura em extremidades de pacientes sem vasculopatia grave (base do WALANT). Se houver isquemia persistente, a fentolamina local reverte a vasoconstrição.</p>`, { id: 'vaso', more: 'vaso', wide: true }) +
+    card('LAST: toxicidade sistêmica', `<div class="grid two" style="gap:12px"><div><div class="sub">Sistema nervoso central</div><ol style="margin:0;padding-left:18px;font-size:13.5px;display:grid;gap:3px"><li>Gosto metálico, dormência perioral, zumbido</li><li>Agitação, confusão, fala arrastada</li><li>Convulsões</li><li>Depressão do SNC, coma, apneia</li></ol></div>
+      <div><div class="sub">Cardiovascular</div><ol style="margin:0;padding-left:18px;font-size:13.5px;display:grid;gap:3px"><li>Hipertensão e taquicardia iniciais</li><li>Bradicardia, hipotensão</li><li>Arritmias ventriculares</li><li>Colapso circulatório, assistolia</li></ol></div></div>
+      <p class="note">Apresentações atípicas são comuns: só cardiovasculares ou tardias. A bupivacaína é a mais cardiotóxica.</p>
+      <div class="sub" style="margin-top:14px">Conduta</div><div class="steps"><div class="stp"><i>1</i><b>Pare</b><span>Interrompa a injeção e peça ajuda</span></div><div class="stp"><i>2</i><b>Oxigene</b><span>O₂ a 100%, via aérea; evite hipóxia e acidose</span></div><div class="stp"><i>3</i><b>Convulsão</b><span>Benzodiazepínico</span></div><div class="stp"><i>4</i><b>Lipídio</b><span>Emulsão lipídica 20% ao primeiro sinal grave</span></div></div>
+      <div class="sub" style="margin-top:14px">Emulsão lipídica 20%</div>
+      <div class="fields" style="max-width:260px"><div class="inp"><label for="lKg">Peso</label><div class="box"><input id="lKg" type="number" inputmode="decimal" min="1" max="200" value="70"><span>kg</span></div></div></div>
+      <div class="tiles" style="margin-top:10px"><div class="tile acc"><span>Bolus em 2–3 min</span><b id="lBol"></b></div><div class="tile"><span>Infusão</span><b id="lInf"></b><small id="lInfS"></small></div><div class="tile"><span>Máximo total</span><b id="lMax"></b><small>≈ 12 mL/kg</small></div></div>
+      <p class="note">Instável: repetir o bolus 1 a 2 vezes e dobrar a infusão. Na parada: adrenalina ≤ 1 µg/kg; evitar vasopressina, bloqueadores de cálcio, betabloqueadores e outro anestésico local. Checklist da ASRA (Neal et al., 2020).</p>`, { wide: true, more: 'last' }) +
+    card('Nem toda reação é toxicidade sistêmica', `<div class="stack">
+      <div class="tile"><span>Metemoglobinemia</span><small style="font-size:13.5px;color:var(--fg)">Prilocaína e benzocaína. SpO₂ perto de 85% que não melhora com O₂, sangue “achocolatado”. Azul de metileno 1–2 mg/kg.</small></div>
+      <div class="tile"><span>Alergia</span><small style="font-size:13.5px;color:var(--fg)">Rara. Mais com ésteres (PABA) e conservantes. A maioria das “alergias” é reação vasovagal, ansiedade ou efeito da adrenalina.</small></div>
+      <div class="tile"><span>Neurotoxicidade</span><small style="font-size:13.5px;color:var(--fg)">Injeção intraneural; sintomas transitórios após lidocaína intratecal; síndrome da cauda equina.</small></div></div>`) +
+    card('Mesmo fármaco, pacientes diferentes', `<div class="stack">
+      <div class="tile"><span>Gestantes</span><small style="font-size:13.5px;color:var(--fg)">Mais sensibilidade e mais fração livre. Reduzir a dose no neuroeixo (~25–30%). Lidocaína é segura para sutura, inclusive na amamentação.</small></div>
+      <div class="tile"><span>Crianças</span><small style="font-size:13.5px;color:var(--fg)">Dose por kg calculada antes. LET e EMLA ajudam. EMLA com cautela antes dos 3 meses; sem benzocaína antes dos 2 anos.</small></div>
+      <div class="tile"><span>Idosos, hepatopatas e cardiopatas</span><small style="font-size:13.5px;color:var(--fg)">Menos depuração e reserva: doses menores, injeção lenta. As amidas se acumulam na hepatopatia e na ICC. Cardiopata: limitar a adrenalina total.</small></div></div>`);
+
+  const upd = () => {
+    const a = AG[aid]; if (a.epiOnly) epi = true;
+    if (!a.conc.includes(conc)) conc = a.conc[Math.min(1, a.conc.length - 1)];
+    store.set('dose', { a: aid, kg, e: epi, c: conc });
+    $('dAg').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.a === aid));
+    $('dConc').innerHTML = a.conc.map(c => `<button class="chip${c === conc ? ' on' : ''}" data-c="${c}">${cp(c)}%<small>${cp(c * 10)} mg/mL</small></button>`).join('');
+    const segB = $('dEpi').querySelectorAll('button'); segB[0].disabled = !!a.epiOnly; segB.forEach(b => { const on = (b.dataset.v === '1') === epi; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+    $('dEpiC').innerHTML = epi ? seg('dEpiConc', [['10', '1:100.000'], ['5', '1:200.000']], String(epiC)) : '';
+    if (epi) bindSeg('dEpiConc', v => { epiC = +v; upd(); });
+    if (document.activeElement !== $('dKg')) $('dKg').value = kg;
+    const perKg = a.dose[epi ? 1 : 0], mgKg = perKg * kg, cap = a.cap ? a.cap[epi ? 1 : 0] : null, mg = cap ? Math.min(mgKg, cap) : mgKg;
+    const mgmL = conc * 10, ml = mg / mgmL, rem = ml - used;
+    $('oMg').textContent = nf(mg, 0) + ' mg'; $('oMgS').textContent = `${nf(perKg, 1)} mg/kg${cap && mgKg > cap ? ` · limitado ao teto de ${cap} mg` : cap ? ` · teto ${cap} mg` : ''}`;
+    $('oMl').textContent = nf(ml, ml < 10 ? 1 : 0) + ' mL'; $('oMlS').textContent = a.dental ? `≈ ${nf(ml / 1.8, 1)} tubetes de 1,8 mL` : `de ${a.n.toLowerCase()} ${cp(conc)}%`;
+    $('oRem').textContent = nf(Math.max(0, rem), 1) + ' mL'; $('oRemT').className = 'tile ' + (rem <= 0 ? 'bad' : rem < ml * 0.25 ? 'alt' : 'good');
+    $('oRemS').textContent = used > 0 ? (rem <= 0 ? 'dose máxima atingida' : `já usado: ${nf(used * mgmL, 0)} mg`) : 'nada injetado ainda';
+    $('oEq').innerHTML = `${cp(conc)}% × 10 = <b>${cp(mgmL)} mg/mL</b><br>${nf(perKg, 1)} mg/kg × ${nf(kg, 0)} kg = ${nf(mgKg, 0)} mg${cap && mgKg > cap ? ` → teto ${cap} mg` : ''}<br>${nf(mg, 0)} mg ÷ ${cp(mgmL)} mg/mL = <b>${nf(ml, 1)} mL</b>${epi ? `<br>adrenalina: ${nf(ml, 1)} mL × ${epiC} µg/mL = ${nf(ml * epiC, 0)} µg` : ''}`;
+    let w = '';
+    if (kg < 30) w += `<div class="insight warn">Em crianças a margem é pequena: ${nf(kg, 0)} kg permitem só ${nf(ml, 1)} mL nesta concentração.</div>`;
+    if (epi && ml * epiC > 40) w += `<div class="insight warn">O volume máximo leva ${nf(ml * epiC, 0)} µg de adrenalina. Em cardiopatas, limite a adrenalina total (na odontologia, cerca de 40 µg, ou ${nf(40 / epiC, 0)} mL desta solução).</div>`;
+    if (aid === 'prilo' && mg > 600) w += `<div class="insight warn">Prilocaína acima de ~600 mg aumenta o risco de metemoglobinemia.</div>`;
+    $('oWarn').innerHTML = w;
+  };
+  $('dAg').onclick = e => { const c = e.target.closest('.chip'); if (c) { aid = c.dataset.a; upd(); } };
+  $('dConc').onclick = e => { const c = e.target.closest('.chip'); if (c) { conc = +c.dataset.c; upd(); } };
+  bindSeg('dEpi', v => { epi = v === '1'; upd(); });
+  $('dKg').oninput = e => { const v = parseFloat(String(e.target.value).replace(',', '.')); if (v > 0 && v <= 250) { kg = v; upd(); } };
+  $('dUsed').oninput = e => { const v = parseFloat(String(e.target.value).replace(',', '.')); used = v > 0 ? v : 0; upd(); };
+  g.querySelectorAll('[data-kg]').forEach(b => b.onclick = () => { kg = +b.dataset.kg; upd(); });
+  const lip = () => {
+    const big = lkg > 70;
+    $('lBol').textContent = big ? '≈ 100 mL' : nf(1.5 * lkg, 0) + ' mL';
+    $('lInf').textContent = big ? '≈ 250 mL' : nf(0.25 * lkg, 1) + ' mL/min';
+    $('lInfS').textContent = big ? 'em 15–20 min' : '0,25 mL/kg/min';
+    $('lMax').textContent = nf(12 * lkg, 0) + ' mL';
+  };
+  $('lKg').oninput = e => { const v = parseFloat(String(e.target.value).replace(',', '.')); if (v > 0) { lkg = v; lip(); } };
+  upd(); lip();
+  if (location.hash === '#vaso') setTimeout(() => $('vaso').scrollIntoView(), 50);
+}
+
+/* ===== Saiba mais, glossário, como usar ===== */
+const REFS = '<p class="src">Referências: Brunton & Knollmann (eds), Goodman & Gilman’s The Pharmacological Basis of Therapeutics, 14ª ed., 2023 · Gropper (ed), Miller’s Anesthesia, 10ª ed., 2024 · Raja et al., Pain, 2020 · Neal, Neal & Weinberg, Reg Anesth Pain Med, 2021 (checklist de LAST da ASRA) · Lalonde et al., J Hand Surg Am, 2005 · Cepeda et al., Cochrane, 2010.</p>';
+const LEARN = {
+  conceito: { t: 'Dor, nocicepção e anestesia', h: `
+    <h4>Dor não é o mesmo que nocicepção</h4><p>A IASP (2020) define dor como “uma experiência sensorial e emocional desagradável associada, ou semelhante àquela associada, a uma lesão tecidual real ou potencial”. <b>Nocicepção</b> é o processo neural que detecta e codifica o estímulo nocivo; <b>dor</b> é a experiência consciente.</p>
+    <p>Sob anestesia geral a nocicepção continua (taquicardia e hipertensão ao estímulo cirúrgico), mas não há percepção. Por isso a analgesia é um componente separado da anestesia geral.</p>
+    <h4>O anestésico local não é um “analgésico”</h4><p>Ele bloqueia qualquer fibra que alcançar em concentração suficiente: sensitiva, motora ou autonômica. A seletividade clínica vem da concentração, do volume, do local de aplicação e das características das fibras (tela 5).</p>
+    <div class="trap"><h4>Armadilha comum</h4><p>Achar que o anestésico local age na percepção da dor. Ele age na <b>transmissão</b>: o sinal nasce no nociceptor, mas não chega à medula.</p></div>${REFS}` },
+  quimica: { t: 'Ésteres e amidas', h: `
+    <h4>Estrutura</h4><p>Anel aromático (lipofílico) + cadeia intermediária (éster ou amida) + amina terciária (hidrofílica, ionizável). A amina é o que faz o fármaco existir nas duas formas, ionizada e não ionizada.</p>
+    <h4>Ésteres</h4><p>Hidrolisados pela pseudocolinesterase plasmática: meia-vida curta. Geram ácido para-aminobenzoico (PABA), responsável pela maioria das alergias verdadeiras. Pacientes com deficiência de pseudocolinesterase metabolizam mal os ésteres.</p>
+    <h4>Amidas</h4><p>Metabolismo hepático (lidocaína: CYP1A2 e 3A4; bupivacaína: 3A4; ropivacaína: 1A2). Alergia verdadeira é raríssima: muitas “alergias” são reações vasovagais, ansiedade, efeito da adrenalina ou reação a conservantes (metilparabeno, metabissulfito).</p>
+    <div class="trap"><h4>A exceção</h4><p>A <b>articaína</b> é uma amida com um grupamento éster: cerca de 90% é hidrolisada no plasma, com meia-vida de cerca de 20 minutos.</p></div>${REFS}` },
+  props: { t: 'Três propriedades explicam quase tudo', h: `
+    <h4>pKa → latência</h4><p>Os anestésicos locais são bases fracas com pKa entre 7,6 e 9, acima do pH fisiológico. Quanto mais perto de 7,4, maior a fração não ionizada e mais rápido o início (lidocaína, pKa ~7,8–7,9, é rápida; bupivacaína, 8,1, é mais lenta). Exceção: a cloroprocaína tem pKa alto, mas é usada a 3%, e a quantidade compensa.</p>
+    <h4>Lipossolubilidade → potência</h4><p>Mais lipossolúvel, mais fármaco na membrana e perto do canal: mais potência e mais toxicidade.</p>
+    <h4>Ligação a proteínas → duração</h4><p>A ligação à α1-glicoproteína ácida acompanha a permanência no canal: bupivacaína ~95%, lidocaína ~65%.</p>
+    <h4>Vasodilatação</h4><p>Quase todos os anestésicos locais são vasodilatadores (a cocaína é a exceção). Isso aumenta a absorção e encurta a ação, a razão para associar um vasoconstritor.</p>${REFS}` },
+  mecanismo: { t: 'Como o anestésico bloqueia o canal', h: `
+    <p>O sítio de ligação fica na face interna do poro do canal de sódio voltagem-dependente (NaV), principalmente no segmento S6 do domínio IV. Por isso a molécula precisa entrar na célula.</p>
+    <p><b>Via hidrofóbica:</b> a base não ionizada atravessa a membrana e, no citoplasma, volta a se protonar; a forma ionizada é a que se liga com maior afinidade. <b>Via hidrofílica:</b> com o canal aberto, o cátion também alcança o sítio pelo próprio poro, vindo de dentro.</p>
+    <p>Sem influxo de Na⁺, o potencial de ação não se propaga. Para interromper a condução numa fibra mielinizada é preciso bloquear cerca de três nodos de Ranvier consecutivos, e isso depende de volume suficiente.</p>
+    <div class="trap"><h4>Correção frequente</h4><p>O canal tem <b>três estados funcionais</b>: repouso (fechado), aberto e inativado. “Fechado” e “repouso” não são estados diferentes.</p></div>${REFS}` },
+  usodep: { t: 'Bloqueio dependente de uso', h: `
+    <p>Hipótese do receptor modulado (Hille, 1977): o anestésico tem baixa afinidade pelo canal em repouso e alta pelos estados aberto e inativado. Ao se ligar, estabiliza o estado inativado e prolonga o período refratário.</p>
+    <p>Resultado: bloqueio <b>fásico</b> ou dependente de uso. Fibras que disparam em alta frequência, como as nociceptivas durante a lesão, acumulam mais bloqueio.</p>
+    <p>A mesma propriedade explica o uso da lidocaína como <b>antiarrítmico classe IB</b>: age mais em tecidos que despolarizam em frequência alta ou estão isquêmicos. A bupivacaína, ao contrário, entra rápido e sai devagar dos canais cardíacos (“fast-in, slow-out”), acumula bloqueio na frequência cardíaca e causa arritmias de difícil reversão.</p>
+    <p class="note">O gráfico usa um modelo simplificado (ligação a cada estímulo e recuperação exponencial entre estímulos) apenas para mostrar a tendência.</p>${REFS}` },
+  ph: { t: 'pH, pKa e ionização', h: `
+    <h4>A equação</h4><p>Para uma base fraca: <b>pH = pKa + log [B]/[BH⁺]</b>. Quando pH = pKa, metade está em cada forma. Cada unidade de pH abaixo do pKa multiplica por 10 a razão a favor da forma ionizada.</p>
+    <h4>Os números da aula</h4><p>Lidocaína, pKa 7,9: no pH 7,4 a fração não ionizada é 1/(1 + 10<sup>0,5</sup>) ≈ <b>24%</b>; no pH 6,4, 1/(1 + 10<sup>1,5</sup>) ≈ <b>3%</b>. Cerca de oito vezes menos base disponível para atravessar a membrana.</p>
+    <h4>O pH do tecido inflamado varia</h4><p>Não existe um “pH inflamado” fixo. Em abscessos ele pode cair bastante, e mesmo quedas modestas reduzem muito a fração lipossolúvel. Os valores dos atalhos do simulador são ilustrativos.</p>
+    <h4>Não é só o pH</h4><p>No tecido infectado, o edema dilui o anestésico, a hiperemia o remove mais depressa e os nociceptores sensibilizados expressam mais NaV1.8, relativamente resistente à lidocaína.</p>
+    <h4>O que o simulador calcula</h4><p>As frações vêm da equação de Henderson-Hasselbalch. “Chega ao alvo” compara a fração não ionizada no pH escolhido com a do mesmo agente no pH 7,4. A leitura clínica é qualitativa e serve para raciocinar, não para prever a resposta de um paciente.</p>
+    <div class="trap"><h4>Conduta</h4><p>Não repita doses no mesmo foco. Prefira o bloqueio regional longe do foco (bloqueio digital na paroníquia; bloqueio do alveolar inferior em vez de infiltração local) e trate a infecção.</p></div>${REFS}` },
+  fibras: { t: 'Bloqueio diferencial', h: `
+    <p>Sequência clínica típica: autonômico (fibras B) → dor e temperatura (C e Aδ) → tato e pressão (Aβ) → propriocepção e motricidade (Aα). A recuperação ocorre, em geral, na ordem inversa.</p>
+    <p><b>Nuance:</b> a regra do diâmetro é uma simplificação. Pesam também a mielinização (e a distância entre os nodos), a frequência de disparo (bloqueio dependente de uso) e o comprimento de nervo exposto. Em estudos experimentais, fibras Aδ finas mielinizadas estão entre as mais sensíveis.</p>
+    <p><b>Aplicações:</b> hipotensão precoce na raquianestesia (bloqueio simpático); analgesia de parto com ropivacaína em baixa concentração, preservando a força motora.</p>
+    <p class="note">As barras da tela mostram a ordem, não tempos reais: a latência depende do agente, da dose e da técnica.</p>${REFS}` },
+  manto: { t: 'Manto e núcleo', h: `
+    <p>A disposição das fibras no feixe explica a sequência <b>topográfica</b> do bloqueio: nos nervos mistos, as fibras do manto (periferia) inervam estruturas proximais e as do núcleo (centro), estruturas distais. Num bloqueio de plexo braquial, o ombro é anestesiado antes da mão, e o bloqueio motor proximal pode surgir antes da anestesia distal.</p>
+    <div class="trap"><h4>Correção frequente</h4><p>A difusão da periferia para o centro <b>não</b> explica por que as fibras C são bloqueadas antes das A. Essa diferença vem das propriedades das fibras (tela 5, bloqueio diferencial).</p></div>
+    <p>Barreiras à difusão: epineuro, perineuro (a principal) e endoneuro. Por isso volume e tempo de espera importam.</p>${REFS}` },
+  agentes: { t: 'Escolha do agente', h: `
+    <p>Doses máximas usuais para uma aplicação única em adultos (infiltração ou bloqueio periférico). As fontes divergem um pouco: use a bula do produto e ajuste ao paciente e ao local (áreas muito vascularizadas absorvem mais).</p>
+    <p>Lidocaína sem adrenalina costuma ser citada como 4,5 mg/kg (máximo ~300 mg); com adrenalina, 7 mg/kg (máximo ~500 mg). Bupivacaína, 2,5 mg/kg (máximo 175 mg sem e 225 mg com adrenalina).</p>
+    <p>A articaína é comercializada apenas com adrenalina. A benzocaína (pKa ~3,5) é quase totalmente não ionizada e pouco hidrossolúvel: uso exclusivamente tópico.</p>
+    <p>Lipossolubilidade aparece em categorias (baixa, média, alta) porque os coeficientes de partição variam muito entre as fontes.</p>${REFS}` },
+  dose: { t: 'A conta que previne a toxicidade', h: `
+    <h4>Regra de bolso</h4><p>Concentração em % × 10 = mg/mL. Lidocaína 1% = 10 mg/mL; 2% = 20 mg/mL.</p>
+    <h4>Exemplos</h4><p>Adulto de 70 kg, lidocaína sem adrenalina: 4,5 × 70 = 315 mg → teto prático 300 mg = 30 mL a 1% ou 15 mL a 2%. Com adrenalina: 7 × 70 = 490 mg ≈ 49 mL a 1%. Criança de 20 kg, sem adrenalina: 90 mg = 9 mL a 1%. Tubete odontológico de 1,8 mL a 2% = 36 mg.</p>
+    <h4>Adrenalina</h4><p>1:100.000 = 10 µg/mL; 1:200.000 = 5 µg/mL.</p>
+    <div class="trap"><h4>Some tudo</h4><p>Calcule antes de começar e some tudo o que for injetado, inclusive por outros profissionais. Em crianças, a margem é pequena.</p></div>
+    <p class="note">A calculadora é didática: não substitui a bula nem protocolos institucionais.</p>${REFS}` },
+  vaso: { t: 'Vasoconstritores', h: `
+    <p>A adrenalina (1:200.000 a 1:100.000) reduz o pico plasmático do anestésico, prolonga a duração (efeito maior com lidocaína e mepivacaína do que com bupivacaína e ropivacaína), permite doses maiores e produz um campo com menos sangramento. O efeito vasoconstritor máximo pode levar cerca de 25 minutos.</p>
+    <p>Alternativas: felipressina (odontologia, com prilocaína) e fenilefrina (em associações comerciais).</p>
+    <p><b>Cuidados:</b> injeção intravascular (taquicardia, palpitações, hipertensão: a adrenalina funciona como “dose-teste”); cardiopatas (limitar a dose total; na odontologia, recomenda-se cerca de 40 µg, dois tubetes a 1:100.000); feocromocitoma; interação com cocaína.</p>
+    <h4>Dedo, nariz, orelha, pênis</h4><p>Lalonde et al. (2005): estudo prospectivo multicêntrico com 3.110 casos de lidocaína com adrenalina em mãos e dedos, sem nenhuma necrose digital. É a base do WALANT (wide-awake local anesthesia no tourniquet). Cautela em doença vascular periférica grave, fenômeno de Raynaud importante e trauma com comprometimento vascular.</p>${REFS}` },
+  last: { t: 'LAST: conduta', h: `
+    <p>Local anesthetic systemic toxicity. A sequência clássica (sistema nervoso central antes do coração) nem sempre ocorre: apresentações só cardiovasculares ou tardias (> 5 min, até ~1 h, sobretudo com infusões contínuas) são comuns.</p>
+    <p><b>Absorção por local</b> (maior → menor): intercostal > caudal > peridural > plexo braquial > subcutâneo. <b>Fatores de risco:</b> extremos de idade, baixa massa muscular, cardiopatia, hepatopatia, gestação, acidose, hipóxia.</p>
+    <h4>Emulsão lipídica 20%</h4><p>Acima de 70 kg: bolus de ~100 mL em 2–3 min e ~250 mL em 15–20 min. Abaixo de 70 kg: bolus de 1,5 mL/kg em 2–3 min e 0,25 mL/kg/min. Se continuar instável, repetir o bolus 1 a 2 vezes e dobrar a infusão. Máximo ~12 mL/kg. Manter a infusão por pelo menos 10 min após a estabilidade.</p>
+    <p>Convulsão: benzodiazepínico; propofol só em doses pequenas e com estabilidade hemodinâmica. Monitorar ≥ 2 h após convulsão e 4–6 h após instabilidade cardiovascular.</p>
+    <p><b>Como o lipídio funciona:</b> sequestra o fármaco (“lipid sink”) e o redistribui para fígado e músculo, além de ter efeito cardiotônico direto e dar suporte metabólico ao miocárdio.</p>${REFS}` },
+};
+const GLOSS = [
+  ['Base fraca', 'Substância que aceita um H⁺. Os anestésicos locais são bases fracas: existem como base (B) e como cátion (BH⁺).'],
+  ['pKa', 'pH em que metade do fármaco está ionizada e metade não. Propriedade fixa de cada molécula.'],
+  ['pH', 'Medida da acidez do meio. Tecido normal fica perto de 7,4; tecido inflamado ou infectado é mais ácido.'],
+  ['Forma não ionizada (B)', 'Sem carga, lipossolúvel: atravessa membranas.'],
+  ['Forma ionizada (BH⁺)', 'Com carga, hidrossolúvel: não atravessa a membrana, mas é a que se liga ao canal de sódio por dentro.'],
+  ['Henderson-Hasselbalch', 'pH = pKa + log [B]/[BH⁺]. Relaciona pH, pKa e a proporção entre as formas.'],
+  ['Canal NaV', 'Canal de sódio voltagem-dependente, responsável pela despolarização do potencial de ação. Alvo dos anestésicos locais.'],
+  ['Latência', 'Tempo entre a aplicação e o início do bloqueio.'],
+  ['Bloqueio dependente de uso', 'Quanto mais o canal abre, mais o fármaco se liga: fibras que disparam em alta frequência são mais bloqueadas.'],
+  ['Nodo de Ranvier', 'Intervalo sem mielina no axônio, onde o potencial de ação se regenera. Bloquear ~3 nodos seguidos interrompe a condução.'],
+  ['Bloqueio diferencial', 'Perda das funções nervosas numa ordem típica: autonômica, dor e temperatura, tato, motora.'],
+  ['LAST', 'Toxicidade sistêmica por anestésico local: sinais neurológicos e cardiovasculares.'],
+  ['WALANT', 'Wide-awake local anesthesia no tourniquet: cirurgia de mão com lidocaína e adrenalina, paciente acordado e sem garrote.'],
+  ['Metemoglobinemia', 'Hemoglobina oxidada que não transporta oxigênio. Associada à prilocaína e à benzocaína.'],
+];
+function showGloss() { openSheet('Glossário', `<dl style="margin:0">${GLOSS.map(([t, d]) => `<dt style="font-weight:600;margin-top:12px">${t}</dt><dd style="margin:2px 0 0">${d}</dd>`).join('')}</dl>`); }
+function showHow() {
+  openSheet('Como usar', `<p>O FARMACO LAB reúne laboratórios interativos de farmacologia, uma aba por classe de fármacos. Este piloto traz a aba de <b>anestésicos locais</b>; farmacocinética, farmacodinâmica e outras classes vêm depois.</p>
+    <h4>Telas</h4><ol>${SCREENS.map(s => `<li><button class="lnk" style="border:0;background:none;padding:0;font:inherit" data-go="${s.id}">${s.t}</button>: ${s.p}</li>`).join('')}</ol>
+    <h4>Em aula</h4><ul><li>Projete a tela 4 e peça à turma que preveja o que acontece com a lidocaína no tecido infectado antes de arrastar o pH.</li><li>Na tela 6, compare lidocaína e bupivacaína no gráfico das três propriedades.</li><li>Na tela 7, calcule a dose máxima para os pacientes do caso clínico da aula.</li></ul>
+    <p class="note">Ferramenta didática. Não substitui a bula, os protocolos institucionais nem o julgamento clínico.</p>`);
+}
+function showInstall() {
+  const u = navigator.userAgent || ''; const plat = /iPhone|iPad|iPod/.test(u) || (/Macintosh/.test(u) && navigator.maxTouchPoints > 1) ? 'ios' : /Android/.test(u) ? 'android' : 'desktop';
+  const ST = { ios: ['Abra esta página no <b>Safari</b>.', 'Toque em <b>Compartilhar</b> <kbd>⬆︎</kbd>.', 'Toque em <b>Adicionar à Tela de Início</b>.', 'Confirme o nome e toque em <b>Adicionar</b>.'],
+    android: ['Abra esta página no <b>Chrome</b>.', 'Toque no menu <kbd>⋮</kbd>.', 'Toque em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.', 'Confirme. O ícone aparece junto dos seus apps.'],
+    desktop: ['<b>Chrome ou Edge:</b> use o ícone de instalar na barra de endereço, ou o menu <kbd>⋮</kbd> → <b>Transmitir, salvar e compartilhar</b> → <b>Instalar página como app</b>.', '<b>Safari (Mac):</b> menu <b>Arquivo</b> → <b>Adicionar ao Dock</b>.', '<b>Qualquer navegador:</b> salve nos favoritos com <kbd>Ctrl</kbd>+<kbd>D</kbd>.'] };
+  const body = p => `<p>O FARMACO LAB pode ficar na tela inicial como um aplicativo e abrir em tela cheia.</p><div class="seg" id="iSeg">${[['ios', 'iPhone e iPad'], ['android', 'Android'], ['desktop', 'Computador']].map(([k, l]) => `<button data-v="${k}" class="${k === p ? 'on' : ''}">${l}</button>`).join('')}</div><ol style="margin-top:12px">${ST[p].map(s => `<li>${s}</li>`).join('')}</ol>`;
+  openSheet('Instalar o FARMACO LAB', body(plat));
+  const wire = () => { const s = $('iSeg'); if (s) s.onclick = e => { const b = e.target.closest('button'); if (b) { s.parentElement.innerHTML = body(b.dataset.v); wire(); } }; };
+  wire();
+}
+
+/* ===== montagem ===== */
+const SCREENS = [
+  { id: 'conceito', t: 'Conceito', h: 'Bloquear a transmissão sem tocar na consciência', p: 'O que é um anestésico local e onde ele age no caminho da dor.', render: renderConceito },
+  { id: 'quimica', t: 'Química', h: 'Três partes, duas famílias', p: 'A estrutura que decide o metabolismo, a potência e o comportamento no tecido.', render: renderQuimica },
+  { id: 'mecanismo', t: 'Mecanismo', h: 'O alvo está do lado de dentro', p: 'Como o anestésico atravessa a membrana e bloqueia o canal de sódio.', render: renderMecanismo },
+  { id: 'ph', t: 'pH e ionização', h: 'No tecido ácido, o anestésico fica preso do lado de fora', p: 'Simule pKa e pH e veja quanto do fármaco consegue chegar ao canal.', render: renderPH },
+  { id: 'fibras', t: 'Fibras e bloqueio', h: 'Nem toda fibra é igual, e isso muda o bloqueio', p: 'A ordem em que as funções se perdem e voltam, e por que o ombro adormece antes da mão.', render: renderFibras },
+  { id: 'agentes', t: 'Agentes', h: 'Os anestésicos locais da prática', p: 'Compare pKa, latência, duração e dose dos agentes mais usados.', render: renderAgentes },
+  { id: 'dose', t: 'Dose e segurança', h: 'A conta que previne a toxicidade', p: 'Dose máxima por peso, vasoconstritores, LAST e emulsão lipídica.', render: renderDose },
+];
+$('subs').onclick = e => { const b = e.target.closest('.sb'); if (b) show(+b.dataset.i, false); };
+$('labFoot').onclick = e => { const b = e.target.closest('button[data-i]'); if (b) show(+b.dataset.i, true); };
+$('glossBtn').onclick = showGloss;
+$('howBtn').onclick = showHow;
+let deferredPrompt = null;
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
+if (matchMedia('(display-mode: standalone)').matches || navigator.standalone) $('instBtn').hidden = true;
+$('instBtn').onclick = async () => { if (deferredPrompt) { try { deferredPrompt.prompt(); const r = await deferredPrompt.userChoice; deferredPrompt = null; if (r && r.outcome === 'accepted') return; } catch {} } showInstall(); };
+(() => {
+  const h = (location.hash || '').slice(1), hi = SCREENS.findIndex(s => s.id === (h === 'vaso' ? 'dose' : h));
+  const si = SCREENS.findIndex(s => s.id === store.get('tela', ''));
+  const first = !store.get('visto', false);
+  show(hi >= 0 ? hi : si >= 0 ? si : 0, false);
+  if (first) { $('welcome').hidden = false;
+    const done = () => { $('welcome').hidden = true; store.set('visto', true); };
+    $('wStart').onclick = () => { done(); go('ph'); };
+    $('wClose').onclick = () => { done(); go('conceito'); }; }
+})();
+
+</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}</script>
+</body>
+</html>
