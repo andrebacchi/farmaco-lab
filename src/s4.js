@@ -36,7 +36,7 @@ function renderPH(g) {
       <div class="sub" style="margin-top:16px">Proporção entre as formas</div>
       <div class="ratio" id="ratioBar"></div><p class="note" id="ratioTxt" style="font-size:13.5px;color:var(--fg)"></p>
     </section>` +
-    `<section class="card" style="min-width:0"><div class="card-h"><div><span class="eyebrow">Ao vivo</span><h3>Membrana do axônio</h3></div></div>
+    `<section class="card" style="min-width:0"><div class="card-h"><div><span class="eyebrow">Ao vivo</span><h3>Transporte pela membrana do axônio</h3></div></div>
       <div id="memFig"></div>
       <div class="legend"><span><span class="mol b">B</span> não ionizada, lipossolúvel</span><span><span class="mol i">+</span> ionizada, hidrossolúvel</span><span><i style="background:var(--accent);height:10px;width:10px;border-radius:2px"></i> canal NaV</span></div>
       <p class="note" id="memNote"></p>
@@ -66,7 +66,7 @@ function renderPH(g) {
     let heads = ''; for (let x = 6; x < 400; x += 13) { if (x > 318 && x < 372) continue; heads += `<circle cx="${x}" cy="136" r="5.5" class="head"/><circle cx="${x}" cy="164" r="5.5" class="head"/>`; }
     return `<rect x="0" y="0" width="400" height="132" class="cell-out"/><rect x="0" y="168" width="400" height="152" class="cell-in"/><rect x="0" y="132" width="400" height="36" class="lip"/>${heads}
       <path d="M322 120 h18 v60 h-18 z M360 120 h18 v60 h-18 z" class="chan" style="fill:var(--accent);fill-opacity:.25"/>
-      <text x="8" y="14" class="zone" id="zOut"></text><text x="8" y="314" class="zone" id="zIn"></text>`;
+      <text x="8" y="15" class="zone2" id="zOut"></text><text x="8" y="313" class="zone2" id="zIn"></text><text x="8" y="154" class="memlbl">membrana do axônio</text>`;
   })();
   $('memFig').innerHTML = `<svg class="ch" viewBox="0 0 400 320" role="img" aria-label="Moléculas de anestésico dos dois lados da membrana" id="memSvg">${memBase}<g id="mols"></g><g id="trav" style="opacity:0"><circle r="8" class="mb"/><text class="mtxt">B</text></g></svg>`;
   let prevHH = {};
@@ -105,8 +105,9 @@ function renderPH(g) {
     let h = ''; OUT_POS.forEach(([x, y], i) => { h += mol(x, y, i >= nB, 'o' + i); });
     IN_POS.slice(0, nIn).forEach(([x, y], i) => { const k = i - nInB, bound = k >= 0 && k < 2; h += mol(bound ? 350 : x, bound ? 190 + k * 20 : y, k >= 0, 'i' + i); });
     $('mols').innerHTML = h;
-    $('zOut').textContent = `Fora · pH ${nf(pHo, 1)} · ${nB} de ${N_OUT} não ionizadas`;
-    $('zIn').textContent = `Dentro · pH ${nf(pHi, 1)} · ${nInB} B + ${nInI} BH⁺`;
+    const cnt = (b, i) => `<tspan class="tb">${b} B</tspan> + <tspan class="ti">${i} BH⁺</tspan>`;
+    $('zOut').innerHTML = `<tspan class="zt">Fora</tspan> · pH ${nf(pHo, 1)} · ${cnt(nB, N_OUT - nB)}`;
+    $('zIn').innerHTML = `<tspan class="zt">Dentro</tspan> · pH ${nf(pHi, 1)} · ${cnt(nInB, nInI)}`;
     $('memNote').textContent = nIn === 0 ? 'Praticamente nada atravessou: o canal continua livre.'
       : `Cada bolinha de fora vale cerca de 3% da dose. Dentro, a base fica na mesma concentração de fora e a maior parte reioniza; os cátions ocupam o canal.${sc < 1 ? ' Com tanta base disponível, nem tudo cabe na figura.' : ''}`;
     drawCurve(); drawCmp();

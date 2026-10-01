@@ -54,6 +54,11 @@ svg.ch .chan{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6}
 svg.ch .mb{fill:var(--b)} svg.ch .mi{fill:var(--ion)}
 svg.ch .mtxt{fill:#fff;font:700 10px var(--f-body);text-anchor:middle;dominant-baseline:central;pointer-events:none}
 svg.ch .zone{font:600 10.5px var(--f-body);letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+svg.ch .zone2{font:600 11.5px var(--f-body);fill:var(--muted)}
+svg.ch .zone2 .zt{fill:var(--fg);letter-spacing:.06em;text-transform:uppercase;font-size:10.5px}
+svg.ch .zone2 .tb{fill:var(--b);font-weight:700}
+svg.ch .zone2 .ti{fill:var(--ion);font-weight:700}
+svg.ch .memlbl{font:600 10px var(--f-body);fill:var(--fg);opacity:.62;letter-spacing:.04em}
 svg.ch .curveB{fill:none;stroke:var(--b);stroke-width:2.4}
 svg.ch .curveI{fill:none;stroke:var(--ion);stroke-width:2.4;stroke-dasharray:6 4}
 svg.ch .ghost{fill:none;stroke:var(--dot);stroke-width:1.4}
