@@ -6,9 +6,9 @@ const SOLN = [[6.5, 'Solução simples', 'pH ~6,5'], [4.5, 'Com adrenalina', 'pH
 /* pseudoaleatório fixo, para as moléculas não pularem de lugar a cada ajuste */
 function prng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 const R = prng(7);
-const N_OUT = 30, N_IN = 48;   // cada bolinha de fora ≈ 3,3% da dose
-const OUT_POS = Array.from({ length: N_OUT }, (_, i) => [20 + (i % 10) * 30 + R() * 10, 30 + Math.floor(i / 10) * 34 + R() * 8]);
-const IN_POS = Array.from({ length: N_IN }, (_, i) => [16 + (i % 12) * 24 + R() * 6, 186 + Math.floor(i / 12) * 28 + R() * 6]);
+const N_OUT = 50, N_IN = 50;   // cada bolinha de fora ≈ 3,3% da dose
+const OUT_POS = Array.from({ length: N_OUT }, (_, i) => [18 + (i % 10) * 30 + R() * 8, 28 + Math.floor(i / 10) * 21 + R() * 4]);
+const IN_POS = Array.from({ length: N_IN }, (_, i) => [16 + (i % 12) * 24 + R() * 6, 184 + Math.floor(i / 12) * 24 + R() * 4]);
 
 function verdictFor(rel, pHo, a) {
   if (a.id === 'benzo') return ['good', 'Quase toda não ionizada', 'Com pKa de 3,5, a benzocaína fica não ionizada em qualquer pH do corpo. Atravessa bem, mas é pouco hidrossolúvel: por isso só serve como tópico.'];
@@ -89,7 +89,7 @@ function renderPH(g) {
 
   const update = () => {
     const a = AG[aid] || { n: 'Personalizado' }, fb = fracB(pKa, pHo), fi = fracB(pKa, pHi);
-    // retrato dos primeiros minutos: 30 moléculas injetadas; a entrada é proporcional à forma B disponível fora
+    // retrato dos primeiros minutos: 50 moléculas injetadas; a entrada é proporcional à forma B disponível fora
     // (C calibrado para a lidocaína no pH 7,4 ter cerca de 40% dentro)
     const C = 2.13, entered = po => 1 - Math.exp(-C * fracB(pKa, po));
     const E = entered(pHo), rel = E / entered(7.4);
@@ -104,14 +104,14 @@ function renderPH(g) {
     const [cls, t, s] = verdictFor(rel, pHo, a.id ? a : {});
     $('verd').className = 'verdict ' + cls; $('verd').innerHTML = `<b>${t}</b><span>${s}</span><span class="note" style="margin:2px 0 0">Leitura didática e qualitativa.</span>`;
     drawHH(fb);
-    // moléculas: fora, 30 bolinhas na proporção B : BH⁺; dentro, a mesma concentração de B e o cátion em equilíbrio com o pH intracelular
+    // moléculas: fora, as que ainda não entraram, na proporção B : BH⁺ do pH do tecido; dentro, divididas pelo pH intracelular
     let h = ''; OUT_POS.slice(0, outN).forEach(([x, y], i) => { h += mol(x, y, i >= outB, 'o' + i); });
     IN_POS.slice(0, inN).forEach(([x, y], i) => { const k = i - inB, bound = k >= 0 && k < 2; h += mol(bound ? 350 : x, bound ? 190 + k * 20 : y, k >= 0, 'i' + i); });
     $('mols').innerHTML = h;
     const cnt = (b, i) => `<tspan class="tb">${b} B</tspan> + <tspan class="ti">${i} BH⁺</tspan>`;
     $('zOut').innerHTML = `<tspan class="zt">Fora</tspan> · pH ${nf(pHo, 1)} · ${cnt(outB, outN - outB)}`;
     $('zIn').innerHTML = `<tspan class="zt">Dentro</tspan> · pH ${nf(pHi, 1)} · ${cnt(inB, inN - inB)}`;
-    $('memNote').innerHTML = `Acompanhe <b>30 moléculas</b> de anestésico. Só a forma <b style="color:var(--b)">B</b> atravessa a membrana, e ela entra mais depressa quanto mais B houver do lado de fora. Dentro do axônio, ${a.id === 'benzo' ? 'quase nada reioniza' : 'parte vira <b style="color:var(--ion)">BH⁺</b>, que não consegue voltar e ocupa o canal'}. ${inN <= 2 ? 'Neste pH, quase todas ficam presas do lado de fora.' : `Resultado: ${inN} das 30 terminam dentro do axônio.`}`;
+    $('memNote').innerHTML = `Acompanhe <b>${N_OUT} moléculas</b> de anestésico. Só a forma <b style="color:var(--b)">B</b> atravessa a membrana, e ela entra mais depressa quanto mais B houver do lado de fora. Dentro do axônio, ${a.id === 'benzo' ? 'quase nada reioniza' : 'parte vira <b style="color:var(--ion)">BH⁺</b>, que não consegue voltar e ocupa o canal'}. ${inN <= 2 ? 'Neste pH, quase todas ficam presas do lado de fora.' : `Resultado: ${inN} das ${N_OUT} já entraram no axônio.`}`;
     drawCurve(); drawCmp();
   };
   const drawCurve = () => {
