@@ -30,7 +30,7 @@ function renderPH(g) {
       <div class="tiles" style="margin-top:14px">
         <div class="tile b"><span>Não ionizada (B)</span><b id="tB"></b><small>atravessa a membrana</small></div>
         <div class="tile i"><span>Ionizada (BH⁺)</span><b id="tI"></b><small>fica do lado de fora</small></div>
-        <div class="tile acc"><span>Chega ao alvo</span><b id="tRel"></b><small id="tRelS">em relação ao pH 7,4</small></div>
+        <div class="tile acc"><span>Entraram no axônio</span><b id="tRel"></b><small id="tRelS"></small></div>
       </div>
       <div class="verdict" id="verd" style="margin-top:10px"></div>
       <div class="sub" style="margin-top:16px">Proporção entre as formas</div>
@@ -43,7 +43,7 @@ function renderPH(g) {
       <div class="hh" id="hh" aria-live="polite"></div>
       <details class="fold"><summary>E dentro do axônio?</summary><div>
         <div class="range"><label for="piR">pH intracelular</label><output id="piO"></output><input type="range" id="piR" min="6.8" max="7.4" step="0.1" value="7.2"></div>
-        <p class="note">A base não ionizada fica na mesma concentração dos dois lados da membrana. Dentro, com pH perto de 7,2, a maior parte volta a ser cátion: a forma que se liga ao canal. Por isso o cátion se acumula dentro do axônio.</p></div></details></section>` +
+        <p class="note">Dentro do axônio o pH fica perto de 7,2. A base que entra volta, em boa parte, a ser cátion: a forma que se liga ao canal e que não consegue atravessar a membrana de volta. Mude o pH intracelular e veja a divisão entre B e BH⁺ dentro do axônio mudar.</p></div></details></section>` +
     card('Ionização em toda a faixa de pH', `<div id="curveFig"></div><div class="legend"><span><i style="background:var(--b)"></i>não ionizada</span><span><i class="dash" style="background:var(--ion)"></i>ionizada</span><span><i style="background:var(--fg);width:8px;height:8px;border-radius:50%"></i>pH atual</span></div>
       <p class="note">No pH igual ao pKa, metade está em cada forma. Cada unidade de pH abaixo do pKa divide a forma não ionizada por cerca de 10.</p>`) +
     card('Todos os agentes no mesmo pH', `<div id="cmpFig"></div><p class="note">Quanto mais perto o pKa do pH do tecido, maior a fração não ionizada e mais rápido o início. Exceção: a cloroprocaína começa rápido porque é usada a 3%.</p>`, { lede: 'Fração não ionizada de cada anestésico no pH escolhido acima.' }) +
@@ -88,28 +88,30 @@ function renderPH(g) {
   const mol = (x, y, ion, i) => `<g data-j="${i}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><circle r="7" class="${ion ? 'mi' : 'mb'}"/><text class="mtxt">${ion ? '+' : 'B'}</text></g>`;
 
   const update = () => {
-    const a = AG[aid] || { n: 'Personalizado' }, fb = fracB(pKa, pHo), rel = fb / fracB(pKa, 7.4), fi = fracB(pKa, pHi);
+    const a = AG[aid] || { n: 'Personalizado' }, fb = fracB(pKa, pHo), fi = fracB(pKa, pHi);
+    // retrato dos primeiros minutos: 30 moléculas injetadas; a entrada é proporcional à forma B disponível fora
+    // (C calibrado para a lidocaína no pH 7,4 ter cerca de 40% dentro)
+    const C = 2.13, entered = po => 1 - Math.exp(-C * fracB(pKa, po));
+    const E = entered(pHo), rel = E / entered(7.4);
     store.set('ph', { a: aid, k: pKa, o: pHo });
     $('pkR').value = pKa; $('pkO').textContent = nf(pKa, 1); $('phR').value = pHo; $('phO').textContent = nf(pHo, 1); $('piO').textContent = nf(pHi, 1);
     $('agChips').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.a === aid));
     $('phChips').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', Math.abs(+c.dataset.p - pHo) < .01));
     $('tB').textContent = pc(fb); $('tI').textContent = pc(1 - fb);
-    $('tRel').textContent = Math.abs(pHo - 7.4) < .01 ? '100%' : pc(rel, rel < 0.1 ? 1 : 0);
-    $('tRelS').textContent = Math.abs(pHo - 7.4) < .01 ? 'referência: tecido normal' : rel < 1 ? `${nf(1 / rel, 1)} vezes menos que no pH 7,4` : `${nf(rel, 1)} vezes mais que no pH 7,4`;
+    const inN = Math.round(N_OUT * E), outN = N_OUT - inN, outB = Math.round(outN * fb), inB = Math.round(inN * fi);
+    $('tRel').textContent = `${inN} de ${N_OUT}`;
+    $('tRelS').textContent = Math.abs(pHo - 7.4) < .01 ? 'nos primeiros minutos' : rel < 1 ? `${nf(1 / rel, 1)} vezes menos que no pH 7,4` : `${nf(rel, 1)} vezes mais que no pH 7,4`;
     const [cls, t, s] = verdictFor(rel, pHo, a.id ? a : {});
     $('verd').className = 'verdict ' + cls; $('verd').innerHTML = `<b>${t}</b><span>${s}</span><span class="note" style="margin:2px 0 0">Leitura didática e qualitativa.</span>`;
     drawHH(fb);
     // moléculas: fora, 30 bolinhas na proporção B : BH⁺; dentro, a mesma concentração de B e o cátion em equilíbrio com o pH intracelular
-    const nB = Math.round(N_OUT * fb), inBx = N_OUT * fb, totX = inBx / fi, sc = totX > N_IN ? N_IN / totX : 1;
-    const nInB = Math.round(inBx * sc), nIn = Math.round(totX * sc), nInI = nIn - nInB;
-    let h = ''; OUT_POS.forEach(([x, y], i) => { h += mol(x, y, i >= nB, 'o' + i); });
-    IN_POS.slice(0, nIn).forEach(([x, y], i) => { const k = i - nInB, bound = k >= 0 && k < 2; h += mol(bound ? 350 : x, bound ? 190 + k * 20 : y, k >= 0, 'i' + i); });
+    let h = ''; OUT_POS.slice(0, outN).forEach(([x, y], i) => { h += mol(x, y, i >= outB, 'o' + i); });
+    IN_POS.slice(0, inN).forEach(([x, y], i) => { const k = i - inB, bound = k >= 0 && k < 2; h += mol(bound ? 350 : x, bound ? 190 + k * 20 : y, k >= 0, 'i' + i); });
     $('mols').innerHTML = h;
     const cnt = (b, i) => `<tspan class="tb">${b} B</tspan> + <tspan class="ti">${i} BH⁺</tspan>`;
-    $('zOut').innerHTML = `<tspan class="zt">Fora</tspan> · pH ${nf(pHo, 1)} · ${cnt(nB, N_OUT - nB)}`;
-    $('zIn').innerHTML = `<tspan class="zt">Dentro</tspan> · pH ${nf(pHi, 1)} · ${cnt(nInB, nInI)}`;
-    $('memNote').textContent = nIn === 0 ? 'Praticamente nada atravessou: o canal continua livre.'
-      : `Cada bolinha de fora vale cerca de 3% da dose. Dentro, a base fica na mesma concentração de fora e a maior parte reioniza; os cátions ocupam o canal.${sc < 1 ? ' Com tanta base disponível, nem tudo cabe na figura.' : ''}`;
+    $('zOut').innerHTML = `<tspan class="zt">Fora</tspan> · pH ${nf(pHo, 1)} · ${cnt(outB, outN - outB)}`;
+    $('zIn').innerHTML = `<tspan class="zt">Dentro</tspan> · pH ${nf(pHi, 1)} · ${cnt(inB, inN - inB)}`;
+    $('memNote').innerHTML = `Acompanhe <b>30 moléculas</b> de anestésico. Só a forma <b style="color:var(--b)">B</b> atravessa a membrana, e ela entra mais depressa quanto mais B houver do lado de fora. Dentro do axônio, ${a.id === 'benzo' ? 'quase nada reioniza' : 'parte vira <b style="color:var(--ion)">BH⁺</b>, que não consegue voltar e ocupa o canal'}. ${inN <= 2 ? 'Neste pH, quase todas ficam presas do lado de fora.' : `Resultado: ${inN} das 30 terminam dentro do axônio.`}`;
     drawCurve(); drawCmp();
   };
   const drawCurve = () => {
