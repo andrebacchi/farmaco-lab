@@ -2,7 +2,7 @@
    Ao publicar uma nova versão do index.html, aumente o número abaixo.
    Todos os apps dividem o endereço andrebacchi.github.io: só apague caches deste app. */
 const PREFIX = "farmaco-lab-";
-const VERSION = PREFIX + "v6";
+const VERSION = PREFIX + "v7";
 const APP = ["./", "./index.html", "./manifest.json", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon-maskable-512.png", "./icons/apple-touch-icon.png", "./icons/favicon-64.png"];
 
 self.addEventListener("install", e => {

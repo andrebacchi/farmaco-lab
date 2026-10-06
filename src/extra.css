@@ -17,6 +17,7 @@
 .blk.soon{opacity:.62;cursor:default;border-style:dashed}
 .blk.soon em{font-style:normal;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--muted)}
 
+.fora{background:var(--accent-soft);border-radius:10px;padding:10px 12px;font-size:14px}
 .stack{display:grid;gap:12px}
 .sub{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:14px 0 6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .sub:first-child{margin-top:0}

@@ -33,7 +33,25 @@ $('howBtn').onclick = showHow;
 addEventListener('hashchange', () => { const h = (location.hash || '').slice(1), f = findScreen(h === 'vaso' ? 'dose' : h); if (f && (f[0] !== lab || f[1] !== cur)) show(f[1], false, f[0]); });
 let deferredPrompt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
-if (matchMedia('(display-mode: standalone)').matches || navigator.standalone) $('instBtn').hidden = true;
+/* Janela em que o app está rodando: "navegador" (aba comum), "propria" (instalado, na janela dele) ou "outra"
+   (aberto dentro de outro app instalado, como o BACCHI LAB). Neste último caso o Android também responde
+   display-mode: standalone, e o botão Instalar sumia para quem ainda não tinha o app: a diferença é de onde a página veio. */
+function janelaApp(k){
+  if(!(matchMedia("(display-mode: standalone)").matches||navigator.standalone===true))return"navegador";
+  let fora=false,marca=false;
+  try{const r=document.referrer&&new URL(document.referrer);fora=!!r&&r.origin===location.origin&&!r.pathname.startsWith(new URL("./",location.href).pathname);}catch(e){}
+  try{if(!document.referrer)localStorage.setItem(k,"1");if(!fora)sessionStorage.setItem(k,"1");marca=localStorage.getItem(k)==="1"||sessionStorage.getItem(k)==="1";}catch(e){}
+  return !fora||marca?"propria":"outra";
+}
+/* Confirmação do próprio navegador, quando ele sabe responder (Chrome no Android, pelo related_applications do manifest). */
+function appInstalado(k){
+  if(!navigator.getInstalledRelatedApps)return Promise.resolve(false);
+  return navigator.getInstalledRelatedApps().then(l=>{if(l.length){try{localStorage.setItem(k,"1");}catch(e){}}return l.length>0;}).catch(()=>false);
+}
+const JAN_K = 'farmaco-lab.instalado'; let janela = janelaApp(JAN_K);
+$('instBtn').hidden = janela === 'propria';   // só some na janela do próprio app instalado
+if (janela === 'outra') appInstalado(JAN_K).then(ok => { if (ok) { janela = 'propria'; $('instBtn').hidden = true; } });
+addEventListener('appinstalled', () => { try { localStorage.setItem(JAN_K, '1'); } catch (e) {} $('instBtn').hidden = true; });
 $('instBtn').onclick = async () => { if (deferredPrompt) { try { deferredPrompt.prompt(); const r = await deferredPrompt.userChoice; deferredPrompt = null; if (r && r.outcome === 'accepted') return; } catch {} } showInstall(); };
 (() => {
   const h = (location.hash || '').slice(1), f = findScreen(h === 'vaso' ? 'dose' : h) || findScreen(store.get('tela', '')) || findScreen(window.FL_START || '') || [0, 0];   // FL_START: tela inicial opcional (usada em prévias)
