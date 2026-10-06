@@ -81,11 +81,16 @@ const GLOSS = [
   ['WALANT', 'Wide-awake local anesthesia no tourniquet: cirurgia de mão com lidocaína e adrenalina, paciente acordado e sem garrote.'],
   ['Metemoglobinemia', 'Hemoglobina oxidada que não transporta oxigênio. Associada à prilocaína e à benzocaína.'],
 ];
-function showGloss() { openSheet('Glossário', `<dl style="margin:0">${GLOSS.map(([t, d]) => `<dt style="font-weight:600;margin-top:12px">${t}</dt><dd style="margin:2px 0 0">${d}</dd>`).join('')}</dl>`); }
+function showGloss() {
+  const dl = G => `<dl style="margin:0">${G.map(([t, d]) => `<dt style="font-weight:600;margin-top:12px">${t}</dt><dd style="margin:2px 0 0">${d}</dd>`).join('')}</dl>`;
+  const order = lab === 1 ? [[LABS[1].n, GLOSS_CO], [LABS[0].n, GLOSS]] : [[LABS[0].n, GLOSS], [LABS[1].n, GLOSS_CO]];
+  openSheet('Glossário', order.map(([n, G]) => `<h4>${n}</h4>${dl(G)}`).join(''));
+}
 function showHow() {
-  openSheet('Como usar', `<p>O FARMACO LAB reúne laboratórios interativos de farmacologia, uma aba por classe de fármacos. Este piloto traz a aba de <b>anestésicos locais</b>; farmacocinética, farmacodinâmica e outras classes vêm depois.</p>
-    <h4>Telas</h4><ol>${SCREENS.map(s => `<li><button class="lnk" style="border:0;background:none;padding:0;font:inherit" data-go="${s.id}">${s.t}</button>: ${s.p}</li>`).join('')}</ol>
-    <h4>Em aula</h4><ul><li>Projete a tela 4 e peça à turma que preveja o que acontece com a lidocaína no tecido infectado antes de arrastar o pH.</li><li>Na tela 6, compare lidocaína e bupivacaína no gráfico das três propriedades.</li><li>Na tela 7, calcule a dose máxima para os pacientes do caso clínico da aula.</li></ul>
+  const L = LABS[lab], tips = lab === 1 ? TIPS_CO : ['Projete a tela 4 e peça à turma que preveja o que acontece com a lidocaína no tecido infectado antes de arrastar o pH.', 'Na tela 6, compare lidocaína e bupivacaína no gráfico das três propriedades.', 'Na tela 7, calcule a dose máxima para os pacientes do caso clínico da aula.'];
+  openSheet('Como usar', `<p>O FARMACO LAB reúne laboratórios interativos de farmacologia, uma aba por classe de fármacos: <b>anestésicos locais</b> e <b>contraceptivos orais</b>. Farmacocinética, farmacodinâmica e outras classes vêm depois.</p>
+    <h4>${L.n}: telas</h4><ol>${L.screens.map(s => `<li><button class="lnk" style="border:0;background:none;padding:0;font:inherit" data-go="${s.id}">${s.t}</button>: ${s.p}</li>`).join('')}</ol>
+    <h4>Em aula</h4><ul>${tips.map(t => `<li>${t}</li>`).join('')}</ul>
     <p class="note">Ferramenta didática. Não substitui a bula, os protocolos institucionais nem o julgamento clínico.</p>`);
 }
 function showInstall() {

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>FARMACO LAB</title>
-<meta name="description" content="Laboratório interativo de farmacologia. Piloto: anestésicos locais, com simulador de pKa, pH e ionização. Criado por André D. Bacchi.">
+<meta name="description" content="Laboratório interativo de farmacologia: anestésicos locais (pKa, pH e ionização) e contraceptivos orais (ciclo, cartela, eficácia e riscos). Criado por André D. Bacchi.">
 <meta name="author" content="André Demambre Bacchi">
 <meta name="theme-color" content="#b3202a">
 <link rel="manifest" href="manifest.json">
@@ -360,6 +360,179 @@ table.t tbody tr:hover td{background:var(--sunk)}
 .ratio .rb{background:var(--b)}.ratio .ri{background:var(--ion)}
 .ratio span{position:absolute;top:50%;transform:translateY(-50%);font:600 12.5px var(--f-mono);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)}
 .ratio .rr{right:8px}
+/* ---- Contraceptivos orais: hormônios, anatomia, cartela, arranjos de ícones e categorias da OMS ---- */
+:root{
+  --fsh:#2a78d6; --lh:#d9531e; --e2:#b03fa8; --p4:#128a5e;          /* séries hormonais (validadas para daltonismo, claro) */
+  --myo:#f3dcd8; --myo-line:#d7a59e; --endo:#cf5a62; --muco:#74819a; --cl:#d09a14; --egg:#8a6410;
+  --anta:#3b4252;
+  --c1:#2f6b3a; --c1-soft:#e1efe2; --c2:#58780f; --c2-soft:#edf3d6; --c3:#96600a; --c3-soft:#f8ead0; --c4:#b0362b; --c4-soft:#f9e6e3;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --fsh:#3987e5; --lh:#d9682f; --e2:#c44fa6; --p4:#1ea377;
+  --myo:#3a2628; --myo-line:#74494c; --endo:#e07f86; --muco:#93a0b8; --cl:#e0b84a; --egg:#e8c06a;
+  --anta:#56607a;
+  --c1:#8fd19b; --c1-soft:#1d3322; --c2:#b9d26c; --c2-soft:#2a3319; --c3:#e8b55a; --c3-soft:#38290f; --c4:#f08a7e; --c4-soft:#3a2220}}
+:root[data-theme="dark"]{
+  --fsh:#3987e5; --lh:#d9682f; --e2:#c44fa6; --p4:#1ea377;
+  --myo:#3a2628; --myo-line:#74494c; --endo:#e07f86; --muco:#93a0b8; --cl:#e0b84a; --egg:#e8c06a;
+  --anta:#56607a;
+  --c1:#8fd19b; --c1-soft:#1d3322; --c2:#b9d26c; --c2-soft:#2a3319; --c3:#e8b55a; --c3-soft:#38290f; --c4:#f08a7e; --c4-soft:#3a2220}
+
+.blocks.four{grid-template-columns:1.25fr 1.25fr 1fr 1fr}
+@media (max-width:820px){.blocks.four{grid-template-columns:1fr 1fr}}
+button.blk:not(.soon):not(.on):hover{border-color:var(--muted)}
+
+/* gráfico do ciclo */
+svg.co-ch{touch-action:pan-y;cursor:ew-resize}
+svg.ch .sFSH{fill:none;stroke:var(--fsh);stroke-width:2.2;stroke-dasharray:6 4}
+svg.ch .sLH{fill:none;stroke:var(--lh);stroke-width:2.2}
+svg.ch .sE2{fill:none;stroke:var(--e2);stroke-width:2.2}
+svg.ch .sP4{fill:none;stroke:var(--p4);stroke-width:2.2;stroke-dasharray:6 4}
+svg.ch .fFSH{fill:var(--fsh)} svg.ch .fLH{fill:var(--lh)} svg.ch .fE2{fill:var(--e2)} svg.ch .fP4{fill:var(--p4)}
+svg.ch .ring{stroke:var(--surface);stroke-width:2}
+svg.ch .panel{fill:var(--sunk);opacity:.55}
+svg.ch .cursor{stroke:var(--fg);stroke-width:1.4}
+svg.ch .folst{fill:var(--surface);stroke:var(--fg);stroke-width:1.4}
+svg.ch .clf{fill:var(--cl)}
+svg.ch .endof{fill:var(--endo);opacity:.75}
+svg.ch .bleed{fill:var(--accent)}
+svg.ch .mucof{fill:var(--muco)}
+svg.ch .pillon{fill:var(--fg)} svg.ch .pilloff{fill:none;stroke:var(--tick);stroke-width:1.2}
+svg.ch .sl{font:600 10.5px var(--f-body);letter-spacing:.07em;text-transform:uppercase;fill:var(--muted)}
+svg.ch .dl{font:600 11.5px var(--f-body);fill:var(--fg)}
+svg.ch .ev{font:600 11px var(--f-body);fill:var(--fg)}
+.legend i.l-fsh{background:repeating-linear-gradient(90deg,var(--fsh) 0 5px,transparent 5px 8px)}
+.legend i.l-lh{background:var(--lh)} .legend i.l-e2{background:var(--e2)}
+.legend i.l-p4{background:repeating-linear-gradient(90deg,var(--p4) 0 5px,transparent 5px 8px)}
+.legend i.l-gh{background:var(--dot)}
+
+/* figura ao vivo: eixo, ovário e útero */
+svg.ch .myo{fill:var(--myo);stroke:var(--myo-line);stroke-width:1.4}
+svg.ch .cav{fill:var(--surface);stroke:var(--endo);stroke-linejoin:round}
+svg.ch .tube{fill:none;stroke:var(--myo-line);stroke-width:8;stroke-linecap:round}
+svg.ch .tubei{fill:none;stroke:var(--myo);stroke-width:4.5;stroke-linecap:round}
+svg.ch .ovy{fill:var(--myo);stroke:var(--myo-line);stroke-width:1.4}
+svg.ch .gland{fill:var(--sunk);stroke:var(--tick);stroke-width:1.2}
+svg.ch .hFSH{fill:none;stroke:var(--fsh);stroke-linecap:round} svg.ch .hLH{fill:none;stroke:var(--lh);stroke-linecap:round}
+svg.ch .hE2{fill:none;stroke:var(--e2);stroke-linecap:round} svg.ch .hP4{fill:none;stroke:var(--p4);stroke-linecap:round}
+svg.ch .hEX{fill:none;stroke:var(--fg);stroke-linecap:round;stroke-dasharray:2 5}
+svg.ch .sperm{fill:var(--fg)} svg.ch .spermt{stroke:var(--fg);stroke-width:1;fill:none;opacity:.7}
+svg.ch .eggc{fill:var(--cl);stroke:var(--egg);stroke-width:1.2}
+svg.ch .fl{font:600 11px var(--f-body);fill:var(--fg)}
+svg.ch .fs{font:500 10.5px var(--f-body);fill:var(--muted)}
+svg.ch .pillg{fill:var(--surface);stroke:var(--fg);stroke-width:1.5}
+.barr{display:grid;gap:10px}
+.br{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:baseline}
+.br b{font-size:14px}.br .bs{font-size:12.5px;font-weight:600;text-align:right}
+.br .meter{grid-column:1/-1;margin-top:2px}.br .meter i{background:var(--accent);transition:width .3s}
+.br p{grid-column:1/-1;margin:2px 0 0;font-size:13px;color:var(--muted)}
+.ep{display:inline-block;font:600 10.5px var(--f-mono);border-radius:6px;padding:1px 6px;background:var(--sunk);color:var(--fg);margin-left:6px;vertical-align:1px}
+.dots100{display:grid;grid-template-columns:repeat(25,1fr);gap:3px;max-width:420px}
+.dots100 i{aspect-ratio:1;border-radius:50%;background:var(--dot)}
+.dots100 i.on{background:var(--accent)}
+
+/* cartela */
+.pack{display:grid;gap:6px}
+.wk{display:grid;grid-template-columns:74px repeat(7,minmax(0,1fr));gap:5px;align-items:center}
+.wk>span{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;line-height:1.2}
+.pl{aspect-ratio:1;max-width:46px;width:100%;justify-self:center;border-radius:50%;border:2px solid var(--accent);background:var(--accent);color:var(--on-accent);font:600 13px var(--f-mono);display:grid;place-items:center;padding:0;position:relative}
+.pl.miss{background:transparent;color:var(--bad);border-style:dashed;border-color:var(--bad)}
+.pl.miss::after{content:"";position:absolute;inset:22% 46%;background:var(--bad);transform:rotate(45deg);border-radius:2px}
+.pl.pause{background:transparent;border:1.5px dotted var(--tick);color:var(--muted);cursor:default;font-weight:500}
+.pl.plac{background:var(--sunk);border:1.5px solid var(--line);color:var(--muted);cursor:default;font-weight:500}
+.pl.next{background:var(--ink);border-color:var(--ink);color:var(--on-ink)}
+.pl.next.miss{background:transparent;color:var(--bad);border-color:var(--bad)}
+.pl.unprot{box-shadow:0 0 0 3px var(--warn-soft),0 0 0 4.5px var(--warn)}
+@media (max-width:480px){.wk{grid-template-columns:52px repeat(7,minmax(0,1fr));gap:4px}.wk>span{font-size:10px}.pl{font-size:12px}}
+ol.cond{margin:8px 0 0;padding-left:20px;font-size:14px;display:grid;gap:5px}
+svg.ch .actl{fill:none;stroke:var(--accent);stroke-width:2.4}
+svg.ch .acta{fill:var(--accent);opacity:.12}
+svg.ch .thr{stroke:var(--bad);stroke-width:1.4;stroke-dasharray:5 4}
+svg.ch .unp{fill:var(--warn);opacity:.16}
+.win{position:relative;height:34px;border-radius:8px;background:var(--bad-soft);overflow:hidden;margin-top:8px}
+.win i{position:absolute;inset:0 auto 0 0;background:var(--good-soft)}
+.win b{position:absolute;top:0;bottom:0;width:3px;background:var(--fg);border-radius:2px;transform:translateX(-1px)}
+.win span{position:absolute;top:50%;transform:translateY(-50%);font:600 11.5px var(--f-body);color:var(--fg)}
+
+/* arranjos de ícones */
+svg.ch .ic0{fill:var(--dot)} svg.ch .ic1{fill:var(--accent)} svg.ch .ic2{fill:none;stroke:var(--accent);stroke-width:1.6}
+.headline{border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:4px}
+.headline span{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.headline b{font-family:var(--f-display);font-size:22px;font-weight:600;line-height:1.2;text-wrap:balance}
+.headline small{font-size:12.5px;color:var(--muted)}
+table.t.wrap td,table.t.wrap th{white-space:normal;text-align:left;vertical-align:top}
+
+/* categorias da OMS */
+.cat{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:center;border-radius:12px;padding:12px 14px}
+.cat .n{font:600 40px/1 var(--f-display);width:54px;height:54px;border-radius:12px;display:grid;place-items:center;background:var(--surface);grid-row:1/3}
+.cat b{font-family:var(--f-display);font-size:18px;font-weight:600;line-height:1.2}
+.cat span{font-size:13.5px}
+.cat.k1{background:var(--c1-soft)} .cat.k1 .n,.cat.k1 b{color:var(--c1)}
+.cat.k2{background:var(--c2-soft)} .cat.k2 .n,.cat.k2 b{color:var(--c2)}
+.cat.k3{background:var(--c3-soft)} .cat.k3 .n,.cat.k3 b{color:var(--c3)}
+.cat.k4{background:var(--c4-soft)} .cat.k4 .n,.cat.k4 b{color:var(--c4)}
+.kb{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:6px;font:600 12.5px var(--f-mono);padding:0 4px}
+.kb.k1{background:var(--c1-soft);color:var(--c1)} .kb.k2{background:var(--c2-soft);color:var(--c2)} .kb.k3{background:var(--c3-soft);color:var(--c3)} .kb.k4{background:var(--c4-soft);color:var(--c4)}
+.why{display:grid;gap:6px;margin-top:10px}
+.why div{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;font-size:13.5px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.why .hd{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.grp{display:grid;gap:5px;margin-top:12px}
+.grp>span{font-size:12.5px;font-weight:600}
+
+@media (min-width:900px){.card.elres{align-self:start;position:sticky;top:12px}}
+.elbar{display:none}
+@media (max-width:899px){.elbar{position:sticky;bottom:10px;margin-top:14px;display:flex;justify-content:center;gap:16px;background:var(--ink);color:var(--on-ink);border-radius:999px;padding:9px 16px;font-size:13.5px;font-weight:600;z-index:2;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.elbar .kb{margin-left:4px;background:var(--surface);color:var(--fg)}}
+
+/* contracepção de emergência */
+svg.ch .probb{fill:var(--accent);opacity:.8}
+svg.ch .lhc{fill:var(--lh);opacity:.18;stroke:var(--lh);stroke-width:1.8}
+svg.ch .spv{fill:var(--fsh);opacity:.22}
+svg.ch .stg{fill:var(--sunk)} svg.ch .stg.on{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.4}
+svg.ch .mkR{fill:var(--fsh)} svg.ch .mkT{fill:var(--fg)}
+svg.ch .ovl{stroke:var(--cl);stroke-width:2.4}
+.cmp2{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.cmp2 .tile b{font-size:19px}
+
+/* veredito neutro e de destaque */
+.verdict.neu{background:var(--sunk)} .verdict.neu b{color:var(--fg)}
+.verdict.acc{background:var(--accent-soft)} .verdict.acc b{color:var(--accent)}
+
+/* roteiro do laboratório */
+.task{counter-reset:tk;display:grid;gap:0}
+.task details.fold{counter-increment:tk}
+.task details.fold>summary::after{content:none}
+.task details.fold:first-child{border-top:0;margin-top:0;padding-top:0}
+.task .ask{font-weight:600}
+
+/* mecanismo molecular: do sangue ao gene */
+svg.ch .bloodf{fill:var(--accent-soft)}
+svg.ch .carr1{fill:var(--fsh)} svg.ch .carr2{fill:var(--surface);stroke:var(--tick);stroke-width:1.2}
+svg.ch .nuc{fill:var(--sunk);stroke:var(--tick);stroke-width:1.6;stroke-dasharray:7 5}
+svg.ch .dna{stroke:var(--tick);stroke-width:2;fill:none}
+svg.ch .ere{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6}
+svg.ch .rec{fill:var(--ion);stroke:var(--surface);stroke-width:1.2}
+svg.ch .hsp{fill:var(--dot);stroke:var(--tick);stroke-width:1}
+svg.ch .coa{fill:var(--cl)} svg.ch .cor{fill:var(--bad)}
+svg.ch .mrna{fill:none;stroke:var(--lh);stroke-width:3.2;stroke-linecap:round;stroke-dasharray:1 6.5}
+svg.ch .hmE{fill:var(--e2)} svg.ch .hmP{fill:var(--p4)} svg.ch .hmA{fill:var(--anta)}
+.rcx{display:grid;gap:12px}
+.rcx figure.rc-fig{max-width:460px;width:100%;margin:0;justify-self:center}
+.steps.rcsteps{grid-template-columns:repeat(3,minmax(0,1fr))}
+.rcsteps .stp{min-height:56px;padding:8px 10px}
+@media (max-width:420px){.rcsteps .stp span{display:none}.rcsteps .stp{min-height:48px}}
+@media (min-width:900px){.rcx{grid-template-columns:minmax(0,460px) minmax(0,1fr);grid-template-areas:"fig ctl" "fig txt";grid-template-rows:auto 1fr;gap:16px 28px}.rcx .rc-fig{grid-area:fig}.rc-ctl{grid-area:ctl}.rc-txt{grid-area:txt}}
+.dots200{display:grid;grid-template-columns:repeat(20,1fr);gap:2px;max-width:440px}
+.dots200 i{aspect-ratio:1;border-radius:2px}
+.w-fr{background:var(--accent)} .w-sh{background:var(--fsh)} .w-cb{background:var(--p4)} .w-al{background:var(--dot)}
+.legend i.w-fr,.legend i.w-sh,.legend i.w-cb,.legend i.w-al{width:10px;height:10px}
+/* duas colunas dentro de um cartão largo */
+.split{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+.split>div{min-width:0}
+@media (min-width:900px){.split{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px}}
+svg.ch .prl{fill:none;stroke:var(--fsh);stroke-width:2.4;stroke-dasharray:7 4}
+svg.ch .ltl{fill:none;stroke:var(--accent);stroke-width:2.6}
+svg.ch .ltd{fill:none;stroke:var(--accent);stroke-width:1.6;stroke-dasharray:2 4}
 </style>
 <div class="wrap">
 <header class="top">
@@ -367,21 +540,17 @@ table.t tbody tr:hover td{background:var(--sunk)}
   <div class="row"><button class="btn" id="instBtn" aria-label="Instalar o app no celular ou computador"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13h10"/></svg>Instalar</button><button class="btn" id="glossBtn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 2.5h8.5v11H4a1.5 1.5 0 0 1 0-3h8.5M6.5 5.5h3.5"/></svg>Glossário</button><button class="btn primary" id="howBtn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 4c-1.5-1-3.5-1.3-6-1v10c2.5-.3 4.5 0 6 1 1.5-1 3.5-1.3 6-1V3c-2.5-.3-4.5 0-6 1zM8 4v10"/></svg>Como usar</button></div>
 </header>
 <nav class="labnav" aria-label="Classes de fármacos">
-  <div class="blocks three" id="blocks">
-    <button class="blk on" aria-current="true"><b>Anestésicos locais</b><span>Mecanismo, pH e ionização, fibras, agentes e dose segura</span></button>
-    <button class="blk soon" disabled><em>Em breve</em><b>Farmacocinética</b><span>Absorção, distribuição, metabolismo e eliminação</span></button>
-    <button class="blk soon" disabled><em>Em breve</em><b>Farmacodinâmica</b><span>Receptores, dose-resposta, potência e eficácia</span></button>
-  </div>
+  <div class="blocks four" id="blocks"></div>
   <div class="subs" id="subs"></div>
 </nav>
 <section class="welcome" id="welcome" hidden aria-label="Boas-vindas">
   <div><span class="eyebrow">Primeira visita</span><h2>Bem-vindo ao FARMACO LAB</h2>
-  <ul><li><b>Uma aba por classe de fármacos.</b> Este piloto traz os anestésicos locais.</li><li><b>Siga as telas na ordem</b> ou vá direto ao <b>simulador de pH e ionização</b>.</li><li><b>Mexa em tudo:</b> troque o agente, arraste o pH, mude o peso do paciente e veja o que muda.</li><li><b>Cada tela tem um Saiba mais</b> com o aprofundamento e as referências.</li></ul></div>
-  <div class="row"><button class="btn primary" id="wStart">Abrir o simulador de pH</button><button class="btn" id="wClose">Começar pelo conceito</button></div>
+  <ul><li><b>Uma aba por classe de fármacos.</b> Já estão no ar os anestésicos locais e os contraceptivos orais.</li><li><b>Siga as telas na ordem</b> ou vá direto a um simulador.</li><li><b>Mexa em tudo:</b> arraste o pH, avance o dia do ciclo, esqueça pílulas da cartela e veja o que muda.</li><li><b>Cada tela tem um Saiba mais</b> com o aprofundamento e as referências.</li></ul></div>
+  <div class="row"><button class="btn primary" id="wStart">Abrir o simulador de pH</button><button class="btn" id="wPill">Abrir a cartela da pílula</button><button class="btn" id="wClose">Começar pelo início</button></div>
 </section>
 <main id="labs"></main>
 <div class="labfoot" id="labFoot"></div>
-<footer class="sitefoot"><p><b>FARMACO LAB</b> · versão piloto 0.1 · setembro de 2026</p><p>Ferramenta didática. Não substitui a bula, os protocolos institucionais nem o julgamento clínico. Doses: valores usuais para adultos; confira sempre a bula do produto.</p><p>© 2026 André Demambre Bacchi. Todos os direitos reservados.</p></footer>
+<footer class="sitefoot"><p><b>FARMACO LAB</b> · versão piloto 0.2 · outubro de 2026</p><p id="sitefootNote"></p><p>© 2026 André Demambre Bacchi. Todos os direitos reservados.</p></footer>
 </div>
 <div id="sheetRoot"></div>
 <script>
@@ -436,21 +605,26 @@ function card(title, body, opts = {}) {
 function seg(id, items, on) { return `<div class="seg" id="${id}" role="group">${items.map(([v, l]) => `<button data-v="${v}" class="${v == on ? 'on' : ''}" aria-pressed="${v == on}">${l}</button>`).join('')}</div>`; }
 function bindSeg(id, fn) { const el = $(id); el.onclick = e => { const b = e.target.closest('button'); if (!b) return; el.querySelectorAll('button').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); }); fn(b.dataset.v); }; }
 
-/* ---------- navegação ---------- */
-let cur = 0, cleanup = null, lastW = innerWidth;
+/* ---------- navegação: classes de fármacos (LABS, em main.js) e telas de cada classe ---------- */
+let lab = 0, cur = 0, cleanup = null, lastW = innerWidth;
 addEventListener('resize', () => { if (Math.abs(innerWidth - lastW) < 40) return; lastW = innerWidth; clearTimeout(window._rz); window._rz = setTimeout(() => show(cur, false), 200); });
-function go(id) { const i = SCREENS.findIndex(s => s.id === id); if (i >= 0) show(i, true); }
-function show(i, scroll) {
+function findScreen(id) { for (let l = 0; l < LABS.length; l++) { const i = LABS[l].screens.findIndex(s => s.id === id); if (i >= 0) return [l, i]; } return null; }
+function go(id) { const f = findScreen(id); if (f) show(f[1], true, f[0]); }
+function goLab(l) { const f = findScreen(store.get('tela.' + LABS[l].id, '')); show(f && f[0] === l ? f[1] : 0, false, l); }
+function show(i, scroll, l = lab) {
   if (cleanup) { cleanup(); cleanup = null; }
-  cur = i; store.set('tela', SCREENS[i].id);
-  const S = SCREENS[i];
-  $('subs').innerHTML = SCREENS.map((s, k) => `<button class="sb${k === i ? ' on' : ''}" data-i="${k}"${k === i ? ' aria-current="page"' : ''}><i>${k + 1}</i>${s.t}</button>`).join('');
-  $('labs').innerHTML = `<section class="lab" aria-labelledby="h-${S.id}"><div class="intro"><span class="eyebrow">Anestésicos locais · tela ${i + 1} de ${SCREENS.length}</span><h2 id="h-${S.id}">${S.h}</h2><p>${S.p}</p></div><div class="grid two" id="g"></div></section>`;
+  lab = l; cur = i;
+  const L = LABS[l], SC = L.screens, S = SC[i];
+  store.set('tela', S.id); store.set('tela.' + L.id, S.id);
+  $('blocks').innerHTML = LABS.map((x, k) => `<button class="blk${k === l ? ' on' : ''}" data-l="${k}"${k === l ? ' aria-current="true"' : ''}><b>${x.n}</b><span>${x.d}</span></button>`).join('') + SOON.map(([n, d]) => `<button class="blk soon" disabled><em>Em breve</em><b>${n}</b><span>${d}</span></button>`).join('');
+  $('subs').innerHTML = SC.map((s, k) => `<button class="sb${k === i ? ' on' : ''}" data-i="${k}"${k === i ? ' aria-current="page"' : ''}><i>${k + 1}</i>${s.t}</button>`).join('');
+  $('labs').innerHTML = `<section class="lab" aria-labelledby="h-${S.id}"><div class="intro"><span class="eyebrow">${L.n} · tela ${i + 1} de ${SC.length}</span><h2 id="h-${S.id}">${S.h}</h2><p>${S.p}</p></div><div class="grid two" id="g"></div></section>`;
   cleanup = S.render($('g')) || null;
-  $('labs').querySelectorAll('[data-more]').forEach(b => b.onclick = () => { const L = LEARN[b.dataset.more]; openSheet(L.t, L.h); });
+  $('labs').querySelectorAll('[data-more]').forEach(b => b.onclick = () => { const M = LEARN[b.dataset.more]; openSheet(M.t, M.h); });
   $('labs').querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
-  const pv = SCREENS[i - 1], nx = SCREENS[i + 1];
+  const pv = SC[i - 1], nx = SC[i + 1];
   $('labFoot').innerHTML = (pv ? `<button data-i="${i - 1}"><span>Anterior</span><b>${pv.t}</b></button>` : '') + (nx ? `<button class="nx" data-i="${i + 1}"><span>Próxima</span><b>${nx.t}</b></button>` : '');
+  $('sitefootNote').textContent = L.foot;
   try { history.replaceState(null, '', '#' + S.id); } catch {}
   if (scroll) document.querySelector('.labnav').scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' });
 }
@@ -1133,11 +1307,16 @@ const GLOSS = [
   ['WALANT', 'Wide-awake local anesthesia no tourniquet: cirurgia de mão com lidocaína e adrenalina, paciente acordado e sem garrote.'],
   ['Metemoglobinemia', 'Hemoglobina oxidada que não transporta oxigênio. Associada à prilocaína e à benzocaína.'],
 ];
-function showGloss() { openSheet('Glossário', `<dl style="margin:0">${GLOSS.map(([t, d]) => `<dt style="font-weight:600;margin-top:12px">${t}</dt><dd style="margin:2px 0 0">${d}</dd>`).join('')}</dl>`); }
+function showGloss() {
+  const dl = G => `<dl style="margin:0">${G.map(([t, d]) => `<dt style="font-weight:600;margin-top:12px">${t}</dt><dd style="margin:2px 0 0">${d}</dd>`).join('')}</dl>`;
+  const order = lab === 1 ? [[LABS[1].n, GLOSS_CO], [LABS[0].n, GLOSS]] : [[LABS[0].n, GLOSS], [LABS[1].n, GLOSS_CO]];
+  openSheet('Glossário', order.map(([n, G]) => `<h4>${n}</h4>${dl(G)}`).join(''));
+}
 function showHow() {
-  openSheet('Como usar', `<p>O FARMACO LAB reúne laboratórios interativos de farmacologia, uma aba por classe de fármacos. Este piloto traz a aba de <b>anestésicos locais</b>; farmacocinética, farmacodinâmica e outras classes vêm depois.</p>
-    <h4>Telas</h4><ol>${SCREENS.map(s => `<li><button class="lnk" style="border:0;background:none;padding:0;font:inherit" data-go="${s.id}">${s.t}</button>: ${s.p}</li>`).join('')}</ol>
-    <h4>Em aula</h4><ul><li>Projete a tela 4 e peça à turma que preveja o que acontece com a lidocaína no tecido infectado antes de arrastar o pH.</li><li>Na tela 6, compare lidocaína e bupivacaína no gráfico das três propriedades.</li><li>Na tela 7, calcule a dose máxima para os pacientes do caso clínico da aula.</li></ul>
+  const L = LABS[lab], tips = lab === 1 ? TIPS_CO : ['Projete a tela 4 e peça à turma que preveja o que acontece com a lidocaína no tecido infectado antes de arrastar o pH.', 'Na tela 6, compare lidocaína e bupivacaína no gráfico das três propriedades.', 'Na tela 7, calcule a dose máxima para os pacientes do caso clínico da aula.'];
+  openSheet('Como usar', `<p>O FARMACO LAB reúne laboratórios interativos de farmacologia, uma aba por classe de fármacos: <b>anestésicos locais</b> e <b>contraceptivos orais</b>. Farmacocinética, farmacodinâmica e outras classes vêm depois.</p>
+    <h4>${L.n}: telas</h4><ol>${L.screens.map(s => `<li><button class="lnk" style="border:0;background:none;padding:0;font:inherit" data-go="${s.id}">${s.t}</button>: ${s.p}</li>`).join('')}</ol>
+    <h4>Em aula</h4><ul>${tips.map(t => `<li>${t}</li>`).join('')}</ul>
     <p class="note">Ferramenta didática. Não substitui a bula, os protocolos institucionais nem o julgamento clínico.</p>`);
 }
 function showInstall() {
@@ -1151,8 +1330,1211 @@ function showInstall() {
   wire();
 }
 
+/* ===== Contraceptivos orais · núcleo: modelo didático do ciclo, gráfico e figura ao vivo ===== */
+const gss = (d, m, s) => Math.exp(-((d - m) * (d - m)) / (2 * s * s));
+const CO_M = {
+  nat: { n: 'Sem método', s: 'ciclo natural' },
+  aoc: { n: 'Pílula combinada', s: 'estrogênio + progestina, 21/7' },
+  pop: { n: 'Minipílula tradicional', s: 'noretisterona 0,35 mg' },
+  pis: { n: 'Progestina anovulatória', s: 'desogestrel 75 µg, drospirenona 4 mg' },
+};
+/* 0 = nenhuma pílula, 1 = pílula ativa, 2 = pausa */
+const coPill = (m, d) => m === 'nat' ? 0 : m === 'aoc' ? (d <= 21.999 ? 1 : 2) : 1;
+
+/* Estado do eixo no dia d (1 a 28). Níveis hormonais relativos (0 a 1): formas de livro-texto, não dosagens. */
+function coState(m, ov, d) {
+  const n = {
+    fsh: 0.28 + 0.34 * gss(d, 3.5, 3) + 0.38 * gss(d, 13.7, 0.8) - 0.10 * gss(d, 21, 4.5) + 0.22 * gss(d, 29, 1.8),
+    lh: 0.12 + 0.88 * gss(d, 13.6, 0.7),
+    e2: 0.07 + 0.90 * gss(d, 12.9, d < 12.9 ? 2.3 : 0.9) + 0.42 * gss(d, 21, 3.6),
+    p4: 0.03 + 0.95 * gss(d, 21.5, 3.3),
+    fol: d < 14 ? (d < 5 ? 5 : 5 + 15 * Math.pow((d - 5) / 9, 1.3)) : 0,
+    cl: d < 14 ? 0 : d < 23 ? Math.min(1, 0.5 + (d - 14) / 2) : Math.max(0.15, 1 - (d - 23) / 6),
+    endo: d <= 5 ? 9 - 7 * (d - 1) / 4 : d <= 14 ? 2 + 7 * (d - 5) / 9 : d <= 22 ? 9 + 3 * (d - 14) / 8 : 12 - (d > 27 ? 3 * (d - 27) : 0),
+    bleed: d < 5.5, perm: clamp(0.06 + 0.94 * gss(d, 13, 1.7), 0, 1), ovul: true, gn: d < 14 ? 1 : 0.55,
+  };
+  if (m === 'nat') return n;
+  if (m === 'aoc') return { fsh: 0.13 + 0.14 * gss(d, 28.6, 2.6) + 0.12 * gss(d, 0.4, 2.6), lh: 0.08 + 0.03 * gss(d, 28.5, 3), e2: 0.06 + 0.07 * gss(d, 29, 2.8) + 0.06 * gss(d, 1, 2.5), p4: 0.02,
+    fol: 4 + 5 * gss(d, 29, 3) + 4.5 * gss(d, 1, 3), cl: 0, endo: d <= 10 ? 2 + 1.5 * (d - 1) / 9 : d <= 23 ? 3.5 : 3.5 - 1.5 * (d - 23) / 5, bleed: d >= 24 && d <= 27.6, perm: 0.04, ovul: false, gn: d > 23 ? 0.5 : 0.22 };
+  if (m === 'pop' && ov) return { fsh: n.fsh * 0.95, lh: 0.12 + 0.6 * gss(d, 13.6, 0.8), e2: n.e2 * 0.9, p4: 0.03 + 0.6 * gss(d, 21.5, 3.1),
+    fol: n.fol, cl: n.cl * 0.8, endo: 1 + n.endo * 0.6, bleed: d < 4.5, perm: 0.07, ovul: true, gn: 0.8 };
+  if (m === 'pop') return { fsh: 0.3 + 0.05 * Math.sin(d / 3), lh: 0.15 + 0.05 * Math.sin(d / 2.2 + 1), e2: 0.22 + 0.1 * Math.sin(d / 4.5), p4: 0.03,
+    fol: 6 + 8 * clamp((d - 3) / 14, 0, 1), cl: 0, endo: 4 + 0.8 * Math.sin(d / 5), bleed: (d > 9 && d < 11) || (d > 20 && d < 22.5), perm: 0.07, ovul: false, gn: 0.7 };
+  return { fsh: 0.22 + 0.02 * Math.sin(d / 3), lh: 0.09, e2: 0.13 + 0.04 * Math.sin(d / 4), p4: 0.02,
+    fol: 6 + 2 * Math.sin(d / 5), cl: 0, endo: 3, bleed: d > 15 && d < 16.5, perm: 0.04, ovul: false, gn: 0.4 };
+}
+function coTag(m, d) {
+  if (m === 'nat') return d < 5.5 ? 'menstruação' : d < 12.8 ? 'fase folicular' : d < 14.6 ? 'ovulação' : 'fase lútea';
+  if (m === 'aoc') return d <= 21.999 ? `pílula ativa ${Math.min(21, Math.floor(d))} de 21` : `pausa, dia ${Math.min(7, Math.floor(d) - 21)} de 7`;
+  return 'uma pílula por dia, sem pausa';
+}
+function coTell(m, ov, d) {
+  if (m === 'nat') {
+    if (d < 5.5) return 'Menstruação. Com estradiol e progesterona baixos, a hipófise fica sem freio: o <b>FSH</b> sobe e recruta um grupo de folículos.';
+    if (d < 9.5) return 'Fase folicular. O FSH amadurece o folículo dominante, que passa a produzir <b>estradiol</b>. O estradiol freia a hipófise (feedback negativo) e o FSH cai: só o folículo dominante resiste.';
+    if (d < 12.6) return 'O estradiol sobe depressa. O endométrio prolifera e o <b>muco cervical</b> fica fluido e filante: o colo se abre para os espermatozoides.';
+    if (d < 13.6) return 'Estradiol alto e sustentado inverte o sinal: o feedback passa a ser <b>positivo</b>. A hipófise dispara o <b>pico de LH</b> (e um pico menor de FSH).';
+    if (d < 14.8) return '<b>Ovulação</b>: cerca de 36 horas depois do início do pico de LH, o folículo se rompe e libera o óvulo, que sobrevive de 12 a 24 horas.';
+    if (d < 24.5) return 'Fase lútea. O folículo rompido vira <b>corpo lúteo</b> e produz progesterona (e algum estradiol). O muco engrossa, o endométrio fica secretor e a hipófise é freada.';
+    return 'Sem gestação, o corpo lúteo regride (luteólise). Os esteroides caem, o endométrio perde a sustentação e o FSH volta a subir: começa um novo ciclo.';
+  }
+  if (m === 'aoc') return d <= 21.999
+    ? 'Pílula ativa. Estrogênio e progestina chegam todos os dias e mantêm o <b>feedback negativo</b> o tempo todo: FSH e LH ficam baixos, nenhum folículo amadurece e <b>não existe pico de LH</b>. No colo, a progestina mantém o muco espesso.'
+    : 'Pausa. Sem hormônio, o endométrio fino descama: é um <b>sangramento de privação</b>, não uma menstruação. O FSH já começa a subir e os folículos voltam a crescer. É por isso que a pausa não pode passar de 7 dias.';
+  if (m === 'pop') return ov
+    ? 'Dose baixa de progestina, todos os dias. O eixo é pouco suprimido: <b>neste ciclo houve ovulação</b>, como em cerca de metade dos ciclos. A proteção vem do colo: o muco espesso barra os espermatozoides. O efeito no muco dura cerca de 24 horas, daí a janela de 3 horas.'
+    : 'Dose baixa de progestina, todos os dias. <b>Neste ciclo não houve ovulação</b>: o pico de LH não aconteceu e o folículo persistiu sem se romper. O sangramento fica imprevisível. A barreira constante continua sendo o muco espesso.';
+  return 'Progestina em dose que suprime o LH. <b>Não há pico de LH nem ovulação</b>, e o muco fica espesso. Sem estrogênio exógeno, o ovário mantém uma produção basal de estradiol. O sangramento costuma ser irregular ou ausente.';
+}
+
+/* ---------- gráfico: hormônios, ovário, endométrio e muco ao longo de 28 dias ---------- */
+function coChartDraw(id, m, ov) {
+  const el = $(id); if (!el) return;
+  const W = cw(id), L = 8, R = 8, x = d => L + (d - 1) / 27 * (W - L - R), P = [[32, 104], [134, 206]];
+  const y = (p, v) => P[p][1] - clamp(v, 0, 1.03) * (P[p][1] - P[p][0]);
+  const S = []; for (let d = 1; d <= 28.001; d += 0.25) S.push([d, coState(m, ov, d), coState('nat', true, d)]);
+  const pth = (k, p, src) => S.map((r, i) => (i ? 'L' : 'M') + x(r[0]).toFixed(1) + ' ' + y(p, r[src][k]).toFixed(1)).join('');
+  const ghost = m !== 'nat';
+  let s = `<svg class="ch co-ch" id="${id}-svg" viewBox="0 0 ${W} 366" role="img" aria-label="Hormônios, folículo, endométrio e muco ao longo de 28 dias: ${CO_M[m].n}">`;
+  if (m !== 'nat') { for (let d = 1; d <= 28; d++) s += `<circle cx="${x(d).toFixed(1)}" cy="9" r="3.2" class="${coPill(m, d) === 1 ? 'pillon' : 'pilloff'}"/>`; }
+  s += `<rect x="${L}" y="${P[0][0]}" width="${W - L - R}" height="${P[0][1] - P[0][0]}" rx="6" class="panel"/><rect x="${L}" y="${P[1][0]}" width="${W - L - R}" height="${P[1][1] - P[1][0]}" rx="6" class="panel"/>`;
+  s += `<text x="${L}" y="${P[0][0] - 6}" class="sl">Hipófise</text><text x="${L}" y="${P[1][0] - 6}" class="sl">Ovário</text>`;
+  if (m !== 'nat') s += `<text x="${W - R}" y="${P[0][0] - 6}" class="sl" text-anchor="end">${m === 'aoc' ? '21 pílulas + pausa' : 'pílula todos os dias'}</text>`;
+  if (ghost) s += ['fsh', 'lh'].map(k => `<path d="${pth(k, 0, 2)}" class="ghost"/>`).join('') + ['e2', 'p4'].map(k => `<path d="${pth(k, 1, 2)}" class="ghost"/>`).join('');
+  s += `<path d="${pth('fsh', 0, 1)}" class="sFSH"/><path d="${pth('lh', 0, 1)}" class="sLH"/><path d="${pth('e2', 1, 1)}" class="sE2"/><path d="${pth('p4', 1, 1)}" class="sP4"/>`;
+  const st = d => coState(m, ov, d), lbl = (d, p, k, t, dy, a) => `<text x="${x(d).toFixed(1)}" y="${(y(p, st(d)[k]) + dy).toFixed(1)}" class="dl" text-anchor="${a || 'middle'}">${t}</text>`;
+  if (m === 'nat' || (m === 'pop' && ov)) s += `<text x="${(x(14.7)).toFixed(1)}" y="${P[0][0] + 16}" class="dl">LH</text>` + lbl(3.5, 0, 'fsh', 'FSH', -8) + lbl(10.6, 1, 'e2', 'estradiol', -8, 'end') + lbl(21.5, 1, 'p4', 'progesterona', -7);
+  else s += `<text x="${x(14)}" y="${P[0][1] - 26}" class="dl" text-anchor="middle">LH e FSH suprimidos${m === 'pop' ? ' em parte' : ''}</text><text x="${x(14)}" y="${P[1][1] - 30}" class="dl" text-anchor="middle">${m === 'aoc' ? 'ovário em repouso' : 'estradiol basal, sem progesterona'}</text>`;
+  // ovário: folículos a cada 2 dias
+  s += `<text x="${L}" y="228" class="sl">Folículo e corpo lúteo</text>`;
+  for (let d = 1.5; d <= 28; d += 1.9) { const q = st(d), cx = x(d).toFixed(1);
+    if (q.ovul && d >= 14) s += `<circle cx="${cx}" cy="247" r="${(3 + 7 * q.cl).toFixed(1)}" class="clf" opacity="${(0.35 + 0.65 * q.cl).toFixed(2)}"/>`;
+    else s += `<circle cx="${cx}" cy="247" r="${(q.fol * 0.5).toFixed(1)}" class="folst"/>`; }
+  if (st(14).ovul) s += `<path d="M${x(14)} 234 v26" class="ovl"/><text x="${x(14)}" y="268" class="ev" text-anchor="middle" style="font-size:10px">ovulação</text>`;
+  // endométrio
+  s += `<text x="${L}" y="278" class="sl">Endométrio</text>`;
+  s += `<path d="M${x(1)} 308 ${S.map(r => 'L' + x(r[0]).toFixed(1) + ' ' + (308 - r[1].endo * 2.1).toFixed(1)).join(' ')} L${x(28)} 308 Z" class="endof"/>`;
+  for (let d = 1; d <= 28; d += 0.5) if (st(d).bleed) s += `<circle cx="${x(d).toFixed(1)}" cy="313" r="2" class="bleed"/>`;
+  // muco
+  s += `<text x="${L}" y="330" class="sl">Muco cervical</text>`;
+  for (let d = 1; d < 28; d += 0.5) { const q = st(d + 0.25); s += `<rect x="${x(d).toFixed(1)}" y="335" width="${(x(d + 0.5) - x(d) + 0.4).toFixed(1)}" height="9" class="mucof" opacity="${(0.12 + 0.82 * (1 - q.perm)).toFixed(2)}"/>`; }
+  if (m === 'nat') s += `<text x="${x(13)}" y="330" class="ev" text-anchor="middle" style="font-size:10px">fluido</text>`;
+  [1, 7, 14, 21, 28].forEach(d => s += `<text x="${x(d)}" y="361" text-anchor="${d === 1 ? 'start' : d === 28 ? 'end' : 'middle'}">${d === 1 ? 'dia 1' : d}</text>`);
+  s += `<g id="${id}-cur"><line y1="22" y2="346" class="cursor"/><circle r="5" class="fFSH ring"/><circle r="5" class="fLH ring"/><circle r="5" class="fE2 ring"/><circle r="5" class="fP4 ring"/></g></svg>`;
+  el.innerHTML = s; el._x = x; el._y = y; el._W = W; el._L = L; el._R = R;
+}
+function coChartCursor(id, m, ov, d) {
+  const el = $(id), g = $(id + '-cur'); if (!el || !g || !el._x) return;
+  const q = coState(m, ov, d), X = el._x(d), c = g.children;
+  c[0].setAttribute('x1', X); c[0].setAttribute('x2', X);
+  [['fsh', 0], ['lh', 0], ['e2', 1], ['p4', 1]].forEach(([k, p], i) => { c[i + 1].setAttribute('cx', X); c[i + 1].setAttribute('cy', el._y(p, q[k])); });
+}
+/* arrastar o dedo sobre o gráfico muda o dia */
+function coChartScrub(id, fn) {
+  const el = $(id); let down = false;
+  const pick = e => { const svg = $(id + '-svg'); if (!svg) return; const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * el._W; fn(clamp(1 + (px - el._L) / (el._W - el._L - el._R) * 27, 1, 28)); };
+  el.onpointerdown = e => { down = true; try { el.setPointerCapture(e.pointerId); } catch {} pick(e); };
+  el.onpointermove = e => { if (down) pick(e); };
+  el.onpointerup = el.onpointercancel = () => { down = false; };
+}
+
+/* ---------- figura ao vivo: hipotálamo, hipófise, ovários, útero e colo ---------- */
+const CO_SP = [[200, 366], [200, 326], [200, 300], [200, 274], [208, 250], [226, 214], [246, 192], [262, 180], [282, 176], [304, 181]];
+const CO_EGG = [[330, 202], [318, 194], [304, 181], [282, 176], [262, 180], [246, 192], [228, 212]];
+const coAlong = (P, t) => { const k = clamp(t, 0, 0.9999) * (P.length - 1), i = Math.floor(k), f = k - i; return [P[i][0] + (P[i + 1][0] - P[i][0]) * f, P[i][1] + (P[i + 1][1] - P[i][1]) * f]; };
+const CO_NS = 9;
+function coFigSVG(id) {
+  let sp = ''; for (let i = 0; i < CO_NS; i++) sp += `<g id="${id}S${i}"><path d="M0 2 q1.6 3 0 6" class="spermt"/><ellipse rx="1.6" ry="2.3" class="sperm"/></g>`;
+  return `<svg class="ch" viewBox="0 0 400 372" role="img" aria-label="Eixo hipotálamo, hipófise e ovário, com útero, colo e muco">
+  <g id="${id}Pill"><rect x="18" y="16" width="42" height="18" rx="9" class="pillg"/><line x1="39" y1="16" x2="39" y2="34" style="stroke:var(--fg);stroke-width:1.2"/><text x="39" y="48" class="fl" text-anchor="middle">pílula</text>
+    <path d="M60 25 C 90 23, 112 22, 136 22" class="hEX" id="${id}X1" style="opacity:.75"/><path d="M30 54 C 0 130, 0 300, 186 304" class="hEX" id="${id}X2" style="opacity:.75"/><text x="14" y="340" class="fs" id="${id}X2t">progestina age direto</text><text x="14" y="353" class="fs">no colo e no endométrio</text></g>
+  <rect x="140" y="8" width="120" height="28" rx="14" class="gland"/><text x="200" y="26" class="fl" text-anchor="middle">Hipotálamo</text>
+  <circle cx="200" r="2.6" class="ink" id="${id}G0"/><circle cx="200" r="2.6" class="ink" id="${id}G1"/><circle cx="200" r="2.6" class="ink" id="${id}G2"/><text x="210" y="54" class="fs">GnRH</text>
+  <ellipse cx="200" cy="76" rx="50" ry="16" class="gland"/><text x="200" y="80" class="fl" text-anchor="middle">Hipófise</text>
+  <path d="M222 91 C 244 130, 316 140, 330 192" class="hFSH" id="${id}FSH"/><path d="M236 89 C 262 120, 334 128, 344 194" class="hLH" id="${id}LH"/>
+  <text x="232" y="124" class="fl" text-anchor="end">FSH</text><text x="274" y="110" class="fl">LH</text>
+  <path d="M356 208 C 388 166, 380 48, 262 26" class="hE2" id="${id}E2"/><path d="M359 220 C 400 170, 392 36, 262 15" class="hP4" id="${id}P4"/>
+  <text x="314" y="11" class="fl" id="${id}Fb">feedback −</text><text x="314" y="24" class="fs" id="${id}Fb2"></text>
+  <path d="M154 192 C 124 172, 96 172, 82 196" class="tube"/><path d="M154 192 C 124 172, 96 172, 82 196" class="tubei"/>
+  <path d="M246 192 C 276 172, 304 172, 318 196" class="tube"/><path d="M246 192 C 276 172, 304 172, 318 196" class="tubei"/>
+  <text x="118" y="164" class="fs" text-anchor="middle">tuba</text>
+  <ellipse cx="72" cy="216" rx="26" ry="19" class="ovy"/><circle cx="62" cy="212" r="3" class="folst"/><circle cx="78" cy="222" r="2.4" class="folst"/><circle cx="82" cy="209" r="2" class="folst"/>
+  <text x="72" y="250" class="fs" text-anchor="middle">ovário</text>
+  <ellipse cx="330" cy="216" rx="28" ry="20" class="ovy"/><circle cx="315" cy="222" r="2.2" class="folst"/><circle cx="345" cy="224" r="2" class="folst"/>
+  <circle cx="330" cy="215" r="6" class="folst" id="${id}Fol"/><circle cx="330" cy="215" r="0" class="clf" id="${id}CL"/>
+  <text x="330" y="252" class="fl" text-anchor="middle" id="${id}Ov"></text><text x="330" y="266" class="fl" text-anchor="middle" id="${id}Fert" style="fill:var(--accent)"></text>
+  <path d="M148 198 C 148 172, 252 172, 252 198 C 252 244, 222 262, 218 292 L 218 326 L 182 326 L 182 292 C 178 262, 148 244, 148 198 Z" class="myo"/>
+  <path d="M168 200 L 232 200 L 203 268 L 197 268 Z" class="cav" id="${id}Cav"/>
+  <rect x="196" y="266" width="8" height="60" style="fill:var(--surface)"/><rect x="196" y="266" width="8" height="60" class="mucof" id="${id}Muco"/>
+  <path d="M184 326 V 372 M216 326 V 372" style="stroke:var(--myo-line);stroke-width:1.4;fill:none"/>
+  <path d="M206 300 L 226 300" class="dotst"/><text x="230" y="298" class="fl" id="${id}Mu"></text><text x="230" y="311" class="fs" id="${id}Mu2"></text>
+  <g id="${id}Bl"><circle cx="200" cy="338" r="2.6" class="bleed"/><circle cx="196" cy="349" r="2.2" class="bleed"/><circle cx="203" cy="359" r="2.4" class="bleed"/></g>
+  <circle r="4" class="eggc" id="${id}Egg"/>
+  ${sp}
+</svg>`;
+}
+function coFigUpdate(id, m, ov, d, t) {
+  const e = k => $(id + k); if (!e('Fol')) return;
+  const q = coState(m, ov, d), sw = v => (1 + 7.5 * v).toFixed(1), pill = coPill(m, d);
+  e('FSH').style.strokeWidth = sw(q.fsh); e('LH').style.strokeWidth = sw(q.lh); e('E2').style.strokeWidth = sw(q.e2); e('P4').style.strokeWidth = sw(q.p4);
+  e('Pill').style.opacity = pill ? 1 : 0; e('X1').style.strokeWidth = pill === 1 ? 3 : 0.8; e('X2').style.strokeWidth = pill === 1 ? 3 : 0.8;
+  e('X2t').textContent = m === 'aoc' && pill === 2 ? 'pausa: sem hormônio' : 'progestina age direto';
+  const pos = m === 'nat' && d >= 12.4 && d < 13.9;
+  e('Fb').textContent = pos ? 'feedback +' : 'feedback −'; e('Fb').style.fill = pos ? 'var(--accent)' : '';
+  e('Fb2').textContent = pos ? 'estradiol alto' : pill === 1 ? 'com a pílula' : 'do ovário';
+  for (let k = 0; k < 3; k++) { const g = e('G' + k), ph = ((t * (0.25 + 0.5 * q.gn)) + k / 3) % 1; g.setAttribute('cy', (39 + ph * 20).toFixed(1)); g.style.opacity = (q.gn * (1 - Math.abs(ph - 0.5) * 0.8)).toFixed(2); }
+  e('Fol').setAttribute('r', q.ovul && d >= 14 ? 0 : (q.fol * 0.72).toFixed(1)); e('CL').setAttribute('r', (13 * q.cl).toFixed(1));
+  e('Ov').textContent = q.ovul && d >= 14 ? (d < 14.8 ? 'ovulação' : q.cl > 0.3 ? 'corpo lúteo' : 'luteólise') : q.fol >= 10 ? `folículo ${nf(q.fol, 0)} mm` : 'folículos pequenos';
+  e('Cav').style.strokeWidth = (q.endo * 0.9).toFixed(1);
+  e('Muco').style.opacity = (0.12 + 0.82 * (1 - q.perm)).toFixed(2);
+  const open = q.perm > 0.45;
+  e('Mu').textContent = open ? 'muco fluido' : 'muco espesso'; e('Mu2').textContent = open ? 'espermatozoides passam' : 'espermatozoides barrados';
+  e('Bl').style.opacity = q.bleed ? 1 : 0;
+  const egg = e('Egg'), eggOn = q.ovul && d >= 14 && d < 18.6;
+  if (eggOn) { const [ex, ey] = coAlong(CO_EGG, (d - 14) / 4.6); egg.setAttribute('cx', ex.toFixed(1)); egg.setAttribute('cy', ey.toFixed(1)); egg.style.opacity = d > 17.6 ? (18.6 - d).toFixed(2) : 1; } else egg.style.opacity = 0;
+  const pass = open ? Math.round(CO_NS * clamp(q.perm, 0, 1) * 0.8) : 0;
+  e('Fert').textContent = eggOn && d < 15.4 ? (pass ? 'fecundação possível' : 'óvulo sem espermatozoide') : '';
+  for (let i = 0; i < CO_NS; i++) { const g = e('S' + i), ph = (t / 7 + i / CO_NS + (i % 3) * 0.07) % 1, wob = 3 * Math.sin(t * 2.3 + i * 1.9); let X, Y;
+    if (i < pass) { [X, Y] = coAlong(CO_SP, ph); X += wob * 0.6; }
+    else { const up = 1 - Math.abs(2 * ph - 1); X = 192 + (i * 37 % 17) + wob * 0.5; Y = 366 - 36 * up; }
+    g.setAttribute('transform', `translate(${X.toFixed(1)} ${Y.toFixed(1)})`); }
+}
+
+/* ---------- controlador: dia, reprodução, gráfico e figura em sincronia ---------- */
+function coSim(o) {
+  let m = o.m || 'nat', ov = true, day = o.day || 9, playing = false, raf = 0, last = 0, t = 0;
+  const paint = () => {
+    coChartCursor(o.chart, m, ov, day); coFigUpdate(o.fig, m, ov, day, t);
+    $(o.range).value = day; $(o.out).textContent = `Dia ${Math.floor(day)} · ${coTag(m, day)}`;
+    const k = coTell(m, ov, day); if (k !== paint.k) { paint.k = k; $(o.tell).innerHTML = k; }
+    o.onDay && o.onDay(day, coState(m, ov, day));
+  };
+  const redraw = () => { coChartDraw(o.chart, m, ov); paint.k = null; paint(); };
+  const frame = now => { const dt = Math.min(0.1, (now - last) / 1000); last = now; t += dt;
+    if (playing) { day += dt * 28 / 22; if (day > 28) day = 1; paint(); } else coFigUpdate(o.fig, m, ov, day, t);
+    raf = requestAnimationFrame(frame); };
+  const setPlay = p => { playing = p; $(o.play).textContent = p ? '❚❚ Pausar' : '▶ Passar o ciclo'; $(o.play).setAttribute('aria-pressed', p); };
+  $(o.fig + 'Host').innerHTML = coFigSVG(o.fig);
+  $(o.range).oninput = e => { setPlay(false); day = +e.target.value; paint(); };
+  $(o.play).onclick = () => { if (reduced() && !playing) { day = day >= 27 ? 1 : Math.min(28, day + 3); paint(); return; } setPlay(!playing); };
+  coChartScrub(o.chart, d => { setPlay(false); day = d; paint(); });
+  redraw();
+  if (!reduced()) { last = performance.now(); raf = requestAnimationFrame(frame); }
+  return { set(mm, oo) { m = mm; if (oo !== undefined) ov = oo; redraw(); }, day(d) { setPlay(false); day = d; paint(); }, play: setPlay, get m() { return m; }, get ov() { return ov; }, stop() { cancelAnimationFrame(raf); } };
+}
+const CO_LEG = '<div class="legend"><span><i class="l-fsh"></i>FSH</span><span><i class="l-lh"></i>LH</span><span><i class="l-e2"></i>estradiol</span><span><i class="l-p4"></i>progesterona</span></div>';
+
+/* escolha única em chips: quebra melhor que o seg no celular */
+function pick(id, items, on) { return `<div class="chips wrapc" id="${id}" role="group">${items.map(([v, l]) => `<button class="chip${v == on ? ' on' : ''}" data-v="${v}" aria-pressed="${v == on}">${l}</button>`).join('')}</div>`; }
+function bindPick(id, fn) { const el = $(id); el.onclick = e => { const b = e.target.closest('.chip'); if (!b) return; el.querySelectorAll('.chip').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); }); fn(b.dataset.v); }; }
+/* roteiro de laboratório: perguntas com resposta recolhida */
+function roteiro(items) { return `<div class="task">${items.map(([q, a]) => `<details class="fold"><summary><span class="ask">${q}</span></summary><div>${a}</div></details>`).join('')}</div>`; }
+
+/* ===== Contraceptivos · Tela 1 (o ciclo) e Tela 2 (mecanismo) ===== */
+const CY_PH = [[3, 'Menstruação'], [8, 'Folicular'], [13.2, 'Pico de LH'], [14.2, 'Ovulação'], [21, 'Lútea'], [27, 'Luteólise']];
+function coTiles(pre) {
+  return `<div class="tiles" style="margin-top:10px"><div class="tile"><span>Ovário</span><b id="${pre}T1"></b><small id="${pre}T1s"></small></div><div class="tile"><span>Endométrio</span><b id="${pre}T2"></b><small id="${pre}T2s"></small></div><div class="tile"><span>Muco cervical</span><b id="${pre}T3"></b><small id="${pre}T3s"></small></div></div>`;
+}
+function coTilesSet(pre, d, q) {
+  const post = q.ovul && d >= 14;
+  $(pre + 'T1').textContent = post ? (q.cl > 0.3 ? 'corpo lúteo' : 'regredindo') : nf(q.fol, 0) + ' mm';
+  $(pre + 'T1s').textContent = post ? 'produz progesterona' : q.fol >= 18 ? 'pré-ovulatório' : q.fol >= 10 ? 'dominante' : 'sem dominante';
+  $(pre + 'T2').textContent = nf(q.endo, 0) + ' mm'; $(pre + 'T2s').textContent = q.bleed ? 'descamando' : q.endo >= 9 ? 'secretor ou proliferado' : q.endo >= 5 ? 'proliferando' : 'fino';
+  $(pre + 'T3').textContent = q.perm > 0.45 ? 'fluido' : 'espesso'; $(pre + 'T3s').textContent = q.perm > 0.45 ? 'penetrável' : 'impenetrável';
+}
+function renderCiclo(g) {
+  g.innerHTML =
+    card('Vinte e oito dias em quatro faixas', `
+      <div class="chips wrapc" id="cyPh">${CY_PH.map(([d, l]) => `<button class="chip" data-d="${d}">${l}</button>`).join('')}</div>
+      <div class="range" style="margin-top:12px"><label for="cyR">Dia do ciclo</label><output id="cyO"></output><input type="range" id="cyR" min="1" max="28" step="0.1"></div>
+      <div id="cyCh" style="margin-top:8px"></div>${CO_LEG}
+      <p class="note">Arraste o dedo sobre o gráfico para mudar o dia. Curvas em nível relativo (cada hormônio em proporção ao próprio pico), para um ciclo idealizado de 28 dias.</p>`, { eyebrow: 'Simulador', more: 'co_ciclo' }) +
+    card('Eixo, ovário e útero', `<div id="cyFHost"></div>
+      <div class="row" style="justify-content:space-between;margin-top:6px"><span class="note" style="margin:0">A espessura de cada seta acompanha o nível do hormônio.</span><button class="btn small" id="cyPlay" aria-pressed="false"></button></div>
+      ${coTiles('cy')}<div class="insight" id="cyTell" aria-live="polite"></div>`, { eyebrow: 'Ao vivo' }) +
+    card('O mesmo estradiol freia e dispara', `<div class="stack">
+        <div class="range"><label for="fbE">Estradiol no sangue</label><output id="fbEo"></output><input type="range" id="fbE" min="20" max="400" step="10" value="80"></div>
+        <div class="range"><label for="fbH">Há quanto tempo está nesse nível</label><output id="fbHo"></output><input type="range" id="fbH" min="0" max="72" step="2" value="12"></div></div>
+      <div id="fbFig" style="margin-top:8px"></div><div class="verdict" id="fbV" style="margin-top:10px"></div>
+      <p class="note">Limiar clássico de livro-texto: estradiol acima de cerca de 200 pg/mL, sustentado por cerca de 50 horas. Os valores variam entre mulheres e entre ciclos.</p>`,
+      { lede: 'O sinal do feedback depende do nível e do tempo. Encontre a combinação que dispara o pico de LH.', more: 'co_feedback' }) +
+    card('Roteiro do laboratório', roteiro([
+      ['Vá ao dia 9. Por que o FSH está caindo se o folículo ainda está crescendo?', 'O estradiol produzido pelo próprio folículo dominante (e a inibina) freia a hipófise. O FSH cai e os folículos menores, que dependem mais dele, entram em atresia. É assim que, em geral, só um folículo chega à ovulação.'],
+      ['Entre os dias 10 e 13, o que muda no colo do útero? Qual hormônio responde por isso?', 'O muco fica abundante, fluido e filante, e os espermatozoides passam. É efeito do <b>estradiol</b> alto. Depois da ovulação a <b>progesterona</b> desfaz isso em pouco tempo: o muco volta a ficar espesso.'],
+      ['Onde, neste ciclo, uma dose constante de estrogênio com progestina impediria a ovulação?', 'Em dois pontos: mantendo o FSH baixo (nenhum folículo vira dominante) e, principalmente, impedindo o feedback positivo e o pico de LH. <button class="lnk" style="border:0;background:none;padding:0;font:inherit" data-go="pilula">Veja na tela 3.</button>'],
+      ['Se houvesse gestação, o que você esperaria ver a partir do dia 24?', 'O hCG do embrião sustentaria o corpo lúteo. A progesterona não cairia, o endométrio não descamaria e o FSH continuaria freado: nenhum ciclo novo começaria.'],
+    ]), { lede: 'Responda antes de abrir cada resposta.' });
+  const sim = coSim({ chart: 'cyCh', fig: 'cyF', range: 'cyR', out: 'cyO', play: 'cyPlay', tell: 'cyTell', day: 9, onDay: (d, q) => coTilesSet('cy', d, q) });
+  sim.play(false);
+  $('cyPh').onclick = e => { const c = e.target.closest('.chip'); if (c) sim.day(+c.dataset.d); };
+  const drawFb = () => {
+    const E = +$('fbE').value, H = +$('fbH').value, W = cw('fbFig'), L = 44, R = 10, T = 10, B = 150, x = h => L + h / 72 * (W - L - R), y = v => B - v / 400 * (B - T), pos = E >= 200 && H >= 50;
+    let s = `<svg class="ch" viewBox="0 0 ${W} 180" role="img" aria-label="Mapa do feedback do estradiol">`;
+    [0, 100, 200, 300, 400].forEach(v => s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" class="gr"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`);
+    [0, 24, 48, 72].forEach(h => s += `<text x="${x(h)}" y="${B + 16}" text-anchor="middle">${h} h</text>`);
+    s += `<rect x="${x(50)}" y="${y(400)}" width="${x(72) - x(50)}" height="${y(200) - y(400)}" class="acta" style="opacity:${pos ? .28 : .12}"/><text x="${(x(50) + x(72)) / 2}" y="${y(300) + 4}" text-anchor="middle" class="lbl" style="fill:var(--accent)">feedback +</text>`;
+    s += `<text x="${x(22)}" y="${y(60)}" text-anchor="middle">feedback −</text><text x="${L}" y="${T - 1}" style="font-size:10px">pg/mL</text>`;
+    s += `<line x1="${x(H)}" x2="${x(H)}" y1="${y(E)}" y2="${B}" class="dotst"/><line x1="${L}" x2="${x(H)}" y1="${y(E)}" y2="${y(E)}" class="dotst"/><circle cx="${x(H)}" cy="${y(E)}" r="7" class="fE2 ring"/></svg>`;
+    $('fbFig').innerHTML = s; $('fbEo').textContent = E + ' pg/mL'; $('fbHo').textContent = H + ' h';
+    const v = pos ? ['acc', 'Feedback positivo: pico de LH', 'O estradiol alto e sustentado sensibiliza a hipófise ao GnRH. O LH dispara e a ovulação acontece cerca de 36 horas depois do início do pico.']
+      : E >= 200 ? ['warn', 'Ainda negativo: falta tempo', 'O nível já é alto, mas precisa se manter por cerca de dois dias. É o que o folículo dominante faz no fim da fase folicular.']
+      : ['neu', 'Feedback negativo: hipófise freada', 'Em nível baixo ou moderado, o estradiol reduz a liberação de FSH e LH. É o regime de quase todo o ciclo, e é o regime que a pílula mantém o mês inteiro.'];
+    $('fbV').className = 'verdict ' + v[0]; $('fbV').innerHTML = `<b>${v[1]}</b><span>${v[2]}</span>`;
+  };
+  $('fbE').oninput = drawFb; $('fbH').oninput = drawFb; drawFb();
+  return () => sim.stop();
+}
+
+const CO_BARR = {
+  nat: [[0, 'Livre', 'Um folículo amadurece e se rompe por volta do dia 14.', ''], [0, 'Fluido no período fértil', 'O estradiol alto abre o colo por alguns dias.', ''], [0, 'Receptivo', 'Prolifera, fica secretor e descama se não houver implantação.', ''], [0, 'Normal', 'Tubas levam o óvulo e os espermatozoides ao encontro.', '']],
+  aoc: [[3, 'Bloqueada', 'O estrogênio suprime o FSH e nenhum folículo vira dominante; a progestina suprime o LH e abole o pico. É o mecanismo principal.', 'E + P'], [3, 'Espesso', 'A progestina deixa o muco escasso, viscoso e impenetrável.', 'P'], [2, 'Fino', 'Pouco receptivo. Mecanismo secundário: com a ovulação bloqueada, raramente é posto à prova.', 'P'], [1, 'Mais lentas', 'A progestina altera o transporte dos gametas. Contribuição pequena e difícil de medir.', 'P']],
+  pop: [[1, 'Bloqueada só em parte', 'A dose não suprime o LH de forma consistente: há ovulação em cerca de metade dos ciclos.', 'P'], [3, 'Espesso', 'Mecanismo principal. Começa em poucas horas e se perde em cerca de 24 horas: por isso o horário importa tanto.', 'P'], [2, 'Fino e fora de fase', 'Menos receptivo, com sangramento irregular.', 'P'], [1, 'Mais lentas', 'Contribuição pequena e difícil de medir.', 'P']],
+  pis: [[3, 'Bloqueada', 'O desogestrel 75 µg inibe a ovulação em cerca de 97% dos ciclos. A drospirenona 4 mg mantém a inibição mesmo com 24 horas de atraso.', 'P'], [3, 'Espesso', 'Como em toda pílula com progestina.', 'P'], [2, 'Fino', 'Sem estrogênio para estabilizá-lo: sangramento irregular ou ausente.', 'P'], [1, 'Mais lentas', 'Contribuição pequena e difícil de medir.', 'P']],
+};
+const CO_BN = ['Ovulação', 'Muco cervical', 'Endométrio', 'Tubas uterinas'];
+const CO_OV100 = { aoc: [2, 'Pílula combinada: ovulação de escape em cerca de 2 de cada 100 ciclos (Milsom e Korver, 2008).'], pop: [50, 'Minipílula tradicional: ovulação em cerca de metade dos ciclos (CDC, 2024).'], pis: [3, 'Desogestrel 75 µg: ovulação em cerca de 3 de cada 100 ciclos (Rice et al., 1999).'] };
+const CO_TAKES = { nat: 'Nada: o eixo funciona sozinho.', aoc: '<b>Estrogênio</b> (etinilestradiol 15 a 35 µg, estradiol ou estetrol) + <b>progestina</b>, 21 ou 24 dias, com pausa de 7 ou 4.', pop: '<b>Só progestina em dose baixa</b> (noretisterona 0,35 mg), todos os dias, sem pausa.', pis: '<b>Só progestina em dose anovulatória</b>: desogestrel 75 µg sem pausa, ou drospirenona 4 mg em esquema 24/4.' };
+const CO_WHO = [['Suprime o FSH: nenhum folículo vira dominante', 'E', 'e'], ['Suprime o LH: sem pico, sem ovulação', 'P', 'p'], ['Espessa o muco cervical', 'P', 'p'], ['Afina o endométrio', 'P', 'p'], ['Estabiliza o endométrio: sangramento previsível', 'E', 'e'], ['Aumenta a síntese hepática de fatores de coagulação', 'E', 'e']];
+function renderPilula(g) {
+  const saved = store.get('co.pil', {});
+  let m = CO_M[saved.m] ? saved.m : 'aoc', ov = saved.ov !== false, E = true, Pg = true;
+  g.innerHTML =
+    `<section class="card" style="min-width:0"><div class="card-h"><div><span class="eyebrow">Simulador</span><h3>Quais barreiras cada pílula ergue?</h3></div>${moreBtn('co_mec')}</div>
+      <div class="sub">Formulação</div><div class="chips wrapc" id="plM">${Object.entries(CO_M).map(([k, v]) => `<button class="chip" data-m="${k}">${v.n}</button>`).join('')}</div>
+      <p class="note" id="plTakes" style="font-size:13.5px;color:var(--fg)"></p>
+      <div id="plOvWrap" hidden><div class="sub">Neste ciclo</div>${pick('plOv', [['1', 'Houve ovulação'], ['0', 'Não houve ovulação']], '1')}</div>
+      <div class="sub" style="margin-top:16px">As quatro barreiras</div><div class="barr" id="plB"></div><p class="note">E = estrogênio · P = progestina: o componente responsável por cada barreira.</p>
+      <div id="plCyc"></div>
+    </section>` +
+    card('Eixo, ovário e útero', `<div id="plFHost"></div>
+      <div class="row" style="justify-content:space-between;margin-top:6px"><span class="note" style="margin:0">Linha pontilhada: hormônios da pílula.</span><button class="btn small" id="plPlay" aria-pressed="false"></button></div>
+      ${coTiles('pl')}<div class="insight" id="plTell" aria-live="polite"></div>`, { eyebrow: 'Ao vivo' }) +
+    card('O mês com e sem a pílula', `<div class="range"><label for="plR">Dia</label><output id="plO"></output><input type="range" id="plR" min="1" max="28" step="0.1"></div>
+      <div id="plCh" style="margin-top:8px"></div><div class="legend"><span><i class="l-fsh"></i>FSH</span><span><i class="l-lh"></i>LH</span><span><i class="l-e2"></i>estradiol</span><span><i class="l-p4"></i>progesterona</span><span><i class="l-gh"></i>ciclo natural, para comparar</span></div>
+      <p class="note">As curvas mostram os hormônios da própria mulher. Os hormônios da pílula aparecem como os pontos no alto do gráfico: cheio = pílula ativa, vazado = pausa. Modelo qualitativo.</p>`) +
+    card('Quem faz o quê na pílula combinada', `<div class="row"><label class="toggle"><input type="checkbox" id="whoE" checked>Estrogênio</label><label class="toggle"><input type="checkbox" id="whoP" checked>Progestina</label></div>
+      <div id="whoL" class="why"></div><div class="verdict" id="whoV" style="margin-top:12px"></div>`, { lede: 'Desligue um componente e veja o que a pílula perde.' }) +
+    card('Roteiro do laboratório', roteiro([
+      ['Com a pílula combinada, passe o mês inteiro. Em que dias o FSH sobe? O que isso significa?', 'Na pausa (dias 22 a 28). Sem hormônio exógeno, o freio some e os folículos voltam a crescer. Sete dias não bastam para ovular; mais do que isso, o risco aparece. <button class="lnk" style="border:0;background:none;padding:0;font:inherit" data-go="cartela">Teste na cartela.</button>'],
+      ['Na minipílula tradicional, escolha “Houve ovulação”. Por que a mulher continua protegida?', 'Porque o muco espesso impede que os espermatozoides cheguem ao óvulo: na figura, o óvulo é liberado, mas fica sem espermatozoide. A proteção depende de o muco estar espesso todos os dias, e esse efeito dura cerca de 24 horas.'],
+      ['Qual formulação sem estrogênio protege mais contra um atraso de horas? Por quê?', 'As progestinas em dose anovulatória (desogestrel 75 µg e drospirenona 4 mg): além do muco, bloqueiam a ovulação, então um atraso de algumas horas não desfaz a proteção. Janela de 12 horas para o desogestrel e de 24 horas para a drospirenona, contra 3 horas da noretisterona.'],
+      ['O sangramento da pausa é uma menstruação?', 'Não. É um sangramento de privação: o endométrio fino descama porque os hormônios da pílula foram retirados. Não houve ovulação nem fase lútea. Por isso ele é mais curto e escasso, e pode ser suprimido em esquemas contínuos.'],
+    ]), { wide: true, lede: 'Responda antes de abrir cada resposta.' });
+  const sim = coSim({ chart: 'plCh', fig: 'plF', range: 'plR', out: 'plO', play: 'plPlay', tell: 'plTell', m, day: 10, onDay: (d, q) => coTilesSet('pl', d, q) });
+  sim.play(false);
+  const upd = () => {
+    store.set('co.pil', { m, ov });
+    $('plM').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.m === m));
+    $('plTakes').innerHTML = CO_TAKES[m]; $('plOvWrap').hidden = m !== 'pop';
+    $('plB').innerHTML = CO_BARR[m].map(([lv, st, tx, ep], i) => `<div class="br"><b>${i + 1}. ${CO_BN[i]}${ep ? `<span class="ep">${ep}</span>` : ''}</b><span class="bs" style="color:${lv >= 3 ? 'var(--accent)' : lv ? 'var(--warn)' : 'var(--muted)'}">${st}</span><div class="meter"><i style="width:${[4, 34, 67, 100][lv]}%"></i></div><p>${tx}</p></div>`).join('');
+    const c = CO_OV100[m];
+    $('plCyc').innerHTML = c ? `<div class="sub" style="margin-top:16px">Em 100 ciclos de uso correto, em quantos há ovulação?</div><div class="dots100" role="img" aria-label="${c[0]} de 100 ciclos com ovulação">${Array.from({ length: 100 }, (_, i) => `<i class="${i < c[0] ? 'on' : ''}"></i>`).join('')}</div><p class="note">${c[1]}</p>` : '';
+    sim.set(m, m === 'pop' ? ov : true);
+  };
+  $('plM').onclick = e => { const c = e.target.closest('.chip'); if (!c) return; m = c.dataset.m; upd(); };
+  bindPick('plOv', v => { ov = v === '1'; upd(); });
+  $('plOv').querySelectorAll('.chip').forEach(b => { const on = (b.dataset.v === '1') === ov; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+  const who = () => {
+    E = $('whoE').checked; Pg = $('whoP').checked;
+    $('whoL').innerHTML = CO_WHO.map(([t, tag, k]) => { const on = k === 'e' ? E : Pg; return `<div style="opacity:${on ? 1 : .35}"><span>${t}</span><span class="ep" style="margin:0">${tag}</span><span class="${on ? 'ok' : 'no'}">${on ? 'sim' : 'não'}</span></div>`; }).join('');
+    const v = E && Pg ? ['neu', 'Pílula combinada', 'Ovulação bloqueada e sangramento previsível, ao custo do efeito hepático do estrogênio (coagulação, SHBG, angiotensinogênio).']
+      : Pg ? ['neu', 'Pílula só de progestina', 'Mantém as barreiras da progestina e deixa de lado o efeito do estrogênio sobre a coagulação. Perde o controle do sangramento: escapes e amenorreia são comuns.']
+      : E ? ['bad', 'Estrogênio sozinho não é contraceptivo', 'Freia o FSH, mas não garante o bloqueio do pico de LH, não espessa o muco e faz o endométrio proliferar sem oposição.']
+      : ['neu', 'Sem hormônio', 'Ciclo natural: nenhuma barreira.'];
+    $('whoV').className = 'verdict ' + v[0]; $('whoV').innerHTML = `<b>${v[1]}</b><span>${v[2]}</span>`;
+  };
+  $('whoE').onchange = who; $('whoP').onchange = who; who(); upd();
+  return () => sim.stop();
+}
+
+/* ===== Contraceptivos · Mecanismo molecular: transporte no sangue, receptor intracelular, dimerização, DNA e transcrição ===== */
+const RC_L = {
+  e: { n: 'Estrogênio', k: 'E', cls: 'hmE', R: 'ER', RE: 'ERE', carr: 'SHBG' },
+  p: { n: 'Progestina', k: 'P', cls: 'hmP', R: 'PR', RE: 'PRE', carr: 'SHBG, CBG' },
+  a: { n: 'Antagonista: mifepristona', k: 'M', cls: 'hmA', R: 'PR', RE: 'PRE', carr: 'proteínas' },
+};
+const RC_ST = [
+  ['No sangue', 'preso a proteínas'], ['Atravessa', 'difusão passiva'], ['Liga-se', 'receptor intracelular'],
+  ['Dimeriza', 'dois complexos'], ['No DNA', 'elemento de resposta'], ['Transcreve', 'mRNA e proteína'],
+];
+/* posições por passo: hormônio (H), receptores (A, B) e segundo hormônio (H2) */
+const RC_POS = [
+  { H: [316, 48], A: [150, 166], B: [250, 166] },
+  { H: [316, 134], A: [150, 166], B: [250, 166] },
+  { H: [150, 152], A: [150, 166], B: [250, 166], H2: [250, 152] },
+  { H: [186, 190], A: [186, 204], B: [214, 204], H2: [214, 190] },
+  { H: [186, 290], A: [186, 304], B: [214, 304], H2: [214, 290] },
+  { H: [186, 290], A: [186, 304], B: [214, 304], H2: [214, 290] },
+];
+function rcText(l, i) {
+  const ag = l !== 'a';
+  return [
+    l === 'e' ? 'No sangue, quase todo o estradiol viaja preso: cerca de 60% à albumina e 38% à <b>SHBG</b>. Só os <b>2% livres</b> saem do vaso e entram nas células. O etinilestradiol liga-se quase só à albumina.'
+      : l === 'p' ? 'A progesterona viaja ligada à albumina (cerca de 80%) e à <b>CBG</b> (18%). As progestinas derivadas da 19-nortestosterona, como o levonorgestrel, ligam-se também à <b>SHBG</b>. Só a <b>fração livre</b> entra nas células.'
+      : 'A mifepristona circula ligada a proteínas e entra na célula como qualquer esteroide. A diferença aparece adiante, no receptor.',
+    'Esteroides são lipossolúveis: a molécula livre atravessa a membrana por <b>difusão passiva</b>, sem transportador e sem receptor de superfície.',
+    ag ? `Dentro da célula, o hormônio encontra o receptor (${l === 'e' ? 'ERα ou ERβ' : 'PR-A ou PR-B'}), que estava inativo: um monômero preso a chaperonas, as proteínas de choque térmico. A ligação <b>muda a forma do receptor</b> e solta as chaperonas.`
+      : 'A mifepristona ocupa o mesmo sítio do receptor de progesterona, com alta afinidade, e <b>compete com a progesterona</b>. O receptor muda de forma, mas para uma conformação diferente da que o agonista produz.',
+    ag ? 'Dois complexos hormônio-receptor se unem: <b>dimerização</b>. É o dímero que reconhece o DNA.' : 'O receptor ocupado pelo antagonista ainda dimeriza e ainda segue para o DNA.',
+    ag ? `No núcleo, o dímero se liga a sequências específicas do DNA, os <b>elementos de resposta ${l === 'e' ? 'ao estrogênio (ERE)' : 'à progesterona (PRE)'}</b>, na região promotora dos genes-alvo, e recruta <b>coativadores</b>.`
+      : 'O dímero se liga ao PRE, mas, em vez de coativadores, recruta <b>correpressores</b>.',
+    ag ? 'A transcrição dos genes-alvo aumenta ou diminui. O mRNA é traduzido em <b>proteínas</b>, e são elas que produzem o efeito. Por isso a resposta leva <b>horas</b> para aparecer e dura mais do que o hormônio no sangue.'
+      : 'A transcrição dos genes que dependem de progesterona fica <b>bloqueada</b>. No endométrio que sustenta uma gestação, isso desestabiliza a decídua: é o mecanismo da mifepristona, oposto ao do levonorgestrel. <button class="lnk" style="border:0;background:none;padding:0;font:inherit" data-go="emergencia">Compare na tela de emergência.</button>',
+  ][i];
+}
+function rcSVG() {
+  let heads = ''; for (let x = 6; x < 400; x += 13) heads += `<circle cx="${x}" cy="78" r="5" class="head"/><circle cx="${x}" cy="94" r="5" class="head"/>`;
+  const rec = 'M-15 -4 a8 8 0 0 1 8 -8 h1 a6 6 0 0 0 12 0 h1 a8 8 0 0 1 8 8 v8 a8 8 0 0 1 -8 8 h-14 a8 8 0 0 1 -8 -8 z';
+  const mv = 'style="transition:transform .7s cubic-bezier(.5,0,.3,1),opacity .4s"';
+  return `<svg class="ch" viewBox="0 0 400 372" role="img" aria-label="Hormônio esteroide do sangue ao núcleo da célula-alvo">
+  <rect x="0" y="0" width="400" height="74" class="bloodf"/><rect x="0" y="98" width="400" height="274" class="cell-in"/><rect x="0" y="74" width="400" height="24" class="lip"/>${heads}
+  <text x="10" y="16" class="zone">Sangue</text><text x="390" y="116" class="zone" text-anchor="end">Citoplasma</text>
+  <rect x="20" y="32" width="84" height="26" rx="13" class="carr1"/><text x="62" y="49" class="mtxt" id="rcCarr" style="font-size:10.5px">SHBG</text>
+  <rect x="124" y="32" width="96" height="26" rx="13" class="carr2"/><text x="172" y="49" class="fl" text-anchor="middle" style="font-size:10.5px">albumina</text>
+  <g id="rcBound"></g>
+  <text x="330" y="52" class="fs" id="rcFree">livre</text>
+  <rect x="30" y="240" width="340" height="124" rx="40" class="nuc"/><text x="54" y="262" class="zone">Núcleo</text>
+  <path d="M56 318 H344 M56 326 H344" class="dna"/><rect x="166" y="314" width="68" height="16" rx="5" class="ere"/><text x="200" y="346" class="fl" text-anchor="middle" id="rcRE">ERE</text>
+  <g id="rcFast" style="opacity:0;transition:opacity .3s"><rect x="40" y="68" width="16" height="36" rx="6" class="rec"/><path d="M48 106 V136 m-4 -6 l4 6 l4 -6 M48 158 V176 m-4 -6 l4 6 l4 -6" class="dotst" style="stroke:var(--fg)"/>
+    <text x="62" y="120" class="fs">GPER1, mER</text><text x="48" y="152" class="fl" text-anchor="middle">quinases</text><text x="48" y="192" class="fl" text-anchor="middle">efeito em</text><text x="48" y="205" class="fl" text-anchor="middle">segundos</text></g>
+  <g id="rcHsp" style="transition:opacity .5s"><ellipse cx="176" cy="172" rx="12" ry="8" class="hsp"/><ellipse cx="224" cy="172" rx="12" ry="8" class="hsp"/><text x="200" y="198" class="fs" text-anchor="middle">chaperonas</text></g>
+  <g id="rcCo" style="opacity:0;transition:opacity .4s"><rect x="146" y="291" width="20" height="14" rx="6" id="rcCo1"/><rect x="234" y="291" width="20" height="14" rx="6" id="rcCo2"/><text x="140" y="302" class="fl" text-anchor="end" id="rcCoT">coativadores</text></g>
+  <g id="rcRna" style="opacity:0;transition:opacity .5s"><path d="M246 322 C 300 318, 356 300, 338 214" class="mrna"/><text x="318" y="290" class="fs" text-anchor="end">mRNA</text>
+    <ellipse cx="336" cy="204" rx="14" ry="9" class="hsp"/><text x="336" y="228" class="fs" text-anchor="middle">ribossomo</text>
+    <circle cx="300" cy="172" r="5" class="hl"/><circle cx="313" cy="163" r="5" class="hl"/><circle cx="326" cy="172" r="5" class="hl"/><text x="313" y="148" class="fl" text-anchor="middle">proteínas novas</text><text x="313" y="135" class="fs" text-anchor="middle">efeito em horas</text></g>
+  <g id="rcBlock" style="opacity:0;transition:opacity .4s"><path d="M262 312 l18 20 M280 312 l-18 20" style="stroke:var(--bad);stroke-width:4;stroke-linecap:round"/><text x="366" y="350" class="fl" text-anchor="end" style="fill:var(--bad)">transcrição bloqueada</text></g>
+  <g id="rcA" ${mv}><path d="${rec}" class="rec"/><text y="3" class="mtxt" style="font-size:9.5px" id="rcAt">ER</text></g>
+  <g id="rcB" ${mv}><path d="${rec}" class="rec"/><text y="3" class="mtxt" style="font-size:9.5px" id="rcBt">ER</text></g>
+  <g id="rcH2" ${mv}><circle r="6.5" id="rcH2c"/><text class="mtxt" style="font-size:8.5px" id="rcH2t">E</text></g>
+  <g id="rcH" ${mv}><circle r="7.5" id="rcHc" style="stroke:var(--surface);stroke-width:1.5"/><text class="mtxt" style="font-size:9px" id="rcHt">E</text></g>
+</svg>`;
+}
+/* [nome, % livre, % albumina, % SHBG, % CBG, fonte] */
+const TR_H = {
+  e2: ['Estradiol', 1.81, 60.8, 37.3, 0, 'Dunn et al., 1981'],
+  ee: ['Etinilestradiol', 1.5, 98.5, 0, 0, 'bula'],
+  lng: ['Levonorgestrel', 1.1, 33.9, 65, 0, 'bula'],
+  drsp: ['Drospirenona', 4, 96, 0, 0, 'bula: 3 a 5% livre'],
+  p4: ['Progesterona', 2, 80, 0, 18, 'valores da aula'],
+  t: ['Testosterona', 1.36, 30.4, 66, 2.26, 'Dunn et al., 1981'],
+};
+const trFrac = (h, x) => { const [, f, a, s, c] = TR_H[h], tot = f + a + s * x + c; return { f: f / tot, a: a / tot, s: s * x / tot, c: c / tot }; };
+const RC_TIS = [
+  ['Hipotálamo e hipófise', 'E + P', 'Menos GnRH pulsátil e menor resposta da hipófise: caem o LH e o FSH. É a base do bloqueio da ovulação.', 'pilula', 'Ver a ação contraceptiva'],
+  ['Colo do útero', 'P', 'Muda a secreção das glândulas endocervicais: muco escasso, viscoso e impenetrável.', 'pilula', 'Ver a ação contraceptiva'],
+  ['Endométrio', 'E + P', 'O estrogênio faz proliferar e induz a síntese de receptores de progesterona. A progestina transforma, afina e, em uso contínuo, atrofia.', '', ''],
+  ['Fígado', 'E', 'Aumenta a síntese de SHBG, CBG, TBG, angiotensinogênio e fatores de coagulação; reduz antitrombina e proteína S. Pela via oral, o fígado recebe a dose mais alta.', 'trombose', 'Ver trombose em perspectiva'],
+  ['Osso', 'E', 'Menos reabsorção, por apoptose de osteoclastos.', '', ''],
+  ['Outros receptores', 'P', 'Além do receptor de progesterona, cada progestina se liga em grau diferente a outros receptores de esteroides. O levonorgestrel ativa o receptor androgênico; a drospirenona e o dienogeste competem com os androgênios; a drospirenona também bloqueia o receptor mineralocorticoide. É o que separa as gerações.', 'trombose', 'Ver as progestinas'],
+];
+const RC_HL = [['Dienogeste', 10, '~10 h'], ['Etinilestradiol', 13, '~13 h'], ['Valerato de estradiol', 14, '~14 h'], ['Estetrol', 28, '~28 h'], ['Drospirenona', 32.5, '30 a 35 h'], ['Nomegestrol', 46, '~46 h']];
+function renderReceptor(g) {
+  let l = 'e', step = 0, timer = null, fast = false, th = 't', x = 1, tis = 0;
+  g.innerHTML =
+    card('Do sangue ao gene em seis passos', `<div class="rcx">
+        <div class="rc-ctl"><div class="sub">Quem se liga ao receptor</div>${pick('rcL', Object.entries(RC_L).map(([k, v]) => [k, v.n]), 'e')}
+          <div class="steps rcsteps" id="rcSteps" style="margin-top:12px">${RC_ST.map((s, i) => `<button class="stp${i === 0 ? ' on' : ''}" data-i="${i}"><i>${i + 1}</i><b>${s[0]}</b><span>${s[1]}</span></button>`).join('')}</div></div>
+        <figure class="fig rc-fig">${rcSVG()}</figure>
+        <div class="rc-txt"><div class="row" style="justify-content:space-between"><button class="btn small" id="rcPlay">▶ Animar a sequência</button><label class="toggle" style="font-size:13px"><input type="checkbox" id="rcFastT">Mostrar a via rápida</label></div>
+          <div class="insight" id="rcTxt" aria-live="polite"></div><p class="note" id="rcFastN" hidden>Via não genômica: receptores na membrana (mERα, GPER1) ativam cascatas de quinases (PKA, PKC, MAPK, PI3K) em segundos a minutos, sem passar pelo DNA. Explica efeitos vasculares agudos do estrogênio.</p></div>
+      </div>
+      <div class="legend"><span><span class="mol" style="background:var(--e2)">E</span> estrogênio</span><span><span class="mol" style="background:var(--p4)">P</span> progestina</span><span><span class="mol" style="background:var(--anta)">M</span> mifepristona</span><span><i style="background:var(--ion);width:12px;height:10px;border-radius:3px"></i>receptor</span></div>`,
+      { wide: true, more: 'co_receptor', eyebrow: 'Via genômica' }) +
+    card('No sangue, só a fração livre entra na célula', `<div class="sub">Hormônio</div>${pick('trH', Object.entries(TR_H).map(([k, v]) => [k, v[0]]), 't')}
+      <div class="range" style="margin-top:12px"><label for="trX">SHBG no sangue</label><output id="trXo"></output><input type="range" id="trX" min="1" max="4" step="0.1" value="1"></div>
+      <div class="chips wrapc" id="trP"><button class="chip" data-x="1">Sem pílula</button><button class="chip" data-x="1.7">EE + levonorgestrel</button><button class="chip" data-x="3.5">EE + drospirenona</button></div>
+      <div class="dots200" id="trW" style="margin-top:12px"></div>
+      <div class="legend"><span><i class="w-fr"></i>livre</span><span><i class="w-sh"></i>SHBG</span><span><i class="w-cb"></i>CBG</span><span><i class="w-al"></i>albumina</span></div>
+      <div class="tiles" style="margin-top:10px"><div class="tile acc"><span>Livre</span><b id="trT1"></b><small id="trT1s"></small></div><div class="tile"><span>Presa à SHBG</span><b id="trT2"></b><small>ligação forte e específica</small></div><div class="tile"><span>Albumina</span><b id="trT3"></b><small>ligação fraca</small></div></div>
+      <div class="insight" id="trI"></div>
+      <p class="note">Cada quadrado é 0,5% do hormônio no sangue. Valores de partida: <span id="trSrc"></span>. O efeito da SHBG usa um modelo simples de equilíbrio (proteínas longe da saturação): mostra a direção e a ordem de grandeza. Aumento de SHBG com cada pílula: Douxfils et al., 2020.</p>`,
+      { lede: 'O etinilestradiol faz o fígado produzir mais SHBG. Veja quem sente isso.', more: 'co_transporte', eyebrow: 'Simulador' }) +
+    card('O mesmo mecanismo, tecidos diferentes', `<div class="chips wrapc" id="rcTis">${RC_TIS.map((t, i) => `<button class="chip" data-i="${i}">${t[0]}</button>`).join('')}</div><div id="rcTisT" style="margin-top:10px"></div>
+      <div class="sub" style="margin-top:18px">Meia-vida: quanto tempo cada um fica</div><div id="rcHL"></div>
+      <p class="note">Meias-vidas da aula. Meia-vida longa dá margem para atrasos: nomegestrol e drospirenona toleram mais.</p>`,
+      { lede: 'O receptor é o mesmo; os genes que ele regula mudam de célula para célula.' }) +
+    card('Roteiro do laboratório', roteiro([
+      ['Passe os seis passos com o estrogênio. Em qual deles um fármaco pode competir com o hormônio? Troque para a mifepristona e confira.', 'No passo 3, a ligação ao receptor. O antagonista ocupa o mesmo sítio, com alta afinidade. O curioso é que o receptor ainda dimeriza e ainda vai ao DNA: a diferença aparece nos passos 5 e 6, quando ele recruta correpressores em vez de coativadores.'],
+      ['A pílula atinge o pico no sangue em 1 a 2 horas. Por que o efeito não é imediato?', 'Porque a via principal é genômica: é preciso transcrever o gene, traduzir o mRNA e acumular a proteína. Leva horas, e o efeito persiste depois que o hormônio caiu. Marque “Mostrar a via rápida” para ver a exceção.'],
+      ['Com etinilestradiol e drospirenona, o que acontece com a testosterona livre? E com a própria drospirenona?', 'A SHBG mais que triplica e prende a testosterona: no modelo, a fração livre cai mais de 60%. A drospirenona não se liga à SHBG e não é afetada. É uma das razões da melhora da acne, e do possível efeito sobre a libido.'],
+      ['Levonorgestrel e drospirenona ativam o mesmo receptor de progesterona. Por que os perfis clínicos são diferentes?', 'Porque nenhuma progestina é seletiva só para ele. O levonorgestrel também ativa o receptor androgênico; a drospirenona bloqueia o androgênico e o mineralocorticoide. Veja “Outros receptores” no cartão dos tecidos.'],
+    ]), { wide: true, lede: 'Responda antes de abrir cada resposta.' });
+
+  const T = (id, p) => { $(id).style.transform = `translate(${p[0]}px, ${p[1]}px)`; };
+  const setStep = i => {
+    step = i; const P = RC_POS[i], L = RC_L[l], ag = l !== 'a';
+    T('rcH', P.H); T('rcA', P.A); T('rcB', P.B); T('rcH2', P.H2 || [P.B[0], P.B[1] - 14]);
+    $('rcH2').style.opacity = P.H2 ? 1 : 0;
+    $('rcHsp').style.opacity = i < 2 ? 1 : 0; $('rcFree').style.opacity = i === 0 ? 1 : 0;
+    $('rcCo').style.opacity = i >= 4 ? 1 : 0; $('rcRna').style.opacity = i === 5 && ag ? 1 : 0; $('rcBlock').style.opacity = i === 5 && !ag ? 1 : 0;
+    ['rcHc', 'rcH2c'].forEach(k => $(k).setAttribute('class', L.cls)); $('rcHt').textContent = L.k; $('rcH2t').textContent = L.k;
+    $('rcAt').textContent = L.R; $('rcBt').textContent = L.R; $('rcRE').textContent = L.RE; $('rcCarr').textContent = l === 'p' ? 'SHBG, CBG' : l === 'e' ? 'SHBG' : 'proteínas';
+    ['rcCo1', 'rcCo2'].forEach(k => $(k).setAttribute('class', ag ? 'coa' : 'cor')); $('rcCoT').textContent = ag ? 'coativadores' : 'correpressores'; $('rcCoT').style.fill = ag ? '' : 'var(--bad)';
+    $('rcBound').innerHTML = [[36, 32], [88, 32], [142, 32], [172, 32], [202, 32]].map(([cx, cy]) => `<circle cx="${cx}" cy="${cy}" r="5.5" class="${L.cls}" style="opacity:.75"/>`).join('');
+    $('rcTxt').innerHTML = `<b>${i + 1}. ${RC_ST[i][0]}.</b> ${rcText(l, i)}`;
+    $('rcTxt').querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+    $('rcSteps').querySelectorAll('.stp').forEach(b => b.classList.toggle('on', +b.dataset.i === i));
+  };
+  const stop = () => { if (timer) { clearInterval(timer); timer = null; $('rcPlay').textContent = '▶ Animar a sequência'; } };
+  $('rcSteps').onclick = e => { const b = e.target.closest('.stp'); if (b) { stop(); setStep(+b.dataset.i); } };
+  $('rcPlay').onclick = () => { if (timer) return stop(); setStep(0); $('rcPlay').textContent = '■ Parar'; timer = setInterval(() => { if (step >= 5) { stop(); return; } setStep(step + 1); }, reduced() ? 2200 : 1900); };
+  bindPick('rcL', v => { l = v; setStep(step); });
+  $('rcFastT').onchange = e => { fast = e.target.checked; $('rcFast').style.opacity = fast ? 1 : 0; $('rcFastN').hidden = !fast; };
+  setStep(0);
+
+  const drawTr = () => {
+    const H = TR_H[th], F = trFrac(th, x), F0 = trFrac(th, 1), rel = F.f / F0.f - 1, binds = H[3] > 0;
+    $('trXo').textContent = x === 1 ? 'basal' : `${nf(x, 1)} vezes o basal`; $('trX').value = x;
+    $('trP').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', Math.abs(+c.dataset.x - x) < 0.05));
+    // 200 quadrados, pelo método dos maiores restos, com pelo menos 1 para a fração livre
+    const raw = [['fr', F.f], ['sh', F.s], ['cb', F.c], ['al', F.a]].map(([k, v]) => [k, v * 200]), cnt = raw.map(([k, v]) => [k, Math.floor(v), v - Math.floor(v)]);
+    if (cnt[0][1] === 0) { cnt[0][1] = 1; cnt[0][2] = 0; }
+    let left = 200 - cnt.reduce((n, c) => n + c[1], 0); [...cnt].sort((a, b) => b[2] - a[2]).forEach(c => { if (left > 0) { c[1]++; left--; } });
+    if (left < 0) cnt[3][1] += left;
+    $('trW').innerHTML = cnt.map(([k, n]) => `<i class="w-${k}"></i>`.repeat(Math.max(0, n))).join('');
+    $('trW').setAttribute('role', 'img'); $('trW').setAttribute('aria-label', `Livre ${pc(F.f)}, SHBG ${pc(F.s)}, albumina ${pc(F.a)}`);
+    $('trT1').textContent = pc(F.f, F.f < 0.01 ? 2 : 1); $('trT1s').textContent = x === 1 ? 'é a que age' : Math.abs(rel) < 0.005 ? 'não muda com a SHBG' : `${nf(Math.abs(rel) * 100, 0)}% ${rel < 0 ? 'a menos' : 'a mais'} que no basal`;
+    $('trT2').textContent = binds ? pc(F.s, 0) : 'não se liga'; $('trT3').textContent = pc(F.a, 0); $('trSrc').textContent = `${H[0].toLowerCase()}, ${H[5]}`;
+    $('trI').innerHTML = th === 't' ? (x === 1 ? 'A testosterona é o esteroide que a SHBG prende com mais força: dois terços dela circulam ligados à globulina. Aumente a SHBG e veja a fração livre.' : `Com a SHBG em ${nf(x, 1)} vezes o basal, a testosterona livre cai <b>${nf(-rel * 100, 0)}%</b>. Em metanálise, a pílula combinada reduziu a testosterona livre em 61% (Zimmerman et al., 2014): parte por esse efeito, parte por frear a produção ovariana. Ajuda a explicar a melhora da acne.`)
+      : th === 'lng' ? (x === 1 ? 'O levonorgestrel se liga fortemente à SHBG: cerca de 65% circula preso a ela.' : `A SHBG induzida pelo estrogênio prende mais levonorgestrel: a fração livre cai <b>${nf(-rel * 100, 0)}%</b>. Um componente da pílula muda a farmacocinética do outro. (O próprio levonorgestrel, androgênico, freia o aumento da SHBG.)`)
+      : th === 'e2' ? (x === 1 ? 'O estradiol se liga à SHBG com menos força que a testosterona: a maior parte fica na albumina.' : `A fração livre de estradiol cai <b>${nf(-rel * 100, 0)}%</b>, menos que a da testosterona: a SHBG prefere os androgênios. Por isso mais SHBG desloca o balanço para o lado estrogênico.`)
+      : th === 'ee' ? 'O etinilestradiol <b>não se liga à SHBG</b>: circula quase todo na albumina, e mexer na SHBG não muda sua fração livre. Mas é ele que manda o fígado produzir mais SHBG e mais CBG.'
+      : th === 'drsp' ? 'A drospirenona <b>não se liga à SHBG nem à CBG</b>: só à albumina, com 3 a 5% livre. O aumento de SHBG causado pelo etinilestradiol não a afeta.'
+      : 'A progesterona usa a <b>CBG</b> (transcortina), a mesma globulina do cortisol, e a albumina. A SHBG não entra na conta.';
+  };
+  bindPick('trH', v => { th = v; drawTr(); });
+  $('trX').oninput = e => { x = +e.target.value; drawTr(); };
+  $('trP').onclick = e => { const c = e.target.closest('.chip'); if (!c) return; x = +c.dataset.x; drawTr(); };
+  drawTr();
+
+  const drawTis = () => { const t = RC_TIS[tis];
+    $('rcTis').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', +c.dataset.i === tis));
+    $('rcTisT').innerHTML = `<div class="insight" style="margin-top:0"><b>${t[0]}</b><span class="ep">${t[1]}</span><br>${t[2]}${t[3] ? ` <button class="lnk" style="border:0;background:none;padding:0;font:inherit" data-go="${t[3]}">${t[4]}.</button>` : ''}</div>`;
+    $('rcTisT').querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go)); };
+  $('rcTis').onclick = e => { const c = e.target.closest('.chip'); if (!c) return; tis = +c.dataset.i; drawTis(); };
+  drawTis();
+  const W = cw('rcHL'), rh = 24, L = W < 420 ? 136 : 170, Rr = 70;
+  let s = `<svg class="ch" viewBox="0 0 ${W} ${RC_HL.length * rh + 4}" role="img" aria-label="Meia-vida de estrogênios e progestinas">`;
+  RC_HL.forEach(([n, v, t], i) => { const yy = i * rh + 2, w = v / 46 * (W - L - Rr); s += `<text x="${L - 8}" y="${yy + 15}" text-anchor="end">${n}</text><rect x="${L}" y="${yy + 3}" width="${W - L - Rr}" height="16" rx="4" class="soft"/><rect x="${L}" y="${yy + 3}" width="${w.toFixed(1)}" height="16" rx="4" class="hl" style="opacity:.75"/><text x="${(L + w + 6).toFixed(1)}" y="${yy + 15}" class="lbl">${t}</text>`; });
+  $('rcHL').innerHTML = s + '</svg>';
+  return stop;
+}
+
+/* ===== Contraceptivos · Tela 3 · Cartela e esquecimento ===== */
+const POPW = {
+  net: ['Noretisterona 0,35 mg', 3, 2, 'CDC, 2024', 'Protege quase só pelo muco, e o efeito no muco se perde em cerca de 24 horas. A janela de 3 horas é a margem de segurança.'],
+  dsg: ['Desogestrel 75 µg', 12, 2, 'FSRH, 2022; a bula pede 7 dias', 'Também bloqueia a ovulação, o que dá folga: a inibição se mantém com atrasos de até 12 horas.'],
+  drsp: ['Drospirenona 4 mg (24/4)', 24, 7, 'CDC, 2024', 'Meia-vida de cerca de 30 horas e bloqueio da ovulação: tolera 24 horas de atraso. Passou disso, vale a regra da combinada.'],
+};
+function renderCartela(g) {
+  const saved = store.get('co.cart', {}), N = 35;
+  let reg = saved.reg === '24' ? '24' : '21', miss = new Set(Array.isArray(saved.miss) ? saved.miss : [1, 2]), join = !!saved.join, sex = false, pop = 'net', late = 5;
+  const act = () => reg === '21' ? 21 : 24;
+  const kind = d => d <= act() ? 'a' : d <= 28 ? (join ? 'n' : 'p') : 'n';          // ativa · pausa/placebo · nova cartela
+  const hormone = d => kind(d) !== 'p' && !miss.has(d);
+  const idx = d => kind(d) === 'a' ? d : join ? d - act() : d - 28;                    // número da pílula dentro da cartela
+  g.innerHTML =
+    `<section class="card" style="min-width:0"><div class="card-h"><div><span class="eyebrow">Simulador</span><h3>Toque nas pílulas para esquecê-las</h3></div>${moreBtn('co_cartela')}</div>
+      <div class="sub">Esquema</div>${pick('ctReg', [['21', '21 ativas + 7 de pausa'], ['24', '24 ativas + 4 placebos']], reg)}
+      <div class="sub">Situações para testar</div><div class="chips wrapc" id="ctSc"></div>
+      <div class="pack" id="ctPack" style="margin-top:14px"></div>
+      <div class="legend"><span><i style="background:var(--accent);width:10px;height:10px;border-radius:50%"></i>tomada</span><span><i style="border:1.5px dashed var(--bad);width:10px;height:10px;border-radius:50%;background:none"></i>esquecida</span><span><i style="background:var(--ink);width:10px;height:10px;border-radius:50%"></i>nova cartela</span><span><i style="background:var(--warn);width:10px;height:10px;border-radius:50%;opacity:.5"></i>proteção reduzida</span></div>
+      <div class="stack" style="margin-top:12px"><label class="toggle"><input type="checkbox" id="ctJoin">Emendar: começar a nova cartela sem pausa</label><label class="toggle"><input type="checkbox" id="ctSex">Houve relação desprotegida nos 5 dias anteriores</label></div>
+    </section>` +
+    `<section class="card" style="min-width:0"><div class="card-h"><div><span class="eyebrow">Ao vivo</span><h3>O que acontece no ovário</h3></div></div>
+      <div class="tiles"><div class="tile" id="ctK1"><span>Maior intervalo sem hormônio</span><b id="ctT1"></b><small>limite: 7 dias</small></div><div class="tile" id="ctK2"><span>Atividade folicular</span><b id="ctT2"></b><small>do limiar de escape, no pico</small></div><div class="tile" id="ctK3"><span>Proteção reduzida</span><b id="ctT3"></b><small id="ctT3s"></small></div></div>
+      <div id="ctFig" style="margin-top:10px"></div>
+      <div class="legend"><span><i style="background:var(--accent)"></i>atividade folicular (modelo)</span><span><i style="background:repeating-linear-gradient(90deg,var(--bad) 0 5px,transparent 5px 9px)"></i>limiar de escape</span><span><i style="background:var(--warn);height:10px;opacity:.35"></i>proteção reduzida</span></div>
+      <div class="verdict" id="ctV" style="margin-top:12px"></div><ol class="cond" id="ctC"></ol>
+      <div class="insight" id="ctI"></div>
+      <p class="note">Conduta: CDC, Selected Practice Recommendations, 2024, a mesma regra da aula. A curva é um modelo didático: sobe a cada dia sem hormônio e leva 7 pílulas seguidas para voltar a zero. Mostra a lógica, não prevê a ovulação de uma paciente.</p>
+    </section>` +
+    card('E a minipílula? A janela é contada em horas', `${pick('ctPop', Object.entries(POPW).map(([k, v]) => [k, v[0]]), pop)}
+      <div class="range" style="margin-top:12px"><label for="ctLate">Atraso em relação ao horário habitual</label><output id="ctLateO"></output><input type="range" id="ctLate" min="0" max="36" step="0.5" value="5"></div>
+      <div class="win" id="ctWin"></div><div class="verdict" id="ctPV" style="margin-top:10px"></div><p class="note" id="ctPN"></p>`,
+      { lede: 'Sem estrogênio e, na tradicional, sem bloqueio confiável da ovulação: o que protege é o muco, e ele depende do horário.', more: 'co_mini' }) +
+    card('Roteiro do laboratório', roteiro([
+      ['Esqueça só a pílula 11. Depois, só a pílula 1. A conduta é a mesma. O risco também?', 'A conduta é a mesma: tomar assim que lembrar e seguir, sem proteção adicional. Mas o gráfico mostra a diferença: a pílula 1 encosta na pausa e estica o intervalo sem hormônio para 8 dias. A margem acabou: outro esquecimento por perto já cruza o limiar.'],
+      ['Esqueça as pílulas 20 e 21 e olhe o gráfico. Agora marque “Emendar”. O que mudou?', 'Sem emendar, a pausa vira um intervalo de 9 dias sem hormônio e a atividade folicular cruza o limiar. Emendando, as duas pílulas esquecidas ficam cercadas de pílulas ativas e o ovário continua suprimido. É por isso que a conduta da terceira semana é pular a pausa.'],
+      ['Esqueça as pílulas 10 e 11. O modelo quase não se mexe, mas a regra pede 7 dias de preservativo. Por quê?', 'A regra é simples de propósito: a mesma conduta para qualquer semana, fácil de lembrar e de ensinar. No meio da cartela o ovário está bem suprimido e o risco real é baixo; ao lado da pausa, é alto. A regra cobre o pior caso.'],
+      ['Por que são 7 pílulas seguidas para recuperar a proteção?', 'Estudos com ultrassom e dosagens hormonais mostram que 7 dias seguidos de pílula bastam para suprimir de novo o eixo e interromper o crescimento folicular. É a lógica da pausa, ao contrário: 7 dias sem pílula é o máximo; 7 dias com pílula é o mínimo.'],
+    ]), { lede: 'Faça cada passo na cartela antes de abrir a resposta.' });
+
+  const compute = () => {
+    const pauseLen = 28 - act(), pts = [[0, pauseLen / 9]];
+    let A = pauseLen / 9, base = A, run = 0, hf = pauseLen, maxHF = pauseLen, peak = A;
+    for (let d = 1; d <= N; d++) {
+      if (hormone(d)) { if (run === 0) base = A; run++; A = base * Math.max(0, 1 - run / 7); hf = 0; }
+      else { run = 0; A += 1 / 9; hf++; maxHF = Math.max(maxHF, hf); }
+      pts.push([d, A]); peak = Math.max(peak, A);
+    }
+    // sequências de pílulas esquecidas
+    const runs = []; let c = null;
+    for (let d = 1; d <= N + 1; d++) {
+      if (d <= N && miss.has(d) && kind(d) !== 'p') { if (c && c.to === d - 1 && (kind(d) === kind(c.to) || join)) c.to = d; else { c = { from: d, to: d }; runs.push(c); } }
+    }
+    const unprot = new Set();
+    runs.forEach(r => { r.len = r.to - r.from + 1; r.first = idx(r.from); r.last = idx(r.to); r.pack1 = kind(r.to) === 'a';
+      r.w1 = r.first <= 7; r.w3 = r.pack1 && r.last >= act() - 6;
+      if (r.len >= 2) { for (let d = r.from; d <= r.to; d++) unprot.add(d); let k = 0; for (let d = r.to + 1; d <= N && k < 7; d++) { unprot.add(d); k = hormone(d) ? k + 1 : 0; } } });
+    return { pts, maxHF, peak, runs, unprot, pauseLen };
+  };
+  const draw = () => {
+    store.set('co.cart', { reg, miss: [...miss], join });
+    const R = compute(), a = act();
+    // cartela
+    const rows = [['Semana 1', 1], ['Semana 2', 8], ['Semana 3', 15], [reg === '21' ? (join ? 'Nova cartela' : 'Pausa') : 'Semana 4', 22], [join ? 'Segue' : 'Nova cartela', 29]];
+    $('ctPack').innerHTML = rows.map(([l, d0]) => `<div class="wk"><span>${l}</span>${Array.from({ length: 7 }, (_, i) => { const d = d0 + i, k = kind(d), ms = miss.has(d) && k !== 'p', up = R.unprot.has(d) && !ms;
+      if (k === 'p') return `<span class="pl ${reg === '21' ? 'pause' : 'plac'}" title="${reg === '21' ? 'pausa' : 'placebo'}">${reg === '21' ? '' : 'pl'}</span>`;
+      return `<button class="pl${k === 'n' ? ' next' : ''}${ms ? ' miss' : ''}${up ? ' unprot' : ''}" data-d="${d}" aria-pressed="${ms}" aria-label="Pílula ${idx(d)}${k === 'n' ? ' da nova cartela' : ''}${ms ? ', esquecida' : ', tomada'}">${ms ? '' : idx(d)}</button>`; }).join('')}</div>`).join('');
+    $('ctJoin').checked = join; $('ctSex').checked = sex;
+    const SC = [[[1, 2], 'Esqueci a 1ª e a 2ª'], [[10, 11], 'Esqueci 2 no meio'], [[a - 1, a], 'Esqueci as 2 últimas'], [[29, 30], 'Voltei da pausa 2 dias atrasada'], [[12], 'Esqueci só 1'], [[], 'Nenhuma esquecida']];
+    $('ctSc').innerHTML = SC.map(([m, l]) => `<button class="chip${m.length === miss.size && m.every(x => miss.has(x)) ? ' on' : ''}" data-s="${m.join(',')}">${l}</button>`).join('');
+    // números
+    const nUn = R.unprot.size, bad = R.peak >= 0.999;
+    $('ctT1').textContent = R.maxHF + (R.maxHF === 1 ? ' dia' : ' dias'); $('ctK1').className = 'tile' + (R.maxHF > 8 ? ' bad' : R.maxHF > 7 ? ' alt' : ' good');
+    $('ctT2').textContent = pc(R.peak, 0); $('ctK2').className = 'tile' + (bad ? ' bad' : R.peak > 0.8 ? ' alt' : ' good');
+    $('ctT3').textContent = nUn ? nUn + ' dias' : 'nenhum dia'; $('ctT3s').textContent = nUn ? 'preservativo ou abstinência' : 'proteção mantida'; $('ctK3').className = 'tile' + (nUn ? ' bad' : ' good');
+    // gráfico
+    const W = cw('ctFig'), L = 8, Rr = 8, T = 16, B = 150, x = d => L + d / N * (W - L - Rr), y = v => B - Math.min(v, 1.32) / 1.32 * (B - T);
+    let s = `<svg class="ch" viewBox="0 0 ${W} 186" role="img" aria-label="Atividade folicular ao longo de 35 dias">`;
+    for (let d = 1; d <= N; d++) { if (kind(d) === 'p') s += `<rect x="${x(d - 1)}" y="${T}" width="${x(d) - x(d - 1) + .3}" height="${B - T}" class="soft"/>`; if (R.unprot.has(d)) s += `<rect x="${x(d - 1)}" y="${T}" width="${x(d) - x(d - 1) + .3}" height="${B - T}" class="unp"/>`; }
+    [7, 14, 21, 28].forEach(d => s += `<line x1="${x(d)}" x2="${x(d)}" y1="${T}" y2="${B}" class="gr"/>`);
+    s += `<line x1="${L}" x2="${W - Rr}" y1="${B}" y2="${B}" class="ax"/><line x1="${L}" x2="${W - Rr}" y1="${y(1)}" y2="${y(1)}" class="thr"/><text x="${W - Rr}" y="${y(1) - 5}" text-anchor="end" style="fill:var(--bad);font-weight:600">limiar de escape</text>`;
+    const line = R.pts.map(([d, v], i) => (i ? 'L' : 'M') + x(d).toFixed(1) + ' ' + y(v).toFixed(1)).join('');
+    s += `<path d="${line} L${x(N)} ${B} L${x(0)} ${B} Z" class="acta"/><path d="${line}" class="actl"/>`;
+    for (let d = 1; d <= N; d++) { const cx = (x(d - 1) + x(d)) / 2;
+      if (miss.has(d) && kind(d) !== 'p') s += `<path d="M${cx - 3.5} ${B + 6} l7 7 m0 -7 l-7 7" style="stroke:var(--bad);stroke-width:2;fill:none"/>`;
+      else if (kind(d) !== 'p') s += `<circle cx="${cx}" cy="${B + 9.5}" r="${W < 420 ? 2.2 : 2.8}" class="${kind(d) === 'n' ? 'ink' : 'hl'}"/>`; }
+    [[3.5, 'semana 1'], [10.5, '2'], [17.5, '3'], [24.5, reg === '21' && !join ? 'pausa' : '4'], [31.5, 'nova cartela']].forEach(([d, t]) => s += `<text x="${x(d)}" y="181" text-anchor="middle">${t}</text>`);
+    const pk = R.pts.reduce((m, p) => p[1] > m[1] ? p : m, R.pts[0]);
+    if (pk[0] > 0) s += `<circle cx="${x(pk[0])}" cy="${y(pk[1])}" r="5" class="hl ring"/>`;
+    $('ctFig').innerHTML = s + '</svg>';
+    // conduta
+    const multi = R.runs.filter(r => r.len >= 2), one = R.runs.filter(r => r.len === 1), C = [];
+    if (multi.length) {
+      C.push('Tome a pílula esquecida mais recente assim que lembrar e descarte as outras esquecidas. Siga a cartela no horário habitual.');
+      C.push('Use preservativo ou evite relações até completar <b>7 pílulas ativas seguidas</b>.');
+      if (multi.some(r => r.w3) && !join) C.push(`O esquecimento foi na última semana de pílulas ativas: <b>emende</b>. Termine as ativas e comece a nova cartela no dia seguinte, sem ${reg === '21' ? 'pausa' : 'os placebos'}. <button class="lnk" style="border:0;background:none;padding:0;font:inherit" id="ctDoJoin">Emendar agora</button>`);
+      if (join) C.push('Cartela emendada: a pausa foi eliminada e as 7 pílulas seguidas vêm sem interrupção.');
+      if (multi.some(r => r.w1)) C.push(sex ? 'Houve relação desprotegida nos 5 dias anteriores a um esquecimento de primeira semana: <b>considere a anticoncepção de emergência</b>.' : 'Esquecimento na primeira semana: se houve relação desprotegida nos 5 dias anteriores, considere a anticoncepção de emergência.');
+      C.push('Sem sangramento de privação na próxima pausa: descartar gestação.');
+    } else if (one.length) {
+      C.push(`${one.length === 1 ? `Pílula ${one[0].first} esquecida` : 'Pílulas esquecidas em dias separados'} (menos de 48 horas desde o horário): tome assim que lembrar, mesmo que sejam duas no mesmo dia.`);
+      C.push('Siga a cartela no horário habitual. Não é preciso proteção adicional.');
+      if (one.some(r => r.first === 1 || (r.pack1 && r.last === a)) && !join) C.push(`Esta pílula encosta na pausa: o intervalo sem hormônio foi de ${R.maxHF} dias. Se houve outros esquecimentos no fim da cartela anterior ou no começo desta, considere a anticoncepção de emergência.`);
+    }
+    const v = multi.length ? ['bad', 'Proteção reduzida', `${multi.reduce((n, r) => n + r.len, 0)} pílulas esquecidas em sequência (48 horas ou mais sem pílula).`] : one.length ? ['warn', 'Proteção mantida, com atenção', 'Uma pílula isolada não derruba a proteção.'] : ['good', 'Proteção mantida', 'Nenhuma pílula esquecida. Toque em qualquer pílula para ver o que muda.'];
+    $('ctV').className = 'verdict ' + v[0]; $('ctV').innerHTML = `<b>${v[1]}</b><span>${v[2]}</span>`;
+    $('ctC').innerHTML = C.map(t => `<li>${t}</li>`).join('');
+    $('ctI').innerHTML = bad ? `O intervalo sem hormônio chegou a <b>${R.maxHF} dias</b> e, no modelo, a atividade folicular cruzou o limiar: um folículo pode amadurecer e ovular.`
+      : multi.length ? 'No modelo, o ovário continuou suprimido: havia pílulas suficientes antes e depois do esquecimento. A regra pede proteção mesmo assim, porque vale para qualquer semana.'
+      : `Maior intervalo sem hormônio: <b>${R.maxHF} dias</b>. Com até 7 dias, o ovário não tem tempo de levar um folículo à ovulação.`;
+    const dj = $('ctDoJoin'); if (dj) dj.onclick = () => { join = true; draw(); };
+  };
+  $('ctPack').onclick = e => { const b = e.target.closest('button.pl'); if (!b) return; const d = +b.dataset.d; miss.has(d) ? miss.delete(d) : miss.add(d); draw(); };
+  $('ctSc').onclick = e => { const c = e.target.closest('.chip'); if (!c) return; miss = new Set(c.dataset.s ? c.dataset.s.split(',').map(Number) : []); join = false; draw(); };
+  bindPick('ctReg', v => { reg = v; miss = new Set([...miss].filter(d => kind(d) !== 'p')); draw(); });
+  $('ctJoin').onchange = e => { join = e.target.checked; if (!join) miss = new Set([...miss].filter(d => kind(d) !== 'p')); draw(); };
+  $('ctSex').onchange = e => { sex = e.target.checked; draw(); };
+  draw();
+
+  const drawPop = () => {
+    const [n, win, days, src, why] = POPW[pop], ok = late <= win;
+    $('ctLateO').textContent = late ? `${nf(late, late % 1 ? 1 : 0)} h de atraso` : 'no horário';
+    $('ctWin').innerHTML = `<i style="width:${win / 36 * 100}%"></i>${win >= 12 ? '<span style="left:8px">dentro da janela</span>' : ''}${win <= 12 ? '<span style="right:8px">pílula esquecida</span>' : ''}<b style="left:${late / 36 * 100}%"></b>`;
+    $('ctPV').className = 'verdict ' + (ok ? 'good' : 'bad');
+    $('ctPV').innerHTML = ok ? `<b>Dentro da janela</b><span>Tome agora e siga no horário habitual. Proteção mantida.</span>`
+      : `<b>Pílula esquecida</b><span>Tome agora, siga no horário habitual e use preservativo por <strong>${days} dias</strong> (${src}). Se houve relação desprotegida, considere a anticoncepção de emergência.</span>`;
+    $('ctPN').textContent = `${n}: janela de ${win} horas (faixa verde; a barra vai até 36 horas). ${why}`;
+  };
+  bindPick('ctPop', v => { pop = v; drawPop(); });
+  $('ctLate').oninput = e => { late = +e.target.value; drawPop(); };
+  drawPop();
+}
+
+/* ===== Contraceptivos · Tela 4 (eficácia) e Tela 5 (trombose em perspectiva) ===== */
+/* [id, nome, % uso perfeito, % uso real, nome curto] · gestações por 100 mulheres no 1º ano */
+const CO_EFF = [
+  ['none', 'Sem método', 85, 85, 'Sem método'],
+  ['ritmo', 'Ritmo (tabelinha)', 3, 15, 'Ritmo'],
+  ['cond', 'Preservativo masculino', 2, 13, 'Preservativo'],
+  ['aoc', 'Pílula combinada', 0.3, 7, 'Pílula combinada'],
+  ['pop', 'Minipílula', 0.3, 7, 'Minipílula'],
+  ['cu', 'DIU de cobre', 0.6, 0.8, 'DIU de cobre'],
+  ['laq', 'Laqueadura tubária', 0.5, 0.5, 'Laqueadura'],
+  ['lng', 'DIU com levonorgestrel', 0.2, 0.2, 'DIU hormonal'],
+  ['vas', 'Vasectomia', 0.10, 0.15, 'Vasectomia'],
+  ['imp', 'Implante subdérmico', 0.05, 0.05, 'Implante'],
+];
+const effCum = (p, n) => 1 - Math.pow(1 - p / 100, n);
+/* Coorte de 2.000 mulheres, mês a mês: mesma amostra, duas contas.
+   seed = 0: valores esperados (sem acaso); seed > 0: coorte sorteada, para ver a oscilação de um estudo real.
+   Com heterogeneidade: 1 em cada 5 mulheres tem risco mensal de 3% e as demais, de 0,1% (cerca de 7% de falha em 12 meses nos dois cenários). */
+function ltCohort(seed, het, cm) {
+  const N = 2000, M = 36, n = Array(M + 1).fill(0), d = Array(M + 1).fill(0), w = Array(M + 1).fill(0), hi = Array(M + 1).fill(0), HH = 0.03, HL = het ? 0.001 : 0.0061;
+  if (!seed) { let nh = het ? N * 0.2 : 0, nl = N - nh;
+    for (let t = 1; t <= M; t++) { n[t] = nh + nl; hi[t] = nh; d[t] = nh * HH + nl * HL; w[t] = (nh * (1 - HH) + nl * (1 - HL)) * cm; nh *= (1 - HH) * (1 - cm); nl *= (1 - HL) * (1 - cm); } }
+  else { const rnd = prng(seed);
+    for (let i = 0; i < N; i++) { const H = het && i < N * 0.2, h = H ? HH : HL;
+      for (let t = 1; t <= M; t++) { n[t]++; if (H) hi[t]++; if (rnd() < h) { d[t]++; break; } if (rnd() < cm) { w[t]++; break; } } } }
+  const S = [1], F = [0], WM = [0], D = [0];
+  for (let t = 1; t <= M; t++) { S[t] = S[t - 1] * (n[t] ? 1 - d[t] / n[t] : 1); F[t] = 1 - S[t]; WM[t] = WM[t - 1] + n[t]; D[t] = D[t - 1] + d[t]; }
+  return { N, M, n, d, w, hi, F, D, WM, pearl: t => D[t] * 1200 / WM[t] };
+}
+
+function renderEficacia(g) {
+  const saved = store.get('co.eff', {});
+  let id = CO_EFF.some(e => e[0] === saved.id) ? saved.id : 'aoc', real = saved.real !== false, yrs = saved.y || 1;
+  g.innerHTML =
+    `<section class="card" style="min-width:0"><div class="card-h"><div><span class="eyebrow">Simulador</span><h3>Mil mulheres, o mesmo método</h3></div>${moreBtn('co_eficacia')}</div>
+      <div class="sub">Método</div><div class="chips wrapc" id="efM">${CO_EFF.map(e => `<button class="chip" data-m="${e[0]}">${e[1]}</button>`).join('')}</div>
+      <div class="sub">Uso</div>${seg('efU', [['1', 'Uso real'], ['0', 'Uso perfeito']], real ? '1' : '0')}
+      <div class="range" style="margin-top:14px"><label for="efY">Tempo de uso</label><output id="efYo"></output><input type="range" id="efY" min="1" max="10" step="1"></div>
+      <div class="tiles" style="margin-top:12px"><div class="tile acc"><span>Engravidam</span><b id="efT1"></b><small id="efT1s"></small></div><div class="tile"><span>Risco no 1º ano</span><b id="efT2"></b><small id="efT2s"></small></div><div class="tile"><span>Proporção</span><b id="efT3"></b><small id="efT3s"></small></div></div>
+      <div class="insight" id="efI"></div>
+    </section>` +
+    `<section class="card" style="min-width:0"><div class="card-h"><div><span class="eyebrow">Ao vivo</span><h3 id="efH"></h3></div></div>
+      <div id="efFig"></div><div class="legend"><span><i style="background:var(--accent);width:9px;height:9px;border-radius:50%"></i>ao menos uma gestação não planejada</span><span><i style="background:var(--dot);width:9px;height:9px;border-radius:50%"></i>nenhuma</span></div>
+      <p class="note">Cada ponto é uma mulher. O acumulado supõe o mesmo risco a cada ano, o que superestima um pouco: na vida real, quem continua com o método tende a falhar menos.</p></section>` +
+    card('Todos os métodos na mesma régua', `<div id="efCmp"></div><p class="note">Valores de primeiro ano da tabela da aula. Onde a aula traz uma faixa, o simulador usa a estimativa mais recente (Trussell et al., Contraceptive Technology, 2018): pílula 7%, preservativo 13%, ritmo 15%.</p>`, { lede: 'Gestações em mil mulheres, no tempo e no tipo de uso escolhidos acima.' }) +
+    card('Índice de Pearl: faça a conta', `<div class="fields">
+        <div class="inp"><label for="peG">Gestações<small>não planejadas</small></label><div class="box"><input id="peG" type="number" inputmode="numeric" min="0" max="9999" value="7"></div></div>
+        <div class="inp"><label for="peW">Mulheres<small>no estudo</small></label><div class="box"><input id="peW" type="number" inputmode="numeric" min="1" max="99999" value="100"></div></div>
+        <div class="inp"><label for="peM">Meses de uso<small>por mulher</small></label><div class="box"><input id="peM" type="number" inputmode="numeric" min="1" max="120" value="12"></div></div></div>
+      <div class="hh" id="peF" aria-live="polite"></div>
+      <p class="note">Pearl (1933): gestações por 100 mulheres em 1 ano de uso. Hoje se preferem as tábuas de vida, que corrigem o efeito do tempo de acompanhamento.</p>`, { more: 'co_pearl' }) +
+    card('Pearl ou tábua de vida? A mesma coorte, duas contas', `<div class="split"><div>
+        <div class="range"><label for="ltD">Duração do estudo</label><output id="ltDo"></output><input type="range" id="ltD" min="3" max="36" step="1" value="12"></div>
+        <div class="range" style="margin-top:6px"><label for="ltC">Abandono do método, por mês</label><output id="ltCo"></output><input type="range" id="ltC" min="0" max="8" step="0.5" value="3"></div>
+        <label class="toggle" style="margin-top:6px"><input type="checkbox" id="ltHet" checked>Usuárias diferentes entre si: 1 em cada 5 com risco alto</label>
+        <div class="tiles" style="margin-top:12px"><div class="tile" id="ltK1"><span>Índice de Pearl</span><b id="ltT1"></b><small id="ltT1s"></small></div><div class="tile acc"><span>Tábua de vida</span><b id="ltT2"></b><small id="ltT2s"></small></div><div class="tile"><span>Conta ingênua</span><b id="ltT3"></b><small id="ltT3s"></small></div></div>
+        <div class="insight" id="ltI"></div>
+        <div class="row" style="margin-top:12px"><button class="btn small" id="ltNew">Sortear uma coorte</button><button class="btn small" id="ltExp" hidden>Voltar ao esperado</button><span class="note" id="ltMode" style="margin:0"></span></div>
+      </div><div>
+        <div class="sub">Falha estimada para o primeiro ano, conforme a duração do estudo</div><div id="ltFig"></div>
+        <div class="legend"><span><i style="background:repeating-linear-gradient(90deg,var(--fsh) 0 6px,transparent 6px 9px)"></i>índice de Pearl (por 100 mulheres-ano)</span><span><i style="background:var(--accent)"></i>tábua de vida em 12 meses (%)</span><span><i style="background:repeating-linear-gradient(90deg,var(--accent) 0 2px,transparent 2px 6px)"></i>antes de 12 meses: falha acumulada até ali</span></div>
+        <div class="sub" style="margin-top:16px">A tábua de vida deste estudo</div><div class="tw"><table class="t" id="ltTab"></table></div>
+      </div></div>
+      <p class="note">Coorte simulada de 2.000 mulheres, calibrada para cerca de 7% de falha em 12 meses (pílula em uso real). No cenário com usuárias diferentes, 1 em cada 5 tem risco mensal de 3% (uso irregular ou fertilidade maior) e as demais, de 0,1%: são premissas didáticas. A cada mês, quem engravida sai como evento e quem abandona o método sai como censura. A tábua de vida multiplica, mês a mês, a probabilidade de continuar sem gestação (método de Kaplan-Meier).</p>`,
+      { wide: true, more: 'co_pearl', eyebrow: 'Simulador', lede: 'O índice de Pearl depende de quanto tempo o estudo dura. A tábua de vida responde sempre à mesma pergunta: qual a probabilidade de falha em 12 meses.' }) +
+    card('Roteiro do laboratório', roteiro([
+      ['Pílula combinada, uso real, 10 anos. Quantas de mil mulheres engravidam ao menos uma vez? E com o implante?', 'Cerca de 516 com a pílula e 5 com o implante. O fármaco da pílula é excelente (0,3% em uso perfeito); o que falha é o uso. Métodos que não dependem de lembrar todos os dias quase não têm diferença entre uso perfeito e uso real.'],
+      ['Um estudo acompanhou 250 mulheres por 6 meses e registrou 3 gestações. Qual é o índice de Pearl?', '3 × 1.200 ÷ (250 × 6) = <b>2,4</b> gestações por 100 mulheres-ano. Confira na calculadora.'],
+      ['No comparador, estique o estudo de 6 para 36 meses. O que acontece com o Pearl? E com a tábua de vida em 12 meses? Depois desmarque “Usuárias diferentes entre si”.', 'O Pearl cai, sem que o método tenha mudado: as mulheres mais férteis e as que usam pior o método engravidam primeiro e saem, e sobra um grupo que falha menos. A tábua de vida em 12 meses não se mexe. Com usuárias iguais, o Pearl para de cair: é a heterogeneidade que o torna dependente da duração. Por isso índices de Pearl de estudos com durações diferentes não são comparáveis.'],
+      ['Ainda no comparador, leve o abandono a 8% ao mês. Qual das três contas mais se afasta?', 'A conta ingênua (gestações divididas pelas mulheres que começaram): ela trata quem abandonou como se tivesse ficado o ano inteiro sem engravidar, e por isso subestima a falha. O Pearl e a tábua de vida contam cada mulher só enquanto ela esteve em risco.'],
+      ['A maioria das gestações não planejadas vem de falha do método?', 'Não. A maior parte decorre de não usar método nenhum ou de usá-lo de forma inconsistente (Frost et al., 2008). Escolher um método que a paciente consiga usar pesa mais do que escolher o mais eficaz no papel.'],
+    ]), { wide: true, lede: 'Responda antes de abrir cada resposta.' });
+
+  const draw = () => {
+    store.set('co.eff', { id, real, y: yrs });
+    const e = CO_EFF.find(x => x[0] === id), p = real ? e[3] : e[2], cum = effCum(p, yrs), n = Math.round(cum * 1000);
+    $('efM').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.m === id));
+    $('efY').value = yrs; $('efYo').textContent = yrs === 1 ? '1 ano' : yrs + ' anos';
+    $('efH').textContent = `${e[1]}, ${real ? 'uso real' : 'uso perfeito'}, ${yrs === 1 ? '1 ano' : yrs + ' anos'}`;
+    $('efT1').textContent = `${nf(n)} de 1.000`; $('efT1s').textContent = yrs === 1 ? 'no primeiro ano' : `ao menos uma vez em ${yrs} anos`;
+    $('efT2').textContent = String(p).replace('.', ',') + '%'; $('efT2s').textContent = real ? 'uso real' : 'uso perfeito';
+    $('efT3').textContent = cum >= 0.995 ? 'quase todas' : cum < 0.0005 ? '—' : `1 em ${nf(Math.max(1, Math.round(1 / cum)))}`; $('efT3s').textContent = 'mulheres';
+    const gap = e[3] / e[2];
+    $('efI').innerHTML = id === 'none' ? 'Sem método, cerca de 85 de cada 100 mulheres sexualmente ativas engravidam em um ano. É contra esse número que todo método deve ser comparado.'
+      : gap >= 3 ? `Em uso perfeito, ${String(e[2]).replace('.', ',')}%. Em uso real, ${String(e[3]).replace('.', ',')}%: <b>${nf(gap, 0)} vezes mais</b>. A diferença não é do método, é do uso: esquecimentos, atrasos, interrupções.`
+      : `Uso perfeito e uso real quase coincidem (${String(e[2]).replace('.', ',')}% e ${String(e[3]).replace('.', ',')}%): depois de colocado ou realizado, o método <b>não depende da memória</b> de ninguém.`;
+    // arranjo de ícones: 1.000 mulheres
+    const W = cw('efFig'), cols = W >= 520 ? 50 : 40, rows = 1000 / cols, c = W / cols, r = c * 0.36;
+    let s = `<svg class="ch" viewBox="0 0 ${W} ${(rows * c).toFixed(1)}" role="img" aria-label="${n} de 1.000 mulheres com gestação não planejada">`;
+    for (let i = 0; i < 1000; i++) s += `<circle cx="${((i % cols) * c + c / 2).toFixed(1)}" cy="${(Math.floor(i / cols) * c + c / 2).toFixed(1)}" r="${r.toFixed(1)}" class="${i < n ? 'ic1' : 'ic0'}"/>`;
+    $('efFig').innerHTML = s + '</svg>';
+    // comparação
+    const W2 = cw('efCmp'), rowsC = CO_EFF.map(x => ({ k: x[0], n: W2 < 460 ? x[4] : x[1], v: effCum(real ? x[3] : x[2], yrs) * 1000 })).sort((a, b) => b.v - a.v);
+    const rh = 24, L = W2 < 460 ? 124 : 176, Rr = 46, H = rowsC.length * rh + 4;
+    let t = `<svg class="ch" viewBox="0 0 ${W2} ${H}" role="img" aria-label="Gestações em mil mulheres, por método">`;
+    rowsC.forEach((q, i) => { const yy = i * rh + 2, w = Math.max(1.5, q.v / 1000 * (W2 - L - Rr)), me = q.k === id;
+      t += `<text x="${L - 8}" y="${yy + 15}" text-anchor="end" class="${me ? 'lbl' : ''}">${q.n}</text><rect x="${L}" y="${yy + 3}" width="${W2 - L - Rr}" height="16" rx="4" class="soft"/><rect x="${L}" y="${yy + 3}" width="${w}" height="16" rx="${Math.min(4, w / 2)}" class="hl" style="opacity:${me ? 1 : .4}"/><text x="${L + w + 6}" y="${yy + 15}" class="${me ? 'lbl' : ''}">${nf(q.v, q.v < 10 && q.v % 1 ? 1 : 0)}</text>`; });
+    $('efCmp').innerHTML = `<div class="tw">${t}</svg></div>`;
+  };
+  $('efM').onclick = e => { const c = e.target.closest('.chip'); if (!c) return; id = c.dataset.m; draw(); };
+  bindSeg('efU', v => { real = v === '1'; draw(); });
+  $('efY').oninput = e => { yrs = +e.target.value; draw(); };
+  draw();
+  const pearl = () => {
+    const G = Math.max(0, +$('peG').value || 0), Wn = Math.max(1, +$('peW').value || 1), M = Math.max(1, +$('peM').value || 1), P = G * 1200 / (Wn * M);
+    $('peF').innerHTML = `<div class="hh-h"><span class="eyebrow">Gestações por 100 mulheres-ano</span></div>
+      <div class="hh-row hh-sol" style="border-top:0;padding-top:0"><span>IP</span><i>=</i><span class="frac"><span>gestações × 1.200</span><span>mulheres × meses</span></span></div>
+      <div class="hh-row hh-sol"><span class="frac"><span>${nf(G)} × 1.200</span><span>${nf(Wn)} × ${nf(M)}</span></span><i>=</i><span class="frac"><span>${nf(G * 1200)}</span><span>${nf(Wn * M)}</span></span><i>=</i><span class="v vpk">${nf(P, P < 10 ? 2 : 1)}</span></div>
+      <p class="hh-words">${nf(Wn * M)} meses-mulher de exposição equivalem a ${nf(Wn * M / 12, (Wn * M) % 12 ? 1 : 0)} mulheres-ano. ${P < 1 ? 'Abaixo de 1: faixa dos métodos mais eficazes.' : P < 10 ? 'Entre 1 e 10: faixa do uso real dos métodos que dependem da usuária.' : 'Acima de 10: eficácia baixa.'}</p>`;
+  };
+  ['peG', 'peW', 'peM'].forEach(k => $(k).oninput = pearl); pearl();
+  // comparador Pearl × tábua de vida
+  let seed = 0, C = null, key = '';
+  const lt = () => {
+    const D = +$('ltD').value, cm = +$('ltC').value / 100, het = $('ltHet').checked, k = [seed, het, cm].join();
+    if (k !== key) { C = ltCohort(seed, het, cm); key = k; }
+    const T = Math.min(D, 12), P = C.pearl(D), F = C.F[T], naive = C.D[T] / C.N;
+    $('ltDo').textContent = D + ' meses'; $('ltCo').textContent = nf(cm * 100, 1) + '%';
+    $('ltT1').textContent = nf(P, 1); $('ltT1s').textContent = `${nf(C.D[D])} gestações em ${nf(C.WM[D])} meses-mulher`;
+    $('ltExp').hidden = !seed; $('ltMode').textContent = seed ? 'Coorte sorteada: os números oscilam, como num estudo real.' : 'Valores esperados, sem o acaso.';
+    $('ltT2').textContent = pc(F, 1); $('ltT2s').textContent = `falha acumulada em ${T} meses`;
+    $('ltT3').textContent = pc(naive, 1); $('ltT3s').textContent = `${nf(C.D[T])} gestações ÷ ${nf(C.N)} que começaram`;
+    const h0 = C.hi[1] / C.n[1], hD = C.n[D] ? C.hi[D] / C.n[D] : 0;
+    $('ltI').innerHTML = (het ? `Com ${D} meses de estudo, o Pearl é <b>${nf(P, 1)}</b>. Com 6 meses seria ${nf(C.pearl(6), 1)}; com 36, ${nf(C.pearl(36), 1)}. O método é o mesmo: muda quem ainda está no estudo. No primeiro mês, ${pc(h0, 0)} das mulheres em risco eram de risco alto; no mês ${D}, ${pc(hD, 0)}.`
+      : `Com usuárias iguais, o Pearl não depende da duração: ${nf(C.pearl(6), 1)} com 6 meses, ${nf(C.pearl(36), 1)} com 36${seed ? ' (a diferença é oscilação da amostra)' : ''}. Fica um pouco acima da tábua de vida porque é uma taxa, e não uma probabilidade.`)
+      + (D < 12 ? ' Com menos de 12 meses de estudo, não existe estimativa de 12 meses na tábua de vida.' : ` A tábua de vida em 12 meses dá <b>${pc(C.F[12], 1)}</b>, dure o estudo ${D} ou 36 meses.`);
+    // gráfico: duas estimativas em função da duração do estudo
+    const W = cw('ltFig'), L = 30, R = 12, Tp = 10, B = 150, ymax = Math.max(10, Math.ceil(Math.max(...Array.from({ length: 34 }, (_, i) => C.pearl(i + 3)), C.F[12] * 100) + 1)), x = t => L + (t - 3) / 33 * (W - L - R), y = v => B - v / ymax * (B - Tp);
+    let s = `<svg class="ch" viewBox="0 0 ${W} 184" role="img" aria-label="Índice de Pearl e tábua de vida conforme a duração do estudo">`;
+    for (let v = 0; v <= ymax; v += ymax > 12 ? 4 : 2) s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" class="gr"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+    [6, 12, 18, 24, 30, 36].forEach(t => s += `<text x="${x(t)}" y="${B + 16}" text-anchor="middle">${t}</text>`);
+    s += `<text x="${W - R}" y="180" text-anchor="end">meses de estudo</text>`;
+    let pp = '', pd = ''; for (let t = 3; t <= 36; t++) pp += (pp ? 'L' : 'M') + x(t).toFixed(1) + ' ' + y(C.pearl(t)).toFixed(1);
+    for (let t = 3; t <= 12; t++) pd += (pd ? 'L' : 'M') + x(t).toFixed(1) + ' ' + y(C.F[t] * 100).toFixed(1);
+    s += `<path d="${pd}" class="ltd"/><path d="M${x(12)} ${y(C.F[12] * 100)} H${x(36)}" class="ltl"/><path d="${pp}" class="prl"/>`;
+    s += `<line x1="${x(D)}" x2="${x(D)}" y1="${Tp}" y2="${B}" class="cursor"/><circle cx="${x(D)}" cy="${y(P)}" r="5.5" class="fFSH ring"/><circle cx="${x(D)}" cy="${y(C.F[T] * 100)}" r="5.5" class="hl ring"/>`;
+    $('ltFig').innerHTML = s + '</svg>';
+    // a tábua, por trimestre
+    let rows = '';
+    for (let a = 1; a <= D; a += 3) { const b = Math.min(a + 2, D); let dd = 0, ww = 0; for (let t = a; t <= b; t++) { dd += C.d[t]; ww += C.w[t]; }
+      rows += `<tr style="cursor:default"><td>${a === b ? a : a + ' a ' + b}</td><td>${nf(C.n[a])}</td><td>${nf(dd)}</td><td>${nf(ww)}</td><td>${pc(C.F[b], 1)}</td></tr>`; }
+    $('ltTab').innerHTML = `<thead><tr><th>Meses</th><th>Em risco</th><th>${W > 420 ? 'Gestações' : 'Gest.'}</th><th>Saídas</th><th>${W > 420 ? 'Falha acumulada' : 'Acum.'}</th></tr></thead><tbody>${rows}</tbody>`;
+  };
+  $('ltD').oninput = lt; $('ltC').oninput = lt; $('ltHet').onchange = lt; $('ltNew').onclick = () => { seed += 13; lt(); }; $('ltExp').onclick = () => { seed = 0; lt(); };
+  lt();
+}
+
+/* [id, nome curto, nome completo, casos por 10.000 mulheres-ano (mín, máx), fonte] */
+const CO_VTE = [
+  ['non', 'Não usa pílula', 'Mulher que não usa contraceptivo hormonal e não está grávida', 2, 2, 'EMA, 2014'],
+  ['pop', 'Minipílula', 'Pílula só de progestina', 2, 2, 'sem aumento demonstrado (Mantha et al., 2012)'],
+  ['lng', 'Combinada com levonorgestrel', 'Combinada com levonorgestrel, noretisterona ou norgestimato', 5, 7, 'EMA, 2014'],
+  ['dsg', 'Combinada com drospirenona', 'Combinada com drospirenona, desogestrel ou gestodeno', 9, 12, 'EMA, 2014'],
+  ['preg', 'Gestação', 'Durante a gestação', 5, 20, 'faixa da aula'],
+  ['pp', 'Puerpério', 'Nas 12 semanas depois do parto', 40, 65, 'faixa da aula'],
+];
+const CO_MARK = { shbg: ['SHBG', [['Estetrol + drospirenona', 55], ['Etinilestradiol + levonorgestrel', 74], ['Etinilestradiol + drospirenona', 251]]], apc: ['Resistência à proteína C ativada', [['Estetrol + drospirenona', 30], ['Etinilestradiol + levonorgestrel', 165], ['Etinilestradiol + drospirenona', 219]]] };
+const CO_PROG = [
+  ['Levonorgestrel', '2ª', 'Alta', '5 a 7', 'Referência: o menor risco entre as combinadas com etinilestradiol.'],
+  ['Norgestimato', '3ª', 'Baixa', '5 a 7', 'Semelhante ao levonorgestrel.'],
+  ['Desogestrel, gestodeno', '3ª', 'Baixa', '9 a 12', 'O paradoxo: menos androgênicas, mais trombose.'],
+  ['Drospirenona', '4ª', 'Antiandrogênica', '9 a 12', 'Antimineralocorticoide. Útil em acne e TDPM; pesar contra o risco.'],
+  ['Dienogeste + etinilestradiol', '4ª', 'Antiandrogênica', '8 a 11', 'EMA, 2018.'],
+  ['Dienogeste + valerato de estradiol', '4ª', 'Antiandrogênica', '≈ levonorgestrel', 'INAS-SCORE: risco não superior ao do levonorgestrel.'],
+  ['Nomegestrol + estradiol', '4ª', 'Nula', '≈ levonorgestrel', 'PRO-E2 (Reed et al., 2021).'],
+  ['Drospirenona + estetrol', '4ª', 'Antiandrogênica', 'ainda sem dado', 'Marcadores de coagulação favoráveis; desfecho clínico em estudo.'],
+  ['Progestina isolada (minipílula)', '—', 'Varia', '≈ 2 (sem aumento)', 'Opção quando o estrogênio é contraindicado.'],
+];
+function renderTrombose(g) {
+  const saved = store.get('co.tev', {});
+  let id = CO_VTE.some(v => v[0] === saved.id) ? saved.id : 'lng', frame = 'abs', mk = 'shbg';
+  const rnd = prng(41), ORD = [];
+  while (ORD.length < 70) { const q = [3 + Math.floor(rnd() * 119), 3 + Math.floor(rnd() * 74)]; if (ORD.every(o => Math.hypot(o[0] - q[0], o[1] - q[1]) > 7)) ORD.push(q); }   // casos espalhados, sem sobreposição
+  g.innerHTML =
+    `<section class="card" style="min-width:0"><div class="card-h"><div><span class="eyebrow">Simulador</span><h3>Dez mil mulheres, um ano</h3></div>${moreBtn('co_tev')}</div>
+      <div class="sub">Situação</div><div class="chips wrapc" id="tvS">${CO_VTE.map(v => `<button class="chip" data-s="${v[0]}">${v[1]}</button>`).join('')}</div>
+      <div class="tiles" style="margin-top:14px"><div class="tile acc"><span>Trombose venosa</span><b id="tvT1"></b><small>casos em 10.000 mulheres por ano</small></div><div class="tile"><span>Risco relativo</span><b id="tvT2"></b><small>contra quem não usa</small></div><div class="tile"><span>Casos a mais</span><b id="tvT3"></b><small id="tvT3s"></small></div></div>
+      <div class="sub" style="margin-top:16px">O mesmo dado, duas manchetes</div>${seg('tvFr', [['abs', 'Risco absoluto'], ['rel', 'Risco relativo']], 'abs')}
+      <div class="headline" id="tvH" style="margin-top:10px"></div>
+      <div class="insight" id="tvI"></div>
+    </section>` +
+    `<section class="card" style="min-width:0"><div class="card-h"><div><span class="eyebrow">Ao vivo</span><h3 id="tvTt"></h3></div></div>
+      <div id="tvFig"></div><div class="legend"><span><i style="background:var(--accent);width:10px;height:10px;border-radius:50%"></i>caso de trombose (estimativa mínima)</span><span><i style="border:1.6px solid var(--accent);width:10px;height:10px;border-radius:50%;background:none"></i>até a estimativa máxima</span><span><i style="background:var(--dot);width:6px;height:6px;border-radius:50%"></i>sem trombose</span></div>
+      <p class="note" id="tvN"></p></section>` +
+    card('Por que a progestina muda o risco de uma pílula com estrogênio?', `${pick('tvMk', [['shbg', 'SHBG'], ['apc', 'Resistência à proteína C ativada']], 'shbg')}
+      <div id="tvMkFig" style="margin-top:10px"></div>
+      <div class="insight">O etinilestradiol estimula o fígado a produzir fatores de coagulação. Uma progestina androgênica, como o levonorgestrel, <b>se opõe</b> a esse efeito; a drospirenona não. Trocar o etinilestradiol pelo estetrol reduz o impacto hepático mesmo com drospirenona.</div>
+      <p class="note">Variação mediana depois de 6 ciclos, em estudo randomizado (Douxfils et al., Contraception, 2020). São marcadores substitutos: indicam o mecanismo, não substituem a contagem de eventos clínicos.</p>`, { lede: 'A “estrogenicidade total” da pílula pode ser medida no sangue.' }) +
+    card('Progestinas: geração, perfil e trombose', `<div class="why"><div class="hd" style="grid-template-columns:minmax(0,1fr) auto"><span>Progestina · geração · atividade androgênica</span><span>Casos por 10.000 por ano</span></div>${CO_PROG.map(p => `<div style="grid-template-columns:minmax(0,1fr) minmax(84px,auto)"><span><b>${p[0]}</b> <span class="tag">${p[1] === '—' ? 'sem estrogênio' : p[1] + ' geração'}</span> <span class="tag">${p[2].toLowerCase()}</span><br><span style="color:var(--muted);font-size:12.5px">${p[4]}</span></span><span class="num" style="font-weight:600;text-align:right">${p[3]}</span></div>`).join('')}</div>
+      <p class="note">Quem não usa: cerca de 2 por 10.000 por ano. Fontes: EMA (2014, 2018); Lidegaard et al., 2011; Vinogradova et al., 2015; Dinger et al., 2016; Reed et al., 2021.</p>`) +
+    card('Roteiro do laboratório', roteiro([
+      ['Uma manchete diz que as pílulas com drospirenona “dobram o risco de trombose” em relação às com levonorgestrel. Traduza em números absolutos.', 'De 5 a 7 para 9 a 12 casos em cada 10.000 mulheres por ano: cerca de 4 a 5 casos a mais. É preciso que umas 2.000 mulheres usem a pílula com drospirenona, em vez da com levonorgestrel, por um ano, para ocorrer um caso adicional. O risco relativo é real; o absoluto diz o tamanho dele.'],
+      ['Compare a pílula combinada com a gestação e com o puerpério. O que isso muda na conversa com a paciente?', 'A alternativa à contracepção não é risco zero. A gestação e, sobretudo, o puerpério aumentam o risco de trombose mais do que qualquer pílula. Uma mulher que abandona a pílula por medo de trombose e engravida sem planejar passa a correr um risco maior.'],
+      ['Por que uma progestina menos androgênica se associa a mais trombose?', 'Porque a androgenicidade se opõe ao efeito hepático do etinilestradiol. Veja a SHBG: sobe 74% com levonorgestrel e 251% com drospirenona, ambas com etinilestradiol. A pílula como um todo fica mais “estrogênica”.'],
+      ['Em quem esse risco pequeno deixa de ser pequeno?', 'Em quem já parte de um risco basal alto: trombofilia, trombose prévia, puerpério, imobilização prolongada, obesidade, tabagismo. O risco relativo multiplica o basal. É para isso que servem os critérios de elegibilidade. <button class="lnk" style="border:0;background:none;padding:0;font:inherit" data-go="elegibilidade">Monte a paciente na tela 7.</button>'],
+    ]), { wide: true, lede: 'Responda antes de abrir cada resposta.' });
+
+  const rng = (a, b, u) => a === b ? nf(a) + (u || '') : `${nf(a)} a ${nf(b)}${u || ''}`;
+  const draw = () => {
+    store.set('co.tev', { id });
+    const v = CO_VTE.find(x => x[0] === id), lo = v[3], hi = v[4], base = id === 'non' || id === 'pop';
+    $('tvS').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.s === id));
+    $('tvTt').textContent = v[2];
+    $('tvT1').textContent = rng(lo, hi);
+    $('tvT2').textContent = base ? '1×' : `${nf(lo / 2, lo % 2 ? 1 : 0)}× a ${nf(hi / 2, hi % 2 ? 1 : 0)}×`;
+    $('tvT3').textContent = base ? 'nenhum' : rng(lo - 2, hi - 2);
+    $('tvT3s').textContent = base ? 'em relação a quem não usa' : `1 caso a mais a cada ${nf(Math.round(10000 / (hi - 2) / 10) * 10)} a ${nf(Math.round(10000 / (lo - 2) / 10) * 10)} mulheres por ano`;
+    const mid = (lo + hi) / 4, who = id === 'preg' ? 'A gestação' : id === 'pp' ? 'O puerpério' : id === 'pop' ? 'A minipílula' : id === 'non' ? '' : 'Esta pílula';
+    $('tvH').innerHTML = base ? `<span>Manchete</span><b>${id === 'pop' ? 'A pílula só de progestina não aumenta o risco de trombose' : 'Trombose venosa acontece mesmo sem pílula: 2 em 10.000 mulheres por ano'}</b><small>É o risco basal de uma mulher jovem. Toda comparação parte daqui.</small>`
+      : frame === 'rel' ? `<span>Manchete com risco relativo</span><b>${who} ${hi / lo > 1.5 ? `multiplica por ${nf(lo / 2, lo / 2 < 10 && lo % 2 ? 1 : 0)} a ${nf(hi / 2, 0)}` : mid < 3.5 ? 'triplica' : 'multiplica por ' + nf(mid, 0)} o risco de trombose</b><small>Verdadeira, e assustadora. Não diz de quanto para quanto.</small>`
+      : `<span>Manchete com risco absoluto</span><b>De 2 para ${rng(lo, hi)} casos de trombose em cada 10.000 mulheres por ano</b><small>O mesmo dado. Agora dá para pesar contra os benefícios.</small>`;
+    $('tvI').innerHTML = id === 'preg' || id === 'pp' ? 'Este é o comparador que costuma faltar: <b>engravidar aumenta o risco de trombose mais do que tomar a pílula</b>, e o puerpério é o período de maior risco.'
+      : id === 'dsg' ? 'Risco maior que o das pílulas com levonorgestrel, e ainda assim menor que o da gestação e muito menor que o do puerpério. O risco é mais alto no primeiro ano de uso e volta ao basal poucos meses depois de parar.'
+      : id === 'lng' ? 'A combinada de menor risco trombótico. O risco é mais alto no primeiro ano de uso (e ao recomeçar depois de uma pausa de 4 semanas ou mais) e volta ao basal poucos meses depois de parar.'
+      : id === 'pop' ? 'Sem estrogênio, o fígado não é estimulado a produzir mais fatores de coagulação. É a opção oral quando o estrogênio é contraindicado.'
+      : 'O risco basal não é zero. Idade, obesidade, tabagismo, trombofilias e imobilização o aumentam, com ou sem pílula.';
+    // 10.000 pontos: malha de fundo + casos destacados
+    const W = cw('tvFig'), c = W / 125, H = c * 80;
+    let s = `<svg class="ch" viewBox="0 0 ${W} ${H.toFixed(1)}" role="img" aria-label="${rng(lo, hi)} casos de trombose em 10.000 mulheres por ano"><defs><pattern id="tvP" width="${c}" height="${c}" patternUnits="userSpaceOnUse"><circle cx="${c / 2}" cy="${c / 2}" r="${(c * 0.3).toFixed(2)}" class="ic0"/></pattern></defs><rect width="${W}" height="${H.toFixed(1)}" fill="url(#tvP)"/>`;
+    ORD.slice(0, hi).forEach(([cx, cy], i) => s += `<circle cx="${(cx * c + c / 2).toFixed(1)}" cy="${(cy * c + c / 2).toFixed(1)}" r="${Math.max(4.2, c * 1.4).toFixed(1)}" class="${i < lo ? 'ic1' : 'ic2'}" style="${i < lo ? 'stroke:var(--surface);stroke-width:1.5' : 'fill:var(--surface)'}"/>`);
+    $('tvFig').innerHTML = s + '</svg>';
+    $('tvN').textContent = `Cada ponto pequeno é uma mulher: são 10.000. Fonte desta situação: ${v[5]}. As faixas refletem a incerteza das estimativas.`;
+  };
+  const drawMk = () => {
+    const [n, rows] = CO_MARK[mk], W = cw('tvMkFig'), rh = 44, Rr = 54, mx = 251;
+    let s = `<svg class="ch" viewBox="0 0 ${W} ${rows.length * rh + 4}" role="img" aria-label="${n}: variação percentual por formulação">`;
+    rows.forEach(([l, v], i) => { const yy = i * rh, w = v / mx * (W - Rr);
+      s += `<text x="0" y="${yy + 14}" class="lbl">${l}</text><rect x="0" y="${yy + 20}" width="${W - Rr}" height="16" rx="4" class="soft"/><rect x="0" y="${yy + 20}" width="${w.toFixed(1)}" height="16" rx="4" class="hl" style="opacity:${i === 0 ? .45 : i === 1 ? .7 : 1}"/><text x="${(w + 6).toFixed(1)}" y="${yy + 33}" class="lbl">+${v}%</text>`; });
+    $('tvMkFig').innerHTML = s + '</svg>';
+  };
+  $('tvS').onclick = e => { const c = e.target.closest('.chip'); if (!c) return; id = c.dataset.s; draw(); };
+  bindSeg('tvFr', v => { frame = v; draw(); });
+  bindPick('tvMk', v => { mk = v; drawMk(); });
+  draw(); drawMk();
+}
+
+/* ===== Contraceptivos · Tela 6 (elegibilidade OMS) e Tela 7 (contracepção de emergência) ===== */
+const EL_G = {
+  fumo: ['Tabagismo', [['n', 'Não fuma'], ['l', 'Menos de 15 cigarros por dia'], ['h', '15 ou mais por dia']]],
+  pa: ['Pressão arterial', [['n', 'Normal'], ['c', 'Hipertensão controlada'], ['m', '140–159 / 90–99'], ['h', '160 / 100 ou mais']]],
+  enx: ['Enxaqueca', [['n', 'Não tem'], ['s', 'Sem aura'], ['a', 'Com aura']]],
+  pp: ['Pós-parto', [['n', 'Não'], ['b1', 'Amamenta, menos de 6 semanas'], ['b2', 'Amamenta, 6 semanas a 6 meses'], ['b3', 'Amamenta, 6 meses ou mais'], ['p1', 'Não amamenta, menos de 21 dias'], ['p2', 'Não amamenta, 21 a 42 dias']]],
+  tev: ['Trombose venosa', [['n', 'Sem história'], ['f', 'Parente de 1º grau'], ['p', 'Trombose prévia'], ['t', 'Trombofilia conhecida']]],
+  dm: ['Diabetes', [['n', 'Não tem'], ['s', 'Sem doença vascular'], ['v', 'Com doença vascular ou mais de 20 anos']]],
+  mama: ['Câncer de mama', [['n', 'Não'], ['f', 'Só história familiar'], ['p', 'Tratado, sem doença há 5 anos ou mais'], ['a', 'Atual']]],
+  med: ['Medicamentos em uso', [['n', 'Nenhum'], ['atb', 'Antibiótico comum'], ['rif', 'Rifampicina ou rifabutina'], ['ac', 'Carbamazepina, fenitoína ou topiramato'], ['ltg', 'Lamotrigina']]],
+};
+const EL_CASES = [
+  ['Júlia, 22, saudável', { age: 22 }],
+  ['Carla, 37, um maço por dia', { age: 37, fumo: 'h' }],
+  ['Marina, 28, enxaqueca com aura', { age: 28, enx: 'a' }],
+  ['Paula, 30, amamentando há 4 semanas', { age: 30, pp: 'b1' }],
+  ['Renata, 41, hipertensão controlada', { age: 41, pa: 'c' }],
+  ['Bia, 19, irmã teve trombose', { age: 19, tev: 'f' }],
+  ['Lia, 26, tratando tuberculose', { age: 26, med: 'rif' }],
+];
+const EL_CAT = { 1: ['Sem restrição', 'Pode usar.'], 2: ['Benefício supera o risco', 'Pode usar, com acompanhamento.'], 3: ['Risco supera o benefício', 'Em geral não usar. Só se não houver alternativa aceitável.'], 4: ['Risco inaceitável', 'Não usar.'] };
+/* Regras: [condição, categoria da combinada, categoria da minipílula, nota, texto da categoria quando é "3 ou 4"] */
+function elRules(p) {
+  const R = [], a = p.age;
+  if (a >= 40) R.push(['Idade de 40 anos ou mais', 2, 1]);
+  if (p.fumo !== 'n') R.push(a < 35 ? ['Tabagismo, menos de 35 anos', 2, 1] : p.fumo === 'l' ? ['Tabagismo aos 35 anos ou mais, menos de 15 cigarros por dia', 3, 1] : ['Tabagismo aos 35 anos ou mais, 15 ou mais cigarros por dia', 4, 1, 'Tabagismo e estrogênio somam mais do que a soma: o risco arterial é sinérgico.']);
+  if (p.imc) R.push(['IMC de 30 kg/m² ou mais', 2, 1]);
+  if (p.pa === 'c') R.push(['Hipertensão controlada', 3, 1]);
+  if (p.pa === 'm') R.push(['Pressão de 140–159 / 90–99 mmHg', 3, 1]);
+  if (p.pa === 'h') R.push(['Pressão de 160 / 100 mmHg ou mais', 4, 2]);
+  if (p.enx === 's') R.push(a < 35 ? ['Enxaqueca sem aura, menos de 35 anos', 2, 1, 'Categoria para iniciar. Se a enxaqueca surgir ou piorar durante o uso da combinada: categoria 3.'] : ['Enxaqueca sem aura, 35 anos ou mais', 3, 1, 'Categoria para iniciar. Se surgir ou piorar durante o uso da combinada: categoria 4.']);
+  if (p.enx === 'a') R.push(['Enxaqueca com aura, em qualquer idade', 4, 2, 'Risco de AVC isquêmico. Se a aura surgir durante o uso da minipílula: categoria 3.']);
+  if (p.pp === 'b1') R.push(['Amamentando, menos de 6 semanas depois do parto', 4, 2]);
+  if (p.pp === 'b2') R.push(['Amamentando, de 6 semanas a 6 meses depois do parto', 3, 1]);
+  if (p.pp === 'b3') R.push(['Amamentando, 6 meses ou mais depois do parto', 2, 1]);
+  if (p.pp === 'p1') R.push(['Pós-parto sem amamentar, menos de 21 dias', 3, 1, 'Com outros fatores de risco para trombose: categoria 4.']);
+  if (p.pp === 'p2') R.push(['Pós-parto sem amamentar, de 21 a 42 dias', 2, 1, 'Com outros fatores de risco para trombose: categoria 3.']);
+  if (p.tev === 'f') R.push(['Trombose venosa em parente de 1º grau', 2, 1]);
+  if (p.tev === 'p') R.push(['Trombose venosa ou embolia pulmonar prévia', 4, 2]);
+  if (p.tev === 't') R.push(['Trombofilia conhecida (fator V de Leiden, mutação da protrombina, deficiência de proteína C, S ou antitrombina)', 4, 2]);
+  if (p.dm === 's') R.push(['Diabetes sem doença vascular', 2, 2]);
+  if (p.dm === 'v') R.push(['Diabetes com nefropatia, retinopatia, neuropatia ou mais de 20 anos de doença', 3, 2, 'Para a combinada, 3 ou 4 conforme a gravidade.', '3 ou 4']);
+  if (p.mama === 'f') R.push(['História familiar de câncer de mama', 1, 1, 'História familiar isolada não restringe o uso.']);
+  if (p.mama === 'p') R.push(['Câncer de mama tratado, sem doença há 5 anos ou mais', 3, 3]);
+  if (p.mama === 'a') R.push(['Câncer de mama atual', 4, 4]);
+  if (p.med === 'atb') R.push(['Antibiótico de amplo espectro', 1, 1, 'Não reduz a eficácia da pílula.']);
+  if (p.med === 'rif') R.push(['Rifampicina ou rifabutina', 3, 3, 'Indução do CYP3A4: os níveis hormonais caem e a eficácia também.']);
+  if (p.med === 'ac') R.push(['Anticonvulsivante indutor enzimático', 3, 3, 'Carbamazepina, fenitoína, fenobarbital, primidona, topiramato e oxcarbazepina reduzem a eficácia.']);
+  if (p.med === 'ltg') R.push(['Lamotrigina', 3, 1, 'A pílula combinada reduz o nível de lamotrigina e pode descontrolar as crises.']);
+  if ((p.fumo !== 'n') + (p.dm !== 'n') + (p.pa !== 'n') >= 2) R.push(['Vários fatores de risco arterial ao mesmo tempo', 3, 2, 'Tabagismo, diabetes e hipertensão juntos: para a combinada, 3 ou 4 conforme o conjunto.', '3 ou 4']);
+  if (!R.length) R.push(['Da menarca aos 39 anos, sem condição relevante', 1, 1]);
+  return R;
+}
+function renderElegib(g) {
+  const blank = () => ({ age: 22, imc: false, fumo: 'n', pa: 'n', enx: 'n', pp: 'n', tev: 'n', dm: 'n', mama: 'n', med: 'n' });
+  let p = Object.assign(blank(), store.get('co.el', {})), hide = false, shown = true, cs = -1;
+  g.innerHTML =
+    `<section class="card" style="min-width:0"><div class="card-h"><div><span class="eyebrow">Simulador</span><h3>Monte a paciente</h3></div>${moreBtn('co_elegib')}</div>
+      <div class="sub">Casos prontos</div><div class="chips wrapc" id="elC">${EL_CASES.map(([l], i) => `<button class="chip" data-i="${i}">${l}</button>`).join('')}</div>
+      <div class="range" style="margin-top:14px"><label for="elA">Idade</label><output id="elAo"></output><input type="range" id="elA" min="15" max="50" step="1"></div>
+      <label class="toggle" style="margin-top:6px"><input type="checkbox" id="elI">IMC de 30 kg/m² ou mais</label>
+      ${Object.entries(EL_G).map(([k, [l, o]]) => `<div class="grp"><span>${l}</span><div class="chips wrapc" data-g="${k}">${o.map(([v, t]) => `<button class="chip" data-v="${v}">${t}</button>`).join('')}</div></div>`).join('')}
+      <div class="row" style="margin-top:14px"><button class="btn small" id="elReset">Limpar tudo</button></div>
+      <div class="elbar" id="elBar" aria-hidden="true"></div>
+    </section>` +
+    `<section class="card elres" style="min-width:0"><div class="card-h"><div><span class="eyebrow">Critérios de elegibilidade da OMS</span><h3>Qual pílula ela pode usar?</h3></div></div>
+      <label class="toggle"><input type="checkbox" id="elH">Esconder o resultado: quero prever primeiro</label>
+      <div class="stack" style="margin-top:10px"><div class="cat" id="elK1"></div><div class="cat" id="elK2"></div></div>
+      <div class="row" id="elRevW" style="margin-top:10px" hidden><button class="btn primary" id="elRev">Revelar a categoria</button></div>
+      <div id="elWhy"></div><div class="insight" id="elAdv"></div>
+      <details class="fold"><summary>O que significa cada categoria</summary><div class="why" style="margin-top:6px">${[1, 2, 3, 4].map(k => `<div style="grid-template-columns:auto minmax(0,1fr)"><span class="kb k${k}">${k}</span><span><b>${EL_CAT[k][0]}.</b> ${EL_CAT[k][1]}</span></div>`).join('')}</div></details>
+      <p class="note">OMS, Medical eligibility criteria for contraceptive use, 6ª edição, 2025. Quando há mais de uma condição, vale a categoria mais alta; o conjunto pode pesar mais do que cada item. A ferramenta cobre as condições mais comuns da aula, não a tabela inteira.</p>
+    </section>` +
+    card('Roteiro do laboratório', roteiro([
+      ['Carla tem 37 anos e fuma um maço por dia. Preveja as duas categorias antes de revelar. Se ela tivesse 30 anos, mudaria?', 'Aos 37, com 15 ou mais cigarros por dia: categoria 4 para a combinada e 1 para a minipílula. Aos 30, a combinada cai para categoria 2. O corte dos 35 anos existe porque o risco arterial (infarto e AVC) do tabagismo com estrogênio cresce com a idade.'],
+      ['Marina tem enxaqueca com aura. Por que a categoria é 4 se ela é jovem e saudável?', 'A enxaqueca com aura já aumenta o risco de AVC isquêmico, e o estrogênio multiplica esse risco. O risco absoluto é baixo em jovens, mas o desfecho é grave e existem alternativas sem estrogênio: por isso a OMS classifica como risco inaceitável.'],
+      ['Paula amamenta e está com 4 semanas de pós-parto. Qual pílula? E com 8 semanas?', 'Com 4 semanas: combinada categoria 4, minipílula categoria 2. Com 8 semanas, ainda amamentando: combinada categoria 3, minipílula categoria 1. A pílula só de progestina não interfere na produção de leite.'],
+      ['Uma paciente usa a pílula e vai tomar amoxicilina por 7 dias. Precisa de preservativo? E se fosse rifampicina?', 'Com antibióticos comuns, não: categoria 1, sem perda de eficácia (OMS e CDC). A exceção são a rifampicina e a rifabutina, indutoras do CYP3A4: categoria 3 para as duas pílulas. Vale também para anticonvulsivantes indutores.'],
+    ]), { wide: true, lede: 'Use “Esconder o resultado” para prever antes de conferir.' });
+
+  const draw = () => {
+    store.set('co.el', p);
+    $('elA').value = p.age; $('elAo').textContent = p.age + ' anos'; $('elI').checked = p.imc;
+    g.querySelectorAll('[data-g]').forEach(w => w.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', p[w.dataset.g] === c.dataset.v)));
+    $('elC').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', +c.dataset.i === cs));
+    const R = elRules(p), kc = Math.max(...R.map(r => r[1])), kp = Math.max(...R.map(r => r[2])), vis = !hide || shown;
+    const tx = k => R.find(r => r[k] === (k === 1 ? kc : kp) && r[4] && k === 1);
+    const box = (elid, name, k, alt) => { $(elid).className = 'cat ' + (vis ? 'k' + k : ''); $(elid).style.background = vis ? '' : 'var(--sunk)';
+      $(elid).innerHTML = vis ? `<span class="n">${k}</span><b>${name}: ${EL_CAT[k][0].toLowerCase()}</b><span>${alt ? 'Categoria ' + alt + '. ' : ''}${EL_CAT[k][1]}</span>` : `<span class="n" style="color:var(--muted)">?</span><b>${name}</b><span>Qual categoria você daria?</span>`; };
+    box('elK1', 'Pílula combinada', kc, tx(1) ? tx(1)[4] : ''); box('elK2', 'Minipílula', kp, '');
+    $('elRevW').hidden = vis;
+    $('elBar').innerHTML = `<span>Combinada <span class="kb ${vis ? 'k' + kc : ''}">${vis ? kc : '?'}</span></span><span>Minipílula <span class="kb ${vis ? 'k' + kp : ''}">${vis ? kp : '?'}</span></span>`;
+    $('elWhy').innerHTML = vis ? `<div class="why"><div class="hd"><span>O que pesou</span><span>Comb.</span><span>Mini</span></div>${R.map(r => `<div><span>${r[0]}${r[3] ? `<br><span style="color:var(--muted);font-size:12.5px">${r[3]}</span>` : ''}</span><span class="kb k${r[1]}">${r[1]}</span><span class="kb k${r[2]}">${r[2]}</span></div>`).join('')}</div>` : '';
+    $('elAdv').hidden = !vis;
+    $('elAdv').innerHTML = kc <= 2 && kp <= 2 ? (kc === 1 ? 'Sem restrição a nenhuma das duas. A escolha passa a ser de preferência, perfil de efeitos e adesão.' : 'As duas pílulas são aceitáveis. Registre o fator de risco e reavalie nas consultas: as categorias mudam com a idade e com novas condições.')
+      : kp <= 2 ? `O problema é o <b>estrogênio</b>. A minipílula é a opção oral (categoria ${kp}); DIU e implante também não têm estrogênio.`
+      : kp === 3 ? 'Nenhuma das pílulas é boa escolha aqui. Considere métodos que não dependem do metabolismo hepático nem de hormônio sistêmico, como o DIU.'
+      : 'Hormônios estão contraindicados. O DIU de cobre é a alternativa de alta eficácia.';
+  };
+  const touch = () => { cs = -1; shown = false; draw(); };
+  $('elC').onclick = e => { const c = e.target.closest('.chip'); if (!c) return; cs = +c.dataset.i; p = Object.assign(blank(), EL_CASES[cs][1]); shown = false; draw(); };
+  $('elA').oninput = e => { p.age = +e.target.value; touch(); };
+  $('elI').onchange = e => { p.imc = e.target.checked; touch(); };
+  g.querySelectorAll('[data-g]').forEach(w => w.onclick = e => { const c = e.target.closest('.chip'); if (!c) return; p[w.dataset.g] = c.dataset.v; touch(); });
+  $('elReset').onclick = () => { p = blank(); touch(); };
+  $('elH').onchange = e => { hide = e.target.checked; shown = false; draw(); };
+  $('elRev').onclick = () => { shown = true; draw(); };
+  draw();
+}
+
+/* ---------- contracepção de emergência ---------- */
+const AE_P = { '-5': 10, '-4': 16, '-3': 14, '-2': 27, '-1': 31, '0': 33 };   // Wilcox et al., 1995: % de concepção por dia da relação
+const AE_ST = [
+  ['Folículo ainda pequeno', 'mais de 2 dias e meio antes da ovulação', null, 'alta'],
+  ['Folículo de 18 mm ou mais, LH ainda baixo', 'de 2,5 a 1,5 dia antes', { lng: 25, upa: 100, pl: 0 }],
+  ['LH subindo', 'de 1,5 a 0,5 dia antes', { lng: 14, upa: 79, pl: 10 }],
+  ['Pico de LH', 'últimas 12 horas', { lng: 9, upa: 8, pl: 4 }],
+  ['Depois da ovulação', 'o óvulo já foi liberado', null, '—'],
+];
+const aeStage = t => t < -2.5 ? 0 : t < -1.5 ? 1 : t < -0.5 ? 2 : t < 0 ? 3 : 4;
+const AE_D = { lng: 'O levonorgestrel', upa: 'O ulipristal', cu: 'O DIU de cobre' };
+function renderEmergencia(g) {
+  const saved = store.get('co.ae', {});
+  let rel = saved.rel === undefined ? -4 : saved.rel, del = saved.del === undefined ? 12 : saved.del, drug = AE_D[saved.drug] ? saved.drug : 'lng';
+  g.innerHTML =
+    `<section class="card" style="min-width:0"><div class="card-h"><div><span class="eyebrow">Simulador</span><h3>A pílula chega antes do pico de LH?</h3></div>${moreBtn('co_ae')}</div>
+      <div class="sub">Método</div>${pick('aeD', [['lng', 'Levonorgestrel 1,5 mg'], ['upa', 'Ulipristal 30 mg'], ['cu', 'DIU de cobre']], drug)}
+      <div class="range" style="margin-top:14px"><label for="aeR">Dia da relação desprotegida</label><output id="aeRo"></output><input type="range" id="aeR" min="-7" max="2" step="0.5"></div>
+      <div class="range" style="margin-top:6px"><label for="aeT" id="aeTl">Tomada da pílula</label><output id="aeTo"></output><input type="range" id="aeT" min="0" max="120" step="6"></div>
+      <div class="tiles" style="margin-top:14px"><div class="tile"><span>Chance de gestação</span><b id="aeT1"></b><small>sem contracepção de emergência</small></div><div class="tile"><span>Momento da tomada</span><b id="aeT2" style="font-size:16px;line-height:1.25"></b><small id="aeT2s"></small></div><div class="tile acc"><span>Ovulação adiada</span><b id="aeT3"></b><small id="aeT3s"></small></div></div>
+      <div class="verdict" id="aeV" style="margin-top:12px"></div>
+      <p class="note">O ulipristal não está disponível no Brasil (SBRH, 2024); aparece aqui porque ajuda a entender o mecanismo.</p>
+    </section>` +
+    `<section class="card" style="min-width:0"><div class="card-h"><div><span class="eyebrow">Ao vivo</span><h3>A semana da ovulação</h3></div></div>
+      <div id="aeFig"></div>
+      <div class="legend"><span><i style="background:var(--accent);height:10px;opacity:.8"></i>chance de concepção por dia da relação</span><span><i style="background:var(--lh)"></i>pico de LH</span><span><i style="background:var(--fsh);height:8px;opacity:.35"></i>espermatozoides viáveis</span><span><i style="background:var(--cl)"></i>ovulação</span></div>
+      <div class="why" id="aeStg" style="margin-top:12px"></div>
+      <p class="note">Chance de concepção: Wilcox et al., NEJM, 1995. Ovulação adiada por 5 dias ou mais, conforme o momento da tomada: Brache et al., Contraception, 2013. Os limites entre as fases são aproximados: na vida real ninguém sabe em que dia está.</p>
+    </section>` +
+    card('Quanto antes, melhor', `<div id="aeEff"></div>
+      <div class="insight">A pílula não perde força com as horas. O que acontece é que, a cada dia de espera, cresce a chance de a tomada cair <b>depois</b> do início do pico de LH, quando ela já não consegue adiar a ovulação.</div>
+      <p class="note">Gestações evitadas com levonorgestrel, conforme o intervalo entre a relação e a tomada (OMS, Lancet, 1998). O uso é aceito até 120 horas, com eficácia menor.</p>`, { lede: 'Levonorgestrel: proporção das gestações esperadas que foi evitada.' }) +
+    card('Pílula do dia seguinte não é pílula abortiva', `<div class="tw"><table class="t wrap"><thead><tr><th></th><th>Levonorgestrel</th><th>Mifepristona (RU-486)</th></tr></thead><tbody>
+      <tr style="cursor:default"><td><b>Classe</b></td><td>Progestina: agonista do receptor de progesterona</td><td>Antiprogestina: antagonista do receptor de progesterona</td></tr>
+      <tr style="cursor:default"><td><b>O que faz</b></td><td>Inibe ou adia a ovulação. Age antes da fecundação.</td><td>Bloqueia a progesterona e desestabiliza o endométrio que sustenta a gestação.</td></tr>
+      <tr style="cursor:default"><td><b>Age sobre o embrião implantado?</b></td><td><span class="no">Não.</span> É ineficaz depois da ovulação.</td><td><span class="ok">Sim.</span> Interrompe gestação estabelecida.</td></tr>
+      <tr style="cursor:default"><td><b>Uso</b></td><td>Contracepção de emergência, até 72 a 120 horas depois da relação.</td><td>Interrupção da gestação, com misoprostol (OMS, 2022).</td></tr>
+      <tr style="cursor:default"><td><b>No Brasil</b></td><td>Disponível no SUS e em farmácias.</td><td>Sem registro na Anvisa.</td></tr></tbody></table></div>
+      <div class="insight">Estudo de Noé et al. (2011): entre mulheres que tomaram levonorgestrel <b>antes</b> da ovulação, nenhuma gestação, onde se esperavam 16. Entre as que tomaram no dia da ovulação ou <b>depois</b>, 8 gestações, onde se esperavam 8,7. Depois da ovulação, a pílula não muda nada.</div>`, { more: 'co_abort' }) +
+    card('Roteiro do laboratório', roteiro([
+      ['Relação 4 dias antes da ovulação, levonorgestrel 12 horas depois. Funciona? E se a tomada for 60 horas depois?', 'Com 12 horas, a tomada cai com o folículo ainda pequeno: a ovulação é adiada e os espermatozoides não sobrevivem até ela. Com 60 horas, a tomada cai com o LH já subindo: o levonorgestrel adia a ovulação em 14% dos ciclos, o mesmo que o placebo (10%).'],
+      ['Ponha a relação no dia da ovulação e a tomada 6 horas depois. O que a pílula faz? O que isso diz sobre ela ser abortiva?', 'Nada: a ovulação já aconteceu. Se houver fecundação, o levonorgestrel não impede a implantação nem interrompe a gestação. A eficácia que cai com o tempo é a assinatura de um método que evita a gravidez, e não de um que a interrompe.'],
+      ['Uma paciente chega 4 dias depois da relação, que foi perto da ovulação. Qual método você ofereceria?', 'O DIU de cobre: pode ser inserido até 5 dias depois da relação, falha em cerca de 0,1% dos casos e é o único que ainda age depois da ovulação. De quebra, vira contracepção de longa duração.'],
+      ['Por que a contracepção de emergência é oferecida mesmo quando a relação parece estar fora da janela fértil?', 'Porque a data da ovulação é incerta e varia de ciclo para ciclo, mesmo em mulheres com ciclos regulares. O custo de tomar sem precisar é baixo; o de não tomar precisando é alto.'],
+    ]), { wide: true, lede: 'Posicione os controles antes de abrir cada resposta.' });
+
+  const dd = v => v === 0 ? 'no dia da ovulação' : `${nf(Math.abs(v), v % 1 ? 1 : 0)} ${Math.abs(v) === 1 ? 'dia' : 'dias'} ${v < 0 ? 'antes' : 'depois'} da ovulação`;
+  const draw = () => {
+    store.set('co.ae', { rel, del, drug });
+    const tk = rel + del / 24, st = aeStage(tk), k = Math.round(rel), p0 = rel >= -5.5 && rel <= 0.5 ? AE_P[String(k === 0 ? 0 : k)] || 0 : 0, S = AE_ST[st], cu = drug === 'cu';
+    $('aeR').value = rel; $('aeT').value = del; $('aeRo').textContent = dd(rel); $('aeTl').textContent = cu ? 'Inserção do DIU' : 'Tomada da pílula'; $('aeTo').textContent = del ? `${del} horas depois` : 'logo depois';
+    $('aeT1').textContent = p0 ? `≈ ${p0}%` : 'muito baixa';
+    $('aeT2').textContent = S[0]; $('aeT2s').textContent = S[1];
+    const pct = cu ? null : S[2] ? S[2][drug] : null;
+    $('aeT3').textContent = cu ? 'não se aplica' : st === 0 ? 'na maioria' : st === 4 ? 'não há' : pct + '%'; $('aeT3s').textContent = cu ? 'o DIU age por outro mecanismo' : st === 0 ? 'dos ciclos (Croxatto et al., 2004)' : st === 4 ? 'ovulação a adiar' : `dos ciclos · placebo: ${S[2].pl}%`;
+    let v;
+    if (cu) v = ['good', 'O DIU de cobre funciona em qualquer ponto do ciclo', 'Inserido até 5 dias depois da relação, falha em cerca de 0,1% dos casos. O cobre é tóxico para espermatozoides e óvulo e impede a fecundação: é o único método de emergência que ainda age depois da ovulação.'];
+    else if (!p0) v = ['neu', 'Relação fora da janela fértil', 'Neste dia do ciclo a chance de gestação é muito baixa, com ou sem pílula. Como ninguém sabe o dia exato da ovulação, a contracepção de emergência é oferecida sempre.'];
+    else if (st === 0) v = ['good', 'Chega a tempo: ovulação adiada', `Folículo pequeno e LH baixo. ${AE_D[drug]} adia a ovulação por cerca de 5 dias; quando ela acontecer, os espermatozoides desta relação já não estarão viáveis.`];
+    else if (st === 1) v = drug === 'lng' ? ['warn', 'A janela do levonorgestrel está se fechando', 'Com o folículo já grande, o levonorgestrel adiou a ovulação em 25% dos ciclos estudados (placebo: 0%). O ulipristal, em 100%.'] : ['good', 'O ulipristal ainda adia a ovulação', 'Antes do início do pico de LH, o ulipristal adiou a ovulação em 100% dos ciclos estudados (levonorgestrel: 25%).'];
+    else if (st === 2) v = drug === 'lng' ? ['bad', 'Tarde demais para o levonorgestrel', 'Com o LH já subindo, o levonorgestrel adiou a ovulação em 14% dos ciclos, o mesmo que o placebo (10%). O ulipristal ainda conseguiu em 79%.'] : ['warn', 'O ulipristal ainda age na maioria dos ciclos', 'Com o LH já subindo, o ulipristal adiou a ovulação em 79% dos ciclos estudados (levonorgestrel: 14%; placebo: 10%).'];
+    else if (st === 3) v = ['bad', 'No pico de LH, nenhuma pílula adia a ovulação', 'Ulipristal 8%, levonorgestrel 9%, placebo 4%: sem diferença. A chance de gestação é a mesma de não tomar nada.'];
+    else v = ['bad', 'A ovulação já aconteceu', 'Nenhuma pílula de emergência age depois da ovulação. Se houver fecundação, o levonorgestrel não impede a implantação nem interrompe a gestação.'];
+    $('aeV').className = 'verdict ' + v[0]; $('aeV').innerHTML = `<b>${v[1]}</b><span>${v[2]}</span>`;
+    // figura
+    const W = cw('aeFig'), L = 8, R = 8, x = t => L + (t + 7.5) / 15 * (W - L - R), B = 132, T = 44, yp = q => B - q / 42 * (B - T);
+    const works = !cu && p0 && (st === 0 || (drug === 'upa' && st <= 2));
+    let s = `<svg class="ch" viewBox="0 0 ${W} 228" role="img" aria-label="Linha do tempo em relação à ovulação">`;
+    [[-7.5, -2.5], [-2.5, -1.5], [-1.5, -0.5], [-0.5, 0], [0, 7.5]].forEach(([a, b], i) => s += `<rect x="${x(a) + 1}" y="10" width="${x(b) - x(a) - 2}" height="18" rx="4" class="stg${i === st ? ' on' : ''}"/>${x(b) - x(a) > 16 ? `<text x="${(x(a) + x(b)) / 2}" y="23" text-anchor="middle" class="${i === st ? 'lbl' : ''}" style="font-size:11px">${i + 1}</text>` : ''}`);
+    s += `<line x1="${L}" x2="${W - R}" y1="${B}" y2="${B}" class="ax"/>`;
+    Object.entries(AE_P).forEach(([d, q]) => { const bw = (x(1) - x(0)) * 0.72; s += `<rect x="${x(+d) - bw / 2}" y="${yp(q)}" width="${bw}" height="${B - yp(q)}" rx="3" class="probb" style="opacity:${Math.round(rel) === +d && p0 ? 1 : .4}"/>${W > 420 || Math.round(rel) === +d ? `<text x="${x(+d)}" y="${yp(q) - 4}" text-anchor="middle" class="${Math.round(rel) === +d ? 'lbl' : ''}" style="font-size:10.5px">${q}%</text>` : ''}`; });
+    let lh = ''; for (let t = -3; t <= 1.5; t += 0.1) lh += (lh ? 'L' : 'M') + x(t).toFixed(1) + ' ' + (B - 84 * gss(t, -0.55, 0.42)).toFixed(1);
+    s += `<path d="${lh} L${x(1.5)} ${B} L${x(-3)} ${B} Z" class="lhc"/>`;
+    s += `<line x1="${x(0)}" x2="${x(0)}" y1="34" y2="${B + 4}" class="ovl" ${works ? 'style="opacity:.35;stroke-dasharray:4 4"' : ''}/><text x="${x(0) + 5}" y="42" class="ev" style="font-size:10.5px">${works ? 'ovulação prevista' : 'ovulação'}</text>`;
+    if (works) s += `<line x1="${x(5)}" x2="${x(5)}" y1="34" y2="${B + 4}" class="ovl"/><path d="M${x(0) + 6} 58 H${x(5) - 8} m-6 -5 l6 5 l-6 5" style="stroke:var(--fg);stroke-width:1.4;fill:none"/><text x="${x(5) - 5}" y="76" text-anchor="end" class="ev" style="font-size:10.5px">adiada ~5 dias</text>`;
+    s += `<rect x="${x(rel)}" y="${B + 12}" width="${Math.max(0, Math.min(x(rel + 5), W - R) - x(rel))}" height="8" rx="4" class="spv"/>`;
+    s += `<circle cx="${x(rel)}" cy="${B + 16}" r="9" class="mkR ring"/><text x="${x(rel)}" y="${B + 16}" class="mtxt">R</text>`;
+    s += `<circle cx="${Math.min(x(tk), W - R - 9)}" cy="${B + 40}" r="9" class="mkT ring"/><text x="${Math.min(x(tk), W - R - 9)}" y="${B + 40}" class="mtxt" style="fill:var(--surface)">${cu ? 'D' : 'P'}</text><line x1="${Math.min(x(tk), W - R - 9)}" x2="${Math.min(x(tk), W - R - 9)}" y1="28" y2="${B + 30}" class="dotst"/>`;
+    [-6, -4, -2, 0, 2, 4, 6].forEach(t => s += `<text x="${x(t)}" y="208" text-anchor="middle">${t > 0 ? '+' + t : t}</text>`);
+    s += `<text x="${W / 2}" y="224" text-anchor="middle" style="font-size:11px">dias em relação à ovulação</text>`;
+    $('aeFig').innerHTML = s + '</svg>';
+    $('aeStg').innerHTML = `<div class="hd"><span>Fase no momento da tomada (R = relação, ${cu ? 'D = DIU' : 'P = pílula'})</span><span>LNG</span><span>UPA</span></div>` + AE_ST.map((q, i) => `<div style="opacity:${i === st ? 1 : .55}"><span><b>${i + 1}. ${q[0]}</b><br><span style="color:var(--muted);font-size:12.5px">${q[1]}</span></span><span class="num" style="font-weight:600">${q[2] ? q[2].lng + '%' : q[3]}</span><span class="num" style="font-weight:600">${q[2] ? q[2].upa + '%' : q[3]}</span></div>`).join('');
+    // eficácia por tempo
+    const E = [['até 24 h', 95, 0, 24], ['25 a 48 h', 85, 24, 48], ['49 a 72 h', 58, 48, 72]], W2 = cw('aeEff'), rh = 30, L2 = 84, R2 = 46;
+    let t2 = `<svg class="ch" viewBox="0 0 ${W2} ${E.length * rh + 4}" role="img" aria-label="Gestações evitadas com levonorgestrel conforme o tempo até a tomada">`;
+    E.forEach(([l, q, a, b], i) => { const yy = i * rh + 2, w = q / 100 * (W2 - L2 - R2), me = (del > a || (a === 0 && del === 0)) && del <= b;
+      t2 += `<text x="${L2 - 8}" y="${yy + 17}" text-anchor="end" class="${me ? 'lbl' : ''}">${l}</text><rect x="${L2}" y="${yy + 4}" width="${W2 - L2 - R2}" height="18" rx="4" class="soft"/><rect x="${L2}" y="${yy + 4}" width="${w}" height="18" rx="4" class="hl" style="opacity:${me ? 1 : .4}"/><text x="${L2 + w + 6}" y="${yy + 17}" class="${me ? 'lbl' : ''}">${q}%</text>`; });
+    $('aeEff').innerHTML = t2 + '</svg>';
+  };
+  bindPick('aeD', v => { drug = v; draw(); });
+  $('aeR').oninput = e => { rel = +e.target.value; draw(); };
+  $('aeT').oninput = e => { del = +e.target.value; draw(); };
+  draw();
+}
+
+/* ===== Contraceptivos orais · Saiba mais, glossário e dicas de aula ===== */
+const REFS_CO = '<p class="src">Referências: Brunton & Knollmann (eds), Goodman & Gilman’s The Pharmacological Basis of Therapeutics, 14ª ed., 2023 · Vanderah (ed), Katzung’s Basic & Clinical Pharmacology, 16ª ed., 2024 · OMS, Medical eligibility criteria for contraceptive use, 6ª ed., 2025 · CDC, U.S. Selected Practice Recommendations for Contraceptive Use, 2024 · FSRH, Progestogen-only Pills, 2022 · EMA, revisão dos contraceptivos hormonais combinados, 2014, e atualização do dienogeste, 2018 · Trussell et al., Contraceptive Technology, 21ª ed., 2018 · Milsom & Korver, J Fam Plann Reprod Health Care, 2008 · Rice et al., Hum Reprod, 1999 · Douxfils et al., Contraception, 2020 · Mantha et al., BMJ, 2012 · Wilcox et al., NEJM, 1995 · Brache et al., Contraception, 2013 · Noé et al., Contraception, 2011 · OMS, Task Force on Postovulatory Methods, Lancet, 1998.</p>';
+Object.assign(LEARN, {
+  co_ciclo: { t: 'O ciclo em dez passos', h: `
+    <ol><li>No início da fase folicular, o gerador de pulsos do hipotálamo secreta GnRH.</li><li>A hipófise responde com liberação pulsátil de LH e FSH.</li><li>O FSH amadurece o folículo de Graaf, que secreta estradiol.</li><li>O estradiol age na hipófise e inibe LH e FSH (feedback negativo).</li><li>A elevação persistente do estradiol inverte o sinal (feedback positivo) e provoca o pico pré-ovulatório de LH e FSH.</li><li>O pico provoca a ruptura folicular: ovulação.</li><li>O folículo rompido vira corpo lúteo, que produz progesterona e algum estradiol.</li><li>Sem gestação, o corpo lúteo regride (luteólise).</li><li>Os esteroides caem e a menstruação ocorre.</li><li>O gerador de pulsos volta ao padrão inicial e o sistema recomeça.</li></ol>
+    <h4>O que cada esteroide faz fora do eixo</h4>
+    <p><b>Estrogênios:</b> maturação sexual e manutenção do trato reprodutivo; osso (menos reabsorção, por apoptose de osteoclastos); lipídios (HDL sobe, LDL cai, triglicerídeos sobem); coagulação (sobem os fatores II, VII, IX, X, XII e o fibrinogênio; caem a antitrombina e a proteína S).</p>
+    <p><b>Progesterona e progestinas:</b> endométrio secretor, manutenção da gestação, muco cervical espesso, aumento da temperatura basal; podem competir com a aldosterona no túbulo renal e aumentar a insulina basal.</p>
+    <div class="trap"><h4>Sobre o simulador</h4><p>As curvas são formas de livro-texto para um ciclo idealizado de 28 dias, em nível relativo (cada hormônio em proporção ao próprio pico). Ciclos reais variam em duração e em amplitude, sobretudo na fase folicular.</p></div>${REFS_CO}` },
+  co_feedback: { t: 'Feedback negativo e feedback positivo', h: `
+    <p>Durante quase todo o ciclo, estradiol e progesterona freiam o hipotálamo e a hipófise: é o <b>feedback negativo</b>. No fim da fase folicular, o estradiol alto e sustentado sensibiliza as células produtoras de LH à ação do GnRH, e o sinal se inverte: é o <b>feedback positivo</b>, que gera o pico de LH do meio do ciclo.</p>
+    <p>O limiar clássico é estradiol acima de cerca de 200 pg/mL por cerca de 50 horas. Só um folículo dominante maduro sustenta esse nível, o que amarra a ovulação à maturidade do folículo.</p>
+    <h4>O que a pílula faz com isso</h4><p>Estrogênio e progestina em dose constante mantêm o feedback negativo o mês inteiro. Sem folículo dominante não há estradiol endógeno alto, e a progestina impede a resposta da hipófise: o pico de LH não acontece.</p>
+    <p class="note">O mapa da tela mostra o conceito de limiar; os valores exatos variam entre mulheres.</p>${REFS_CO}` },
+  co_receptor: { t: 'Receptores de esteroides', h: `
+    <h4>Via genômica (a principal)</h4>
+    <p>O estradiol atravessa a membrana por difusão passiva e se liga a receptores intracelulares, <b>ERα</b> e <b>ERβ</b>. Sem ligante, o receptor existe como monômero, associado a proteínas de choque térmico. O agonista muda a conformação do receptor, o que solta as chaperonas, facilita a <b>dimerização</b> e permite a ligação aos <b>elementos de resposta ao estrogênio (ERE)</b> no DNA. Daí vêm a regulação da transcrição, o mRNA, as proteínas mediadoras e o efeito.</p>
+    <p>As progestinas seguem o mesmo roteiro com os receptores <b>PR-A</b> e <b>PR-B</b>, que têm distribuição citoplasmática e nuclear: homodimerização e ligação aos <b>elementos de resposta à progesterona (PRE)</b>. O efeito varia conforme o tecido-alvo e a progestina.</p>
+    <h4>Via não genômica (rápida)</h4>
+    <p>Receptores de membrana (mERα, GPER1) ativam cascatas de sinalização (PKA, PKC, MAPK, PI3K) em segundos a minutos, o que explica efeitos vasculares agudos. As progestinas também modulam canais iônicos e sinalização intracelular por vias rápidas.</p>
+    <h4>O anel A</h4>
+    <p>O anel fenólico A é o aspecto estrutural mais importante para a ligação seletiva e de alta afinidade ao receptor de estrogênio: a maior parte das substituições nesse anel compromete a ligação.</p>
+    <h4>Agonista, antagonista e modulador seletivo</h4>
+    <p>Coativadores e correpressores variam de tecido para tecido. Por isso um mesmo ligante pode ser agonista num tecido e antagonista em outro: os <b>SERMs</b>, como o tamoxifeno e o raloxifeno, são agonistas no osso e antagonistas na mama. A <b>mifepristona</b> ocupa o receptor de progesterona e recruta correpressores.</p>
+    <h4>Seletividade das progestinas</h4>
+    <p>As derivadas da 19-nortestosterona conservam alguma atividade androgênica (maior no levonorgestrel, menor no desogestrel e no gestodeno). A drospirenona, derivada da espironolactona, é antiandrogênica e antimineralocorticoide, com leve efeito natriurético. O dienogeste tem alta seletividade pelo receptor de progesterona e ação antiandrogênica, por competição com o receptor androgênico.</p>
+    <div class="trap"><h4>Sobre a figura</h4><p>É um esquema. O receptor de estrogênio sem ligante fica sobretudo no núcleo, e o de progesterona, no citoplasma e no núcleo; a figura desenha os dois no citoplasma para separar os passos.</p></div>${REFS_CO}` },
+  co_transporte: { t: 'Do comprimido à célula: farmacocinética', h: `
+    <h4>Ligação a proteínas</h4>
+    <p>Estradiol: albumina (cerca de 60%) e SHBG (38%); fração livre de 2%. Progesterona: albumina (80%) e CBG (18%). As progestinas 19-nor ligam-se também à SHBG, o levonorgestrel com alta afinidade. O etinilestradiol liga-se quase só à albumina (98,5%) e a drospirenona, só à albumina, com 3 a 5% livre.</p>
+    <p>A hipótese do hormônio livre diz que só a fração não ligada atravessa o capilar e entra na célula. A fração presa à albumina se solta com facilidade; a presa à SHBG funciona como reservatório.</p>
+    <h4>A pílula mexe nas próprias proteínas de transporte</h4>
+    <p>O etinilestradiol aumenta a síntese hepática de SHBG, CBG e TBG. O aumento de SHBG depende da pílula como um todo: é menor com progestinas androgênicas. Mais SHBG significa menos testosterona livre, e também dosagens de cortisol e T4 totais mais altas, sem doença.</p>
+    <h4>Primeira passagem</h4>
+    <p>O estradiol oral sofre metabolismo intenso no intestino e no fígado (estradiol → estrona e estriol → conjugados glicuronídeos e sulfatos). O grupo etinil do etinilestradiol protege a molécula e garante alta biodisponibilidade oral, ao preço de um efeito hepático forte. A progesterona natural é quase toda inativada na primeira passagem: a saída foi a micronização (200 a 400 mg) ou as progestinas sintéticas.</p>
+    <h4>Circulação êntero-hepática</h4>
+    <p>Os conjugados são excretados na bile, hidrolisados por bactérias intestinais e reabsorvidos. Apesar disso, antibióticos que não são indutores enzimáticos <b>não</b> reduzem a eficácia da pílula (OMS e CDC). A exceção são a rifampicina e a rifabutina, por indução do CYP3A4.</p>
+    <h4>Meias-vidas</h4>
+    <p>Etinilestradiol, cerca de 13 horas; valerato de estradiol, 14; estetrol, 28; dienogeste, 10; drospirenona, 30 a 35; nomegestrol, 46. As fontes variam conforme a fase considerada.</p>
+    <p class="note">O simulador de SHBG usa um modelo de equilíbrio com proteínas não saturadas e mantém albumina e CBG fixas. Serve para mostrar a direção do efeito; não reproduz dosagens. Valores de ligação: Dunn, Nisula e Rodbard, 1981 (estradiol e testosterona, fase folicular); aula e bulas para os demais. Testosterona livre com a pílula: Zimmerman et al., Hum Reprod Update, 2014.</p>${REFS_CO}` },
+  co_mec: { t: 'Como a pílula evita a gestação', h: `
+    <h4>Os quatro mecanismos da pílula combinada</h4>
+    <ol><li><b>Inibição do eixo hipotálamo-hipófise-ovário</b> (principal): supressão do GnRH pulsátil, queda de LH e FSH, sem desenvolvimento folicular, sem pico de LH, sem ovulação.</li><li><b>Muco cervical:</b> a progestina o torna espesso, viscoso e hostil aos espermatozoides.</li><li><b>Endométrio:</b> fica fino e inadequado para a implantação. Mecanismo secundário, porque a ovulação raramente ocorre.</li><li><b>Motilidade tubária:</b> menor transporte de espermatozoides e do óvulo.</li></ol>
+    <p>Na minipílula tradicional a ovulação não é inibida de forma consistente: predominam os mecanismos 2, 3 e 4.</p>
+    <h4>Estrogênios em uso</h4><p><b>Etinilestradiol</b> (15 a 35 µg): o mais usado e o mais potente; alta biodisponibilidade oral e forte estímulo à síntese hepática de proteínas. <b>Valerato de estradiol</b> e <b>17β-estradiol</b>: perfil mais próximo do fisiológico. <b>Estetrol (E4)</b>: produzido pelo fígado fetal, meia-vida de cerca de 28 horas e menor impacto hepático; aprovado com drospirenona em 2021 nos EUA e na União Europeia.</p>
+    <h4>Progestinas por geração</h4><p>1ª: noretisterona (atividade androgênica moderada). 2ª: levonorgestrel (alta). 3ª: desogestrel, gestodeno, norgestimato (baixa). 4ª: drospirenona, dienogeste, nomegestrol (nula ou antiandrogênica).</p>
+    <div class="trap"><h4>Monofásica, bifásica, trifásica</h4><p>Não há vantagem comprovada das formulações multifásicas sobre as monofásicas (Van Vliet et al., Cochrane, 2006). Doses de etinilestradiol acima de 35 µg não se justificam na contracepção de rotina.</p></div>
+    <p class="note">Ovulações de escape: cerca de 2% dos ciclos com pílulas de 30 a 35 µg de etinilestradiol (Milsom e Korver, 2008); desogestrel 75 µg inibe a ovulação em cerca de 97% dos ciclos (Rice et al., 1999); noretisterona e levonorgestrel em dose baixa, em cerca de metade (CDC, 2024).</p>${REFS_CO}` },
+  co_cartela: { t: 'Esquecimento da pílula combinada', h: `
+    <h4>A regra usada no simulador (CDC, 2024)</h4>
+    <ul><li><b>Atraso de menos de 24 horas</b> ou <b>uma pílula esquecida</b> (de 24 a menos de 48 horas): tomar assim que lembrar, seguir a cartela, sem proteção adicional.</li><li><b>Duas ou mais pílulas seguidas</b> (48 horas ou mais): tomar a mais recente, descartar as demais, seguir a cartela e usar preservativo ou abstinência até completar 7 pílulas ativas seguidas.</li><li><b>Se foi na última semana de ativas</b> (dias 15 a 21 de uma cartela de 21): emendar a cartela seguinte, sem pausa.</li><li><b>Se foi na primeira semana</b> e houve relação desprotegida nos 5 dias anteriores: considerar contracepção de emergência.</li></ul>
+    <h4>Por que 7 e 7</h4><p>Sete dias sem hormônio é o máximo que o ovário tolera sem levar um folículo perto da ovulação; sete dias seguidos de pílula é o mínimo para suprimir de novo o eixo. O risco real se concentra nos esquecimentos que <b>esticam a pausa</b>: no começo e no fim da cartela. Os esquemas 24/4 encurtam o intervalo sem hormônio e, com isso, deixam mais margem.</p>
+    <h4>Diferenças entre diretrizes e bulas</h4><p>A OMS (Selected practice recommendations, 3ª ed., 2016) separa por dose: com 30 a 35 µg de etinilestradiol, a conduta de proteção adicional começa com 3 pílulas esquecidas; com 20 µg ou menos, com 2. As bulas podem ser mais restritivas: para etinilestradiol 15 µg com gestodeno (24/4), a tolerância é de 12 horas. Formulações com valerato de estradiol e dienogeste têm conduta própria, conforme o dia da cartela.</p>
+    <h4>Vômitos e diarreia</h4><p>Episódio isolado: seguir normalmente. Por 48 horas ou mais: tratar como pílulas esquecidas, com proteção até 7 pílulas seguidas depois de resolvido o quadro.</p>
+    <div class="trap"><h4>Regra geral da aula</h4><p>Ausência de sangramento de privação depois de esquecimentos: descartar gestação.</p></div>
+    <p class="note">O gráfico de “atividade folicular” é um modelo didático construído sobre a regra dos 7 dias. Não representa dosagens nem prevê a ovulação de uma paciente.</p>${REFS_CO}` },
+  co_mini: { t: 'Pílulas só de progestina', h: `
+    <h4>Quando indicar</h4><ul><li>Contraindicação ao estrogênio: trombose prévia, enxaqueca com aura, hipertensão, tabagismo aos 35 anos ou mais.</li><li>Amamentação: não interfere na produção de leite (OMS: categoria 2 antes de 6 semanas; categoria 1 depois).</li><li>Intolerância ao estrogênio: náuseas, cefaleia hormonal.</li></ul>
+    <h4>Três pílulas, três janelas</h4><p><b>Noretisterona 0,35 mg:</b> janela de 3 horas; pílula esquecida pede 2 dias de proteção adicional. <b>Desogestrel 75 µg:</b> janela de 12 horas; 2 dias de proteção (FSRH), 7 dias segundo a bula. <b>Drospirenona 4 mg, 24/4:</b> janela de 24 horas; pílula esquecida pede 7 dias, como na combinada.</p>
+    <p>O que explica a diferença é o mecanismo: a tradicional depende do muco; as outras duas também bloqueiam a ovulação. A drospirenona tem meia-vida de 30 a 35 horas.</p>
+    <div class="trap"><h4>Sangramento</h4><p>Sem estrogênio para estabilizar o endométrio, o padrão de sangramento é imprevisível: escapes, ciclos irregulares ou amenorreia. É a principal causa de abandono e deve ser avisada antes.</p></div>${REFS_CO}` },
+  co_eficacia: { t: 'Uso perfeito e uso real', h: `
+    <p><b>Uso perfeito</b> (índice de Pearl teórico): o método usado exatamente como indicado. <b>Uso real</b> (ou típico): o que acontece na vida, com esquecimentos, atrasos e interrupções.</p>
+    <p>Para a pílula, 0,3 contra 7 a 9 gestações por 100 mulheres no primeiro ano. Para implante, DIU e esterilização, os dois números praticamente coincidem.</p>
+    <h4>O acumulado</h4><p>Se o risco anual é p, a proporção com ao menos uma falha em n anos é 1 − (1 − p)<sup>n</sup>. Com 7% ao ano, pouco mais da metade em 10 anos. Esse cálculo supõe risco constante, e por isso superestima: o risco cai com o tempo de uso, porque as mulheres mais férteis e as que usam pior o método falham primeiro.</p>
+    <div class="trap"><h4>Saúde pública</h4><p>A maioria das gestações não planejadas decorre do não uso ou do uso inconsistente, não da falha do método (Frost et al., 2008).</p></div>
+    <p class="note">Valores de primeiro ano: tabela da aula. Estimativas pontuais para os métodos com faixa: Trussell et al., 2018.</p>${REFS_CO}` },
+  co_pearl: { t: 'Índice de Pearl', h: `
+    <p>Proposto por Raymond Pearl em 1933: número de gestações não planejadas por 100 mulheres em um ano de uso.</p>
+    <p><b>IP = gestações × 1.200 ÷ meses-mulher de exposição.</b> O 1.200 converte meses em 100 mulheres-ano. Quando a exposição é contada em ciclos, usa-se 1.300.</p>
+    <h4>Limitações</h4><ul><li>Depende da duração do estudo: as falhas se concentram nos primeiros meses, e estudos longos produzem índices menores.</li><li>Depende da população: idade, fertilidade e frequência de relações.</li><li>Não distingue falha do método de falha do uso, a menos que os dois índices sejam relatados.</li></ul>
+    <h4>Tábua de vida (life-table)</h4><p>Divide o acompanhamento em intervalos. Em cada um, a probabilidade de falha é o número de gestações dividido pelo número de mulheres em risco no intervalo. A probabilidade de chegar ao fim sem gestação é o produto das probabilidades de cada intervalo; a falha acumulada é o complemento.</p>
+    <p>Quem abandona o método ou se perde no seguimento conta enquanto esteve em risco e depois sai do denominador: é a <b>censura</b>. O resultado é uma probabilidade referida a um tempo fixo (por exemplo, 12 meses), que não muda se o estudo durar mais.</p>
+    <div class="trap"><h4>Três contas, três respostas</h4><p>Gestações divididas pelas mulheres que começaram subestima a falha, porque ignora o abandono. O Pearl corrige a exposição, mas mistura meses de risco alto e baixo e depende da duração. A tábua de vida corrige as duas coisas.</p></div>
+    <p class="note">O comparador usa uma coorte simulada, com censura no fim de cada mês. Estudos reais usam o método atuarial ou o de Kaplan-Meier, com intervalos de confiança.</p>${REFS_CO}` },
+  co_tev: { t: 'Trombose venosa: números e mecanismo', h: `
+    <h4>Os números</h4><p>Não usuárias: cerca de 2 casos por 10.000 mulheres por ano. Combinadas com levonorgestrel, noretisterona ou norgestimato: 5 a 7. Com desogestrel, gestodeno ou drospirenona: 9 a 12 (EMA, 2014). Gestação: 5 a 20. Puerpério (12 semanas): 40 a 65. Minipílula: sem aumento demonstrado.</p>
+    <p>O risco é maior no primeiro ano de uso e ao recomeçar depois de uma pausa de 4 semanas ou mais. É <b>reversível</b>: volta ao basal em 3 a 4 meses depois da suspensão.</p>
+    <h4>Mecanismo</h4><p>O estrogênio aumenta a síntese hepática de fatores de coagulação (II, VII, X, XII, fibrinogênio), reduz a proteína S e a antitrombina e aumenta a resistência à proteína C ativada. A progestina modula esse efeito: as androgênicas o atenuam.</p>
+    <h4>Antes de prescrever</h4><p>Rastrear obesidade, imobilização, trombofilia hereditária, tabagismo e história pessoal ou familiar de trombose. Não se pede pesquisa de trombofilia de rotina.</p>
+    <h4>Eventos arteriais</h4><p>Infarto e AVC isquêmico têm risco absoluto muito baixo em jovens sem fatores de risco. O risco cresce com hipertensão, tabagismo e idade, e de forma sinérgica com o tabagismo. Enxaqueca com aura é contraindicação absoluta. Segundo a EMA, o risco arterial não difere entre as progestinas.</p>
+    <div class="trap"><h4>Risco relativo e risco absoluto</h4><p>Um risco relativo de 3 sobre um basal de 2 em 10.000 significa 4 casos a mais em 10.000 mulheres por ano. O mesmo risco relativo sobre o basal de uma mulher com trombofilia significa muito mais. O risco relativo só informa quando vem junto do basal.</p></div>${REFS_CO}` },
+  co_elegib: { t: 'Critérios de elegibilidade da OMS', h: `
+    <p>A OMS classifica cada combinação de método e condição clínica em quatro categorias: <b>1</b>, sem restrição; <b>2</b>, benefício supera o risco; <b>3</b>, risco supera o benefício; <b>4</b>, risco inaceitável.</p>
+    <h4>Condições da aula, para a pílula combinada</h4><ul><li>Tabagismo: menos de 35 anos, categoria 2; 35 anos ou mais, 3 (menos de 15 cigarros por dia) ou 4 (15 ou mais).</li><li>Hipertensão: controlada ou 140–159 / 90–99, categoria 3; 160 / 100 ou mais, categoria 4.</li><li>Trombofilia conhecida ou trombose prévia: categoria 4.</li><li>Diabetes sem doença vascular: categoria 2.</li><li>Enxaqueca sem aura, menos de 35 anos: 2 para iniciar. Com aura, em qualquer idade: 4.</li><li>Câncer de mama: atual, 4; sem doença há 5 anos ou mais, 3; só história familiar, 1.</li><li>Amamentação com menos de 6 semanas de pós-parto: 4.</li></ul>
+    <h4>Interações</h4><p>Antibióticos que não são indutores enzimáticos <b>não</b> reduzem a eficácia (OMS e CDC). A exceção são a rifampicina e a rifabutina, por indução do CYP3A4.</p>
+    <h4>O exame mínimo</h4><p>Anamnese dirigida e medida da pressão arterial. Exame ginecológico, citologia e exames laboratoriais não são pré-requisito para iniciar a pílula.</p>
+    <div class="trap"><h4>Não existe a pílula certa para cada perfil</h4><p>Não há dados suficientes para indicar uma combinada específica por perfil clínico: a escolha é individual, pesando risco e benefício com a paciente.</p></div>
+    <p class="note">Na 6ª edição (2025), a OMS revisou, entre outros temas, progestagênios na amamentação e interações com antirretrovirais. As categorias da pílula combinada para as condições desta tela não mudaram em relação à 5ª edição.</p>${REFS_CO}` },
+  co_ae: { t: 'Contracepção de emergência', h: `
+    <p>Evita a gestação depois de uma relação desprotegida: violência sexual, relação sem método, falha ou erro de uso de outro método.</p>
+    <h4>Levonorgestrel 1,5 mg, dose única</h4><p>Mecanismo principal: impedir ou adiar a ovulação, quando tomado <b>antes</b> do início do pico de LH. O efeito sobre muco e espermatozoides tem evidência fraca. Depois da ovulação, é ineficaz.</p>
+    <p>Gestações evitadas: cerca de 95% com a tomada em até 24 horas, 85% entre 25 e 48 horas, 58% entre 49 e 72 horas (OMS, 1998). Pode ser usado até 120 horas, com eficácia menor. Há poucas contraindicações, por ser de uso agudo. Os dados sugerem menor eficácia com IMC de 25 kg/m² ou mais.</p>
+    <h4>Outras opções</h4><p><b>DIU de cobre</b>, inserido até 5 dias depois da relação: é o método de emergência mais eficaz e continua como contraceptivo. <b>Acetato de ulipristal 30 mg</b>: modulador do receptor de progesterona que ainda adia a ovulação com o LH em ascensão; não está disponível no Brasil.</p>
+    <div class="trap"><h4>Uso recorrente</h4><p>Se o uso está se repetindo, é sinal de que falta um método regular adequado: é hora de rever a orientação e oferecer opções mais eficazes.</p></div>
+    <p class="note">As fases da tela (tamanho do folículo, início e pico do LH) são aproximações para ensinar a lógica. Os percentuais vêm de estudos com ultrassom e dosagens seriadas, com dezenas de ciclos por grupo.</p>${REFS_CO}` },
+  co_abort: { t: 'Por que a confusão?', h: `
+    <p>A expressão “pílula do dia seguinte” e a pílula abortiva foram politizadas juntas, mas são fármacos com mecanismos opostos: um impede que a gestação ocorra, o outro interrompe uma gestação estabelecida.</p>
+    <p>A <b>mifepristona</b> é um antagonista do receptor de progesterona: bloqueia a progesterona, desestabiliza o endométrio que sustenta a gestação e, com o misoprostol, interrompe a gestação (OMS, 2022). Não tem registro na Anvisa.</p>
+    <p>O <b>levonorgestrel</b> é um agonista do mesmo receptor. Age antes da fecundação, adiando a ovulação. Não tem efeito sobre um embrião implantado.</p>
+    <h4>A evidência</h4><p>Noé et al. (2011) acompanharam mulheres que usaram levonorgestrel de emergência, com a data da ovulação determinada por ultrassom e dosagens hormonais. Tomado antes da ovulação: nenhuma gestação, onde se esperavam 16. Tomado no dia da ovulação ou depois: 8 gestações, onde se esperavam 8,7.</p>
+    <p>Cerca de metade dos embriões não se implanta naturalmente. Ainda assim, a pílula de emergência não parece interferir nesse processo. A queda da eficácia com o passar das horas é o que se espera de um método que evita a gravidez, e não de um que a interrompe.</p>${REFS_CO}` },
+});
+const GLOSS_CO = [
+  ['Eixo hipotálamo-hipófise-ovário', 'Circuito hormonal que comanda o ciclo: GnRH do hipotálamo, LH e FSH da hipófise, estradiol e progesterona do ovário.'],
+  ['FSH', 'Hormônio folículo-estimulante. Recruta e amadurece os folículos.'],
+  ['LH', 'Hormônio luteinizante. Seu pico, no meio do ciclo, dispara a ovulação.'],
+  ['Feedback negativo', 'Estradiol e progesterona freiam a hipófise. É o regime de quase todo o ciclo, e o que a pílula mantém.'],
+  ['Feedback positivo', 'Estradiol alto e sustentado passa a estimular a hipófise e gera o pico de LH.'],
+  ['Corpo lúteo', 'O folículo depois de rompido. Produz progesterona por cerca de 14 dias.'],
+  ['Receptor nuclear', 'Receptor intracelular de esteroides. Com o hormônio ligado, dimeriza, liga-se ao DNA e regula a transcrição.'],
+  ['Elemento de resposta', 'Sequência do DNA, na região promotora de um gene, reconhecida pelo dímero hormônio-receptor (ERE, PRE).'],
+  ['CBG', 'Globulina ligadora de corticosteroides (transcortina). Transporta cortisol e progesterona.'],
+  ['Progestina', 'Progestagênio sintético. Classificada em gerações conforme a origem e a atividade androgênica.'],
+  ['Etinilestradiol', 'Estrogênio sintético mais usado nas pílulas. Potente e com forte efeito hepático.'],
+  ['Estetrol (E4)', 'Estrogênio natural de origem fetal, com menor impacto hepático. Combinado à drospirenona desde 2021.'],
+  ['Pílula combinada', 'Estrogênio + progestina. Também chamada de anticoncepcional oral combinado (AOC).'],
+  ['Minipílula', 'Pílula só de progestina. A tradicional age sobretudo no muco; desogestrel e drospirenona também bloqueiam a ovulação.'],
+  ['Sangramento de privação', 'Sangramento da pausa da pílula, por retirada do hormônio. Não é menstruação.'],
+  ['Intervalo sem hormônio', 'Dias seguidos sem pílula ativa: a pausa, somada aos esquecimentos vizinhos. Não deve passar de 7.'],
+  ['Índice de Pearl', 'Gestações por 100 mulheres em um ano de uso do método.'],
+  ['Tábua de vida', 'Método que calcula a probabilidade acumulada de falha até um tempo fixo, intervalo por intervalo, descontando quem saiu do estudo.'],
+  ['Uso perfeito e uso real', 'Eficácia do método usado exatamente como indicado e eficácia nas condições da vida real.'],
+  ['TEV', 'Tromboembolismo venoso: trombose venosa profunda e embolia pulmonar.'],
+  ['SHBG', 'Globulina ligadora de hormônios sexuais. Produzida pelo fígado; sobe com o estrogênio e serve de marcador da estrogenicidade da pílula.'],
+  ['Risco relativo e risco absoluto', 'Quantas vezes o risco aumenta, e quantos casos a mais isso representa. O primeiro só informa junto do segundo.'],
+  ['Categorias da OMS', '1, sem restrição; 2, benefício supera o risco; 3, risco supera o benefício; 4, risco inaceitável.'],
+  ['Contracepção de emergência', 'Método usado depois da relação para evitar a gestação. Adia a ovulação; não interrompe gestação.'],
+];
+const TIPS_CO = [
+  'Na tela 2, peça que a turma narre os seis passos antes de animar; depois troque para a mifepristona.',
+  'Projete a tela 3 em “Sem método” e peça à turma que desenhe o que espera ver com a pílula combinada antes de trocar.',
+  'Na tela 4, entregue uma situação de esquecimento a cada grupo: o grupo resolve na cartela e defende a conduta.',
+  'Na tela 5, estique a duração do estudo no comparador e pergunte por que o índice de Pearl cai.',
+  'Na tela 6, mostre primeiro a manchete com risco relativo e pergunte quem prescreveria; depois, a de risco absoluto.',
+  'Na tela 7, ative “Esconder o resultado” e use os casos prontos como quiz.',
+  'Cada tela termina com um roteiro de laboratório: quatro perguntas para responder mexendo no simulador.',
+];
+
 /* ===== montagem ===== */
-const SCREENS = [
+const SCREENS_AL = [
   { id: 'conceito', t: 'Conceito', h: 'Bloquear a transmissão sem tocar na consciência', p: 'O que é um anestésico local e onde ele age no caminho da dor.', render: renderConceito },
   { id: 'quimica', t: 'Química', h: 'Três partes, duas famílias', p: 'A estrutura que decide o metabolismo, a potência e o comportamento no tecido.', render: renderQuimica },
   { id: 'mecanismo', t: 'Mecanismo', h: 'O alvo está do lado de dentro', p: 'Como o anestésico atravessa a membrana e bloqueia o canal de sódio.', render: renderMecanismo },
@@ -1161,23 +2543,42 @@ const SCREENS = [
   { id: 'agentes', t: 'Agentes', h: 'Os anestésicos locais da prática', p: 'Compare pKa, latência, duração e dose dos agentes mais usados.', render: renderAgentes },
   { id: 'dose', t: 'Dose e segurança', h: 'A conta que previne a toxicidade', p: 'Dose máxima por peso, vasoconstritores, LAST e emulsão lipídica.', render: renderDose },
 ];
+const SCREENS_CO = [
+  { id: 'ciclo', t: 'O ciclo', h: 'Um eixo que conversa por hormônios', p: 'Avance o dia do ciclo e acompanhe hipófise, ovário, endométrio e muco ao mesmo tempo.', render: renderCiclo },
+  { id: 'receptor', t: 'Mecanismo', h: 'O alvo está no núcleo', p: 'Do sangue ao gene: como estrogênios e progestinas viajam, entram na célula, ligam-se ao receptor e mudam a transcrição.', render: renderReceptor },
+  { id: 'pilula', t: 'Ação contraceptiva', h: 'A pílula silencia o eixo e fecha o colo', p: 'Escolha a formulação e veja quais barreiras ela ergue entre o espermatozoide e o óvulo.', render: renderPilula },
+  { id: 'cartela', t: 'Cartela e esquecimento', h: 'O perigo mora ao lado da pausa', p: 'Toque nas pílulas para esquecê-las: veja o que acontece com o ovário e qual é a conduta.', render: renderCartela },
+  { id: 'eficacia', t: 'Eficácia', h: 'Uso perfeito e uso real não são o mesmo método', p: 'Índice de Pearl, mil mulheres e o que acontece quando os anos passam.', render: renderEficacia },
+  { id: 'trombose', t: 'Trombose em perspectiva', h: 'Risco relativo assusta, risco absoluto informa', p: 'Dez mil mulheres por um ano: quantas terão trombose com cada pílula, na gestação e no puerpério.', render: renderTrombose },
+  { id: 'elegibilidade', t: 'Quem pode usar', h: 'A anamnese decide a categoria', p: 'Monte a paciente e veja a categoria da OMS para a pílula combinada e para a minipílula.', render: renderElegib },
+  { id: 'emergencia', t: 'Emergência', h: 'A pílula do dia seguinte só funciona antes do pico de LH', p: 'Posicione a relação e a tomada no ciclo e veja quando o levonorgestrel ainda consegue agir.', render: renderEmergencia },
+];
+const LABS = [
+  { id: 'al', n: 'Anestésicos locais', d: 'Mecanismo, pH e ionização, fibras, agentes e dose segura', screens: SCREENS_AL,
+    foot: 'Ferramenta didática. Não substitui a bula, os protocolos institucionais nem o julgamento clínico. Doses: valores usuais para adultos; confira sempre a bula do produto.' },
+  { id: 'co', n: 'Contraceptivos orais', d: 'Ciclo, receptor, ação contraceptiva, cartela, eficácia, trombose, elegibilidade e emergência', screens: SCREENS_CO,
+    foot: 'Ferramenta didática. Os gráficos do ciclo e da cartela são modelos qualitativos; os números de risco e eficácia vêm das fontes citadas em cada Saiba mais. Não substitui a bula, os Critérios de Elegibilidade da OMS nem o julgamento clínico.' },
+];
+const SOON = [['Farmacocinética', 'Absorção, distribuição, metabolismo e eliminação'], ['Farmacodinâmica', 'Receptores, dose-resposta, potência e eficácia']];
+$('blocks').onclick = e => { const b = e.target.closest('.blk[data-l]'); if (b && +b.dataset.l !== lab) goLab(+b.dataset.l); };
 $('subs').onclick = e => { const b = e.target.closest('.sb'); if (b) show(+b.dataset.i, false); };
 $('labFoot').onclick = e => { const b = e.target.closest('button[data-i]'); if (b) show(+b.dataset.i, true); };
 $('glossBtn').onclick = showGloss;
 $('howBtn').onclick = showHow;
+addEventListener('hashchange', () => { const h = (location.hash || '').slice(1), f = findScreen(h === 'vaso' ? 'dose' : h); if (f && (f[0] !== lab || f[1] !== cur)) show(f[1], false, f[0]); });
 let deferredPrompt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
 if (matchMedia('(display-mode: standalone)').matches || navigator.standalone) $('instBtn').hidden = true;
 $('instBtn').onclick = async () => { if (deferredPrompt) { try { deferredPrompt.prompt(); const r = await deferredPrompt.userChoice; deferredPrompt = null; if (r && r.outcome === 'accepted') return; } catch {} } showInstall(); };
 (() => {
-  const h = (location.hash || '').slice(1), hi = SCREENS.findIndex(s => s.id === (h === 'vaso' ? 'dose' : h));
-  const si = SCREENS.findIndex(s => s.id === store.get('tela', ''));
+  const h = (location.hash || '').slice(1), f = findScreen(h === 'vaso' ? 'dose' : h) || findScreen(store.get('tela', '')) || findScreen(window.FL_START || '') || [0, 0];   // FL_START: tela inicial opcional (usada em prévias)
   const first = !store.get('visto', false);
-  show(hi >= 0 ? hi : si >= 0 ? si : 0, false);
+  show(f[1], false, f[0]);
   if (first) { $('welcome').hidden = false;
     const done = () => { $('welcome').hidden = true; store.set('visto', true); };
     $('wStart').onclick = () => { done(); go('ph'); };
-    $('wClose').onclick = () => { done(); go('conceito'); }; }
+    $('wPill').onclick = () => { done(); go('cartela'); };
+    $('wClose').onclick = () => { done(); show(0, false); }; }
 })();
 
 </script>

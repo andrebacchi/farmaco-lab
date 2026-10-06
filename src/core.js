@@ -49,21 +49,26 @@ function card(title, body, opts = {}) {
 function seg(id, items, on) { return `<div class="seg" id="${id}" role="group">${items.map(([v, l]) => `<button data-v="${v}" class="${v == on ? 'on' : ''}" aria-pressed="${v == on}">${l}</button>`).join('')}</div>`; }
 function bindSeg(id, fn) { const el = $(id); el.onclick = e => { const b = e.target.closest('button'); if (!b) return; el.querySelectorAll('button').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); }); fn(b.dataset.v); }; }
 
-/* ---------- navegação ---------- */
-let cur = 0, cleanup = null, lastW = innerWidth;
+/* ---------- navegação: classes de fármacos (LABS, em main.js) e telas de cada classe ---------- */
+let lab = 0, cur = 0, cleanup = null, lastW = innerWidth;
 addEventListener('resize', () => { if (Math.abs(innerWidth - lastW) < 40) return; lastW = innerWidth; clearTimeout(window._rz); window._rz = setTimeout(() => show(cur, false), 200); });
-function go(id) { const i = SCREENS.findIndex(s => s.id === id); if (i >= 0) show(i, true); }
-function show(i, scroll) {
+function findScreen(id) { for (let l = 0; l < LABS.length; l++) { const i = LABS[l].screens.findIndex(s => s.id === id); if (i >= 0) return [l, i]; } return null; }
+function go(id) { const f = findScreen(id); if (f) show(f[1], true, f[0]); }
+function goLab(l) { const f = findScreen(store.get('tela.' + LABS[l].id, '')); show(f && f[0] === l ? f[1] : 0, false, l); }
+function show(i, scroll, l = lab) {
   if (cleanup) { cleanup(); cleanup = null; }
-  cur = i; store.set('tela', SCREENS[i].id);
-  const S = SCREENS[i];
-  $('subs').innerHTML = SCREENS.map((s, k) => `<button class="sb${k === i ? ' on' : ''}" data-i="${k}"${k === i ? ' aria-current="page"' : ''}><i>${k + 1}</i>${s.t}</button>`).join('');
-  $('labs').innerHTML = `<section class="lab" aria-labelledby="h-${S.id}"><div class="intro"><span class="eyebrow">Anestésicos locais · tela ${i + 1} de ${SCREENS.length}</span><h2 id="h-${S.id}">${S.h}</h2><p>${S.p}</p></div><div class="grid two" id="g"></div></section>`;
+  lab = l; cur = i;
+  const L = LABS[l], SC = L.screens, S = SC[i];
+  store.set('tela', S.id); store.set('tela.' + L.id, S.id);
+  $('blocks').innerHTML = LABS.map((x, k) => `<button class="blk${k === l ? ' on' : ''}" data-l="${k}"${k === l ? ' aria-current="true"' : ''}><b>${x.n}</b><span>${x.d}</span></button>`).join('') + SOON.map(([n, d]) => `<button class="blk soon" disabled><em>Em breve</em><b>${n}</b><span>${d}</span></button>`).join('');
+  $('subs').innerHTML = SC.map((s, k) => `<button class="sb${k === i ? ' on' : ''}" data-i="${k}"${k === i ? ' aria-current="page"' : ''}><i>${k + 1}</i>${s.t}</button>`).join('');
+  $('labs').innerHTML = `<section class="lab" aria-labelledby="h-${S.id}"><div class="intro"><span class="eyebrow">${L.n} · tela ${i + 1} de ${SC.length}</span><h2 id="h-${S.id}">${S.h}</h2><p>${S.p}</p></div><div class="grid two" id="g"></div></section>`;
   cleanup = S.render($('g')) || null;
-  $('labs').querySelectorAll('[data-more]').forEach(b => b.onclick = () => { const L = LEARN[b.dataset.more]; openSheet(L.t, L.h); });
+  $('labs').querySelectorAll('[data-more]').forEach(b => b.onclick = () => { const M = LEARN[b.dataset.more]; openSheet(M.t, M.h); });
   $('labs').querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
-  const pv = SCREENS[i - 1], nx = SCREENS[i + 1];
+  const pv = SC[i - 1], nx = SC[i + 1];
   $('labFoot').innerHTML = (pv ? `<button data-i="${i - 1}"><span>Anterior</span><b>${pv.t}</b></button>` : '') + (nx ? `<button class="nx" data-i="${i + 1}"><span>Próxima</span><b>${nx.t}</b></button>` : '');
+  $('sitefootNote').textContent = L.foot;
   try { history.replaceState(null, '', '#' + S.id); } catch {}
   if (scroll) document.querySelector('.labnav').scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' });
 }

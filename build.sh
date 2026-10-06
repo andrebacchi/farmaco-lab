@@ -8,9 +8,9 @@ cd "$(dirname "$0")"
 body() {
 echo '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
 echo '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">'
-echo '<style>'; cat src/base.css src/extra.css; echo '</style>'
+echo '<style>'; cat src/base.css src/extra.css src/co.css; echo '</style>'
 cat src/body.html
-echo '<script>'; for f in core s1-2 s3 s4 s5-6 s7 learn main; do cat src/$f.js; echo; done; echo '</script>'
+echo '<script>'; for f in core s1-2 s3 s4 s5-6 s7 learn co-core co-s1 co-s5 co-s2 co-s3 co-s4 co-learn main; do cat src/$f.js; echo; done; echo '</script>'
 }
 if [ "$1" = "artifact" ]; then
   { echo '<title>FARMACO LAB</title>'; body; } > farmaco-lab.html; wc -c farmaco-lab.html

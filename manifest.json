@@ -1,7 +1,7 @@
 {
   "name": "FARMACO LAB",
   "short_name": "FARMACO LAB",
-  "description": "Laboratório interativo de farmacologia: anestésicos locais, pKa, pH e ionização.",
+  "description": "Laboratório interativo de farmacologia: anestésicos locais e contraceptivos orais.",
   "lang": "pt-BR",
   "start_url": "./",
   "scope": "./",

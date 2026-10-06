@@ -1,0 +1,173 @@
+/* ---- Contraceptivos orais: hormônios, anatomia, cartela, arranjos de ícones e categorias da OMS ---- */
+:root{
+  --fsh:#2a78d6; --lh:#d9531e; --e2:#b03fa8; --p4:#128a5e;          /* séries hormonais (validadas para daltonismo, claro) */
+  --myo:#f3dcd8; --myo-line:#d7a59e; --endo:#cf5a62; --muco:#74819a; --cl:#d09a14; --egg:#8a6410;
+  --anta:#3b4252;
+  --c1:#2f6b3a; --c1-soft:#e1efe2; --c2:#58780f; --c2-soft:#edf3d6; --c3:#96600a; --c3-soft:#f8ead0; --c4:#b0362b; --c4-soft:#f9e6e3;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --fsh:#3987e5; --lh:#d9682f; --e2:#c44fa6; --p4:#1ea377;
+  --myo:#3a2628; --myo-line:#74494c; --endo:#e07f86; --muco:#93a0b8; --cl:#e0b84a; --egg:#e8c06a;
+  --anta:#56607a;
+  --c1:#8fd19b; --c1-soft:#1d3322; --c2:#b9d26c; --c2-soft:#2a3319; --c3:#e8b55a; --c3-soft:#38290f; --c4:#f08a7e; --c4-soft:#3a2220}}
+:root[data-theme="dark"]{
+  --fsh:#3987e5; --lh:#d9682f; --e2:#c44fa6; --p4:#1ea377;
+  --myo:#3a2628; --myo-line:#74494c; --endo:#e07f86; --muco:#93a0b8; --cl:#e0b84a; --egg:#e8c06a;
+  --anta:#56607a;
+  --c1:#8fd19b; --c1-soft:#1d3322; --c2:#b9d26c; --c2-soft:#2a3319; --c3:#e8b55a; --c3-soft:#38290f; --c4:#f08a7e; --c4-soft:#3a2220}
+
+.blocks.four{grid-template-columns:1.25fr 1.25fr 1fr 1fr}
+@media (max-width:820px){.blocks.four{grid-template-columns:1fr 1fr}}
+button.blk:not(.soon):not(.on):hover{border-color:var(--muted)}
+
+/* gráfico do ciclo */
+svg.co-ch{touch-action:pan-y;cursor:ew-resize}
+svg.ch .sFSH{fill:none;stroke:var(--fsh);stroke-width:2.2;stroke-dasharray:6 4}
+svg.ch .sLH{fill:none;stroke:var(--lh);stroke-width:2.2}
+svg.ch .sE2{fill:none;stroke:var(--e2);stroke-width:2.2}
+svg.ch .sP4{fill:none;stroke:var(--p4);stroke-width:2.2;stroke-dasharray:6 4}
+svg.ch .fFSH{fill:var(--fsh)} svg.ch .fLH{fill:var(--lh)} svg.ch .fE2{fill:var(--e2)} svg.ch .fP4{fill:var(--p4)}
+svg.ch .ring{stroke:var(--surface);stroke-width:2}
+svg.ch .panel{fill:var(--sunk);opacity:.55}
+svg.ch .cursor{stroke:var(--fg);stroke-width:1.4}
+svg.ch .folst{fill:var(--surface);stroke:var(--fg);stroke-width:1.4}
+svg.ch .clf{fill:var(--cl)}
+svg.ch .endof{fill:var(--endo);opacity:.75}
+svg.ch .bleed{fill:var(--accent)}
+svg.ch .mucof{fill:var(--muco)}
+svg.ch .pillon{fill:var(--fg)} svg.ch .pilloff{fill:none;stroke:var(--tick);stroke-width:1.2}
+svg.ch .sl{font:600 10.5px var(--f-body);letter-spacing:.07em;text-transform:uppercase;fill:var(--muted)}
+svg.ch .dl{font:600 11.5px var(--f-body);fill:var(--fg)}
+svg.ch .ev{font:600 11px var(--f-body);fill:var(--fg)}
+.legend i.l-fsh{background:repeating-linear-gradient(90deg,var(--fsh) 0 5px,transparent 5px 8px)}
+.legend i.l-lh{background:var(--lh)} .legend i.l-e2{background:var(--e2)}
+.legend i.l-p4{background:repeating-linear-gradient(90deg,var(--p4) 0 5px,transparent 5px 8px)}
+.legend i.l-gh{background:var(--dot)}
+
+/* figura ao vivo: eixo, ovário e útero */
+svg.ch .myo{fill:var(--myo);stroke:var(--myo-line);stroke-width:1.4}
+svg.ch .cav{fill:var(--surface);stroke:var(--endo);stroke-linejoin:round}
+svg.ch .tube{fill:none;stroke:var(--myo-line);stroke-width:8;stroke-linecap:round}
+svg.ch .tubei{fill:none;stroke:var(--myo);stroke-width:4.5;stroke-linecap:round}
+svg.ch .ovy{fill:var(--myo);stroke:var(--myo-line);stroke-width:1.4}
+svg.ch .gland{fill:var(--sunk);stroke:var(--tick);stroke-width:1.2}
+svg.ch .hFSH{fill:none;stroke:var(--fsh);stroke-linecap:round} svg.ch .hLH{fill:none;stroke:var(--lh);stroke-linecap:round}
+svg.ch .hE2{fill:none;stroke:var(--e2);stroke-linecap:round} svg.ch .hP4{fill:none;stroke:var(--p4);stroke-linecap:round}
+svg.ch .hEX{fill:none;stroke:var(--fg);stroke-linecap:round;stroke-dasharray:2 5}
+svg.ch .sperm{fill:var(--fg)} svg.ch .spermt{stroke:var(--fg);stroke-width:1;fill:none;opacity:.7}
+svg.ch .eggc{fill:var(--cl);stroke:var(--egg);stroke-width:1.2}
+svg.ch .fl{font:600 11px var(--f-body);fill:var(--fg)}
+svg.ch .fs{font:500 10.5px var(--f-body);fill:var(--muted)}
+svg.ch .pillg{fill:var(--surface);stroke:var(--fg);stroke-width:1.5}
+.barr{display:grid;gap:10px}
+.br{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:baseline}
+.br b{font-size:14px}.br .bs{font-size:12.5px;font-weight:600;text-align:right}
+.br .meter{grid-column:1/-1;margin-top:2px}.br .meter i{background:var(--accent);transition:width .3s}
+.br p{grid-column:1/-1;margin:2px 0 0;font-size:13px;color:var(--muted)}
+.ep{display:inline-block;font:600 10.5px var(--f-mono);border-radius:6px;padding:1px 6px;background:var(--sunk);color:var(--fg);margin-left:6px;vertical-align:1px}
+.dots100{display:grid;grid-template-columns:repeat(25,1fr);gap:3px;max-width:420px}
+.dots100 i{aspect-ratio:1;border-radius:50%;background:var(--dot)}
+.dots100 i.on{background:var(--accent)}
+
+/* cartela */
+.pack{display:grid;gap:6px}
+.wk{display:grid;grid-template-columns:74px repeat(7,minmax(0,1fr));gap:5px;align-items:center}
+.wk>span{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;line-height:1.2}
+.pl{aspect-ratio:1;max-width:46px;width:100%;justify-self:center;border-radius:50%;border:2px solid var(--accent);background:var(--accent);color:var(--on-accent);font:600 13px var(--f-mono);display:grid;place-items:center;padding:0;position:relative}
+.pl.miss{background:transparent;color:var(--bad);border-style:dashed;border-color:var(--bad)}
+.pl.miss::after{content:"";position:absolute;inset:22% 46%;background:var(--bad);transform:rotate(45deg);border-radius:2px}
+.pl.pause{background:transparent;border:1.5px dotted var(--tick);color:var(--muted);cursor:default;font-weight:500}
+.pl.plac{background:var(--sunk);border:1.5px solid var(--line);color:var(--muted);cursor:default;font-weight:500}
+.pl.next{background:var(--ink);border-color:var(--ink);color:var(--on-ink)}
+.pl.next.miss{background:transparent;color:var(--bad);border-color:var(--bad)}
+.pl.unprot{box-shadow:0 0 0 3px var(--warn-soft),0 0 0 4.5px var(--warn)}
+@media (max-width:480px){.wk{grid-template-columns:52px repeat(7,minmax(0,1fr));gap:4px}.wk>span{font-size:10px}.pl{font-size:12px}}
+ol.cond{margin:8px 0 0;padding-left:20px;font-size:14px;display:grid;gap:5px}
+svg.ch .actl{fill:none;stroke:var(--accent);stroke-width:2.4}
+svg.ch .acta{fill:var(--accent);opacity:.12}
+svg.ch .thr{stroke:var(--bad);stroke-width:1.4;stroke-dasharray:5 4}
+svg.ch .unp{fill:var(--warn);opacity:.16}
+.win{position:relative;height:34px;border-radius:8px;background:var(--bad-soft);overflow:hidden;margin-top:8px}
+.win i{position:absolute;inset:0 auto 0 0;background:var(--good-soft)}
+.win b{position:absolute;top:0;bottom:0;width:3px;background:var(--fg);border-radius:2px;transform:translateX(-1px)}
+.win span{position:absolute;top:50%;transform:translateY(-50%);font:600 11.5px var(--f-body);color:var(--fg)}
+
+/* arranjos de ícones */
+svg.ch .ic0{fill:var(--dot)} svg.ch .ic1{fill:var(--accent)} svg.ch .ic2{fill:none;stroke:var(--accent);stroke-width:1.6}
+.headline{border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:4px}
+.headline span{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.headline b{font-family:var(--f-display);font-size:22px;font-weight:600;line-height:1.2;text-wrap:balance}
+.headline small{font-size:12.5px;color:var(--muted)}
+table.t.wrap td,table.t.wrap th{white-space:normal;text-align:left;vertical-align:top}
+
+/* categorias da OMS */
+.cat{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:center;border-radius:12px;padding:12px 14px}
+.cat .n{font:600 40px/1 var(--f-display);width:54px;height:54px;border-radius:12px;display:grid;place-items:center;background:var(--surface);grid-row:1/3}
+.cat b{font-family:var(--f-display);font-size:18px;font-weight:600;line-height:1.2}
+.cat span{font-size:13.5px}
+.cat.k1{background:var(--c1-soft)} .cat.k1 .n,.cat.k1 b{color:var(--c1)}
+.cat.k2{background:var(--c2-soft)} .cat.k2 .n,.cat.k2 b{color:var(--c2)}
+.cat.k3{background:var(--c3-soft)} .cat.k3 .n,.cat.k3 b{color:var(--c3)}
+.cat.k4{background:var(--c4-soft)} .cat.k4 .n,.cat.k4 b{color:var(--c4)}
+.kb{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:6px;font:600 12.5px var(--f-mono);padding:0 4px}
+.kb.k1{background:var(--c1-soft);color:var(--c1)} .kb.k2{background:var(--c2-soft);color:var(--c2)} .kb.k3{background:var(--c3-soft);color:var(--c3)} .kb.k4{background:var(--c4-soft);color:var(--c4)}
+.why{display:grid;gap:6px;margin-top:10px}
+.why div{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;font-size:13.5px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.why .hd{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.grp{display:grid;gap:5px;margin-top:12px}
+.grp>span{font-size:12.5px;font-weight:600}
+
+@media (min-width:900px){.card.elres{align-self:start;position:sticky;top:12px}}
+.elbar{display:none}
+@media (max-width:899px){.elbar{position:sticky;bottom:10px;margin-top:14px;display:flex;justify-content:center;gap:16px;background:var(--ink);color:var(--on-ink);border-radius:999px;padding:9px 16px;font-size:13.5px;font-weight:600;z-index:2;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.elbar .kb{margin-left:4px;background:var(--surface);color:var(--fg)}}
+
+/* contracepção de emergência */
+svg.ch .probb{fill:var(--accent);opacity:.8}
+svg.ch .lhc{fill:var(--lh);opacity:.18;stroke:var(--lh);stroke-width:1.8}
+svg.ch .spv{fill:var(--fsh);opacity:.22}
+svg.ch .stg{fill:var(--sunk)} svg.ch .stg.on{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.4}
+svg.ch .mkR{fill:var(--fsh)} svg.ch .mkT{fill:var(--fg)}
+svg.ch .ovl{stroke:var(--cl);stroke-width:2.4}
+.cmp2{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.cmp2 .tile b{font-size:19px}
+
+/* veredito neutro e de destaque */
+.verdict.neu{background:var(--sunk)} .verdict.neu b{color:var(--fg)}
+.verdict.acc{background:var(--accent-soft)} .verdict.acc b{color:var(--accent)}
+
+/* roteiro do laboratório */
+.task{counter-reset:tk;display:grid;gap:0}
+.task details.fold{counter-increment:tk}
+.task details.fold>summary::after{content:none}
+.task details.fold:first-child{border-top:0;margin-top:0;padding-top:0}
+.task .ask{font-weight:600}
+
+/* mecanismo molecular: do sangue ao gene */
+svg.ch .bloodf{fill:var(--accent-soft)}
+svg.ch .carr1{fill:var(--fsh)} svg.ch .carr2{fill:var(--surface);stroke:var(--tick);stroke-width:1.2}
+svg.ch .nuc{fill:var(--sunk);stroke:var(--tick);stroke-width:1.6;stroke-dasharray:7 5}
+svg.ch .dna{stroke:var(--tick);stroke-width:2;fill:none}
+svg.ch .ere{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6}
+svg.ch .rec{fill:var(--ion);stroke:var(--surface);stroke-width:1.2}
+svg.ch .hsp{fill:var(--dot);stroke:var(--tick);stroke-width:1}
+svg.ch .coa{fill:var(--cl)} svg.ch .cor{fill:var(--bad)}
+svg.ch .mrna{fill:none;stroke:var(--lh);stroke-width:3.2;stroke-linecap:round;stroke-dasharray:1 6.5}
+svg.ch .hmE{fill:var(--e2)} svg.ch .hmP{fill:var(--p4)} svg.ch .hmA{fill:var(--anta)}
+.rcx{display:grid;gap:12px}
+.rcx figure.rc-fig{max-width:460px;width:100%;margin:0;justify-self:center}
+.steps.rcsteps{grid-template-columns:repeat(3,minmax(0,1fr))}
+.rcsteps .stp{min-height:56px;padding:8px 10px}
+@media (max-width:420px){.rcsteps .stp span{display:none}.rcsteps .stp{min-height:48px}}
+@media (min-width:900px){.rcx{grid-template-columns:minmax(0,460px) minmax(0,1fr);grid-template-areas:"fig ctl" "fig txt";grid-template-rows:auto 1fr;gap:16px 28px}.rcx .rc-fig{grid-area:fig}.rc-ctl{grid-area:ctl}.rc-txt{grid-area:txt}}
+.dots200{display:grid;grid-template-columns:repeat(20,1fr);gap:2px;max-width:440px}
+.dots200 i{aspect-ratio:1;border-radius:2px}
+.w-fr{background:var(--accent)} .w-sh{background:var(--fsh)} .w-cb{background:var(--p4)} .w-al{background:var(--dot)}
+.legend i.w-fr,.legend i.w-sh,.legend i.w-cb,.legend i.w-al{width:10px;height:10px}
+/* duas colunas dentro de um cartão largo */
+.split{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+.split>div{min-width:0}
+@media (min-width:900px){.split{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px}}
+svg.ch .prl{fill:none;stroke:var(--fsh);stroke-width:2.4;stroke-dasharray:7 4}
+svg.ch .ltl{fill:none;stroke:var(--accent);stroke-width:2.6}
+svg.ch .ltd{fill:none;stroke:var(--accent);stroke-width:1.6;stroke-dasharray:2 4}
