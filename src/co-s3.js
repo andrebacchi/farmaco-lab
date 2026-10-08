@@ -56,6 +56,7 @@ function renderEficacia(g) {
         <div class="tiles" style="margin-top:12px"><div class="tile" id="ltK1"><span>Índice de Pearl</span><b id="ltT1"></b><small id="ltT1s"></small></div><div class="tile acc"><span>Tábua de vida</span><b id="ltT2"></b><small id="ltT2s"></small></div><div class="tile"><span>Conta ingênua</span><b id="ltT3"></b><small id="ltT3s"></small></div></div>
         <div class="insight" id="ltI"></div>
         <div class="row" style="margin-top:12px"><button class="btn small" id="ltNew">Sortear uma coorte</button><button class="btn small" id="ltExp" hidden>Voltar ao esperado</button><span class="note" id="ltMode" style="margin:0"></span></div>
+        <p class="note" style="margin-top:10px">A tábua de vida é parente da curva de Kaplan-Meier, que também conta a censura. <a href="https://andrebacchi.github.io/stat-lab/#testes-km" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600">Monte uma no STAT LAB ›</a></p>
       </div><div>
         <div class="sub">Falha estimada para o primeiro ano, conforme a duração do estudo</div><div id="ltFig"></div>
         <div class="legend"><span><i style="background:repeating-linear-gradient(90deg,var(--fsh) 0 6px,transparent 6px 9px)"></i>índice de Pearl (por 100 mulheres-ano)</span><span><i style="background:var(--accent)"></i>tábua de vida em 12 meses (%)</span><span><i style="background:repeating-linear-gradient(90deg,var(--accent) 0 2px,transparent 2px 6px)"></i>antes de 12 meses: falha acumulada até ali</span></div>
@@ -178,6 +179,7 @@ function renderTrombose(g) {
       <div class="sub" style="margin-top:16px">O mesmo dado, duas manchetes</div>${seg('tvFr', [['abs', 'Risco absoluto'], ['rel', 'Risco relativo']], 'abs')}
       <div class="headline" id="tvH" style="margin-top:10px"></div>
       <div class="insight" id="tvI"></div>
+      <div class="row" style="margin-top:12px"><a class="btn small" href="https://andrebacchi.github.io/study-lab/#medidas" target="_blank" rel="noopener">Risco relativo, absoluto e NNT no STUDY LAB ›</a></div>
     </section>` +
     `<section class="card" style="min-width:0"><div class="card-h"><div><span class="eyebrow">Ao vivo</span><h3 id="tvTt"></h3></div></div>
       <div id="tvFig"></div><div class="legend"><span><i style="background:var(--accent);width:10px;height:10px;border-radius:50%"></i>caso de trombose (estimativa mínima)</span><span><i style="border:1.6px solid var(--accent);width:10px;height:10px;border-radius:50%;background:none"></i>até a estimativa máxima</span><span><i style="background:var(--dot);width:6px;height:6px;border-radius:50%"></i>sem trombose</span></div>

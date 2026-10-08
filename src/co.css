@@ -171,3 +171,6 @@ svg.ch .hmE{fill:var(--e2)} svg.ch .hmP{fill:var(--p4)} svg.ch .hmA{fill:var(--a
 svg.ch .prl{fill:none;stroke:var(--fsh);stroke-width:2.4;stroke-dasharray:7 4}
 svg.ch .ltl{fill:none;stroke:var(--accent);stroke-width:2.6}
 svg.ch .ltd{fill:none;stroke:var(--accent);stroke-width:1.6;stroke-dasharray:2 4}
+
+/* links em forma de botão (ligações com outros apps da família) */
+a.btn{text-decoration:none;color:inherit}
